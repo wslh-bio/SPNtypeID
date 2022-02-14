@@ -18,17 +18,22 @@ Channel
 //Step0: Preprocess reads - change name to end at first underscore
 process preProcess {
   input:
-  set val(oldName), file(reads) from raw_reads
+  set val(name), file(reads) from raw_reads
 
   output:
-  tuple name, file("${name}_{R1,R2}.fastq.gz") into step1,step2,step3
+  tuple name, file(outfiles) into step1,step2,step3
 
   script:
-  if(params.sample_id_sep != ""){
-    name = oldName.split(params.sample_id_sep)[0]
+  if(params.sample_id_sep!=""){
+    name = name.split(params.sample_id_sep)[0]
+    outfiles = ["${name}_R1.fastq.gz","${name}_R2.fastq.gz"]
     """
     mv ${reads[0]} ${name}_R1.fastq.gz
     mv ${reads[1]} ${name}_R2.fastq.gz
+    """
+  }else{
+    outfiles = reads
+    """
     """
   }
 }
