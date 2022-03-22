@@ -4,6 +4,53 @@
 //Author: Kelsey Florek
 //eMail: kelsey.florek@slh.wisc.edu
 
+params.test = false
+
+if(params.test){
+  testIDS = []
+  
+  println "Running test analysis using the following samples:"
+  println testIDS
+  Channel
+      .fromSRA(testIDS)
+      .set { raw_reads }
+
+} else{
+  //setup channel to read in and pair the fastq files
+  Channel
+      .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.{fastq,fq}.gz", size: 2 )
+      .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads} Path must not end with /" }
+      .set { raw_reads }
+}
+
+Channel
+  .fromPath("$baseDir/multiqc_config.yaml")
+  .set { multiqc_config }
+
+//Preprocess reads - change names
+process preProcess {
+  input:
+  set val(name), file(reads) from raw_reads
+
+  output:
+  tuple name, file(outfiles) into read_files_fastqc, read_files_trimming
+
+  script:
+  if(params.name_split_on!=""){
+    name = name.split(params.name_split_on)[0]
+    outfiles = ["${name}_R1.fastq.gz","${name}_R2.fastq.gz"]
+    """
+    mv ${reads[0]} ${name}_R1.fastq.gz
+    mv ${reads[1]} ${name}_R2.fastq.gz
+    """
+  }else{
+    outfiles = reads
+    """
+    """
+  }
+}
+
+
 //setup channel to read in and pair the fastq files
 Channel
     .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.fastq.gz", size: 2 )
