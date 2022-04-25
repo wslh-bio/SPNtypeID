@@ -8,7 +8,7 @@ params.test = false
 
 if(params.test){
   testIDS = []
-  
+
   println "Running test analysis using the following samples:"
   println testIDS
   Channel
@@ -24,42 +24,8 @@ if(params.test){
 }
 
 Channel
-  .fromPath("$baseDir/multiqc_config.yaml")
+  .fromPath("$baseDir/configs/multiqc_config.yaml")
   .set { multiqc_config }
-
-//Preprocess reads - change names
-process preProcess {
-  input:
-  set val(name), file(reads) from raw_reads
-
-  output:
-  tuple name, file(outfiles) into read_files_fastqc, read_files_trimming
-
-  script:
-  if(params.name_split_on!=""){
-    name = name.split(params.name_split_on)[0]
-    outfiles = ["${name}_R1.fastq.gz","${name}_R2.fastq.gz"]
-    """
-    mv ${reads[0]} ${name}_R1.fastq.gz
-    mv ${reads[1]} ${name}_R2.fastq.gz
-    """
-  }else{
-    outfiles = reads
-    """
-    """
-  }
-}
-
-
-//setup channel to read in and pair the fastq files
-Channel
-    .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.fastq.gz", size: 2 )
-    .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!" }
-    .set { raw_reads }
-
-Channel
-    .fromPath("./multiqc_config.yaml")
-    .set { multiqc_config }
 
 //Step0: Preprocess reads - change name to end at first underscore
 process preProcess {
@@ -67,7 +33,7 @@ process preProcess {
   set val(name), file(reads) from raw_reads
 
   output:
-  tuple name, file(outfiles) into step1, step2, step3, read_files_fastqc, read_files_trimming
+  tuple name, file(outfiles) into read_files_step1, read_files_step2, read_files_step3, read_files_fastqc, read_files_trimming
 
   script:
   if(params.sample_id_sep!=""){
@@ -84,15 +50,14 @@ process preProcess {
   }
 }
 
-//Step1: Run CG-Pipeline
+//Run CG-Pipeline
 process cg_pipeline {
   tag "$name"
   publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: '*_qual.tsv'
   publishDir "${params.outdir}/cg_pipeline/logs", mode: 'copy', pattern: '*.log'
-  cpus params.cg_pipeline_cpus
 
   input:
-  set val(name), file(reads) from step1
+  set val(name), file(reads) from read_files_step1
 
   output:
   file("${name}_qual.tsv") into step1_results
@@ -102,20 +67,19 @@ process cg_pipeline {
     //Run the cg_pipeline
     """
     cat ${reads[0]} ${reads[1]} > ${name}_cgqc.fastq.gz
-    run_assembly_readMetrics.pl --fast --numcpus ${params.cg_pipeline_cpus} -e 2200000 ${name}_cgqc.fastq.gz > ${name}_qual.tsv 2> ${name}.error.log
+    run_assembly_readMetrics.pl --fast --numcpus ${task.cpus} -e 2200000 ${name}_cgqc.fastq.gz > ${name}_qual.tsv 2> ${name}.error.log
     find -name ${name}.error.log -size 0 -exec rm {} +
     """
 }
 
-//Step2: Check sample is SPN using Kraken
+//Check sample is SPN using Kraken
 process kraken {
   tag "$name"
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: '*.kraken.txt'
   publishDir "${params.outdir}/kraken/logs", mode: 'copy', pattern: '*.log'
-  cpus = params.kraken_cpus
 
   input:
-  set val(name), file(reads) from step2
+  set val(name), file(reads) from read_files_step2
 
   output:
   file("${name}.kraken.txt") into step2_results, kraken_multiqc
@@ -123,13 +87,13 @@ process kraken {
 
   script:
   """
-  kraken --db /kraken-database/minikraken_20171013_4GB --threads ${params.kraken_cpus} --paired ${reads[0]} ${reads[1]} > ${name}_raw.txt 2> ${name}.error.log
+  kraken --db /kraken-database/minikraken_20171013_4GB --threads ${task.cpus} --paired ${reads[0]} ${reads[1]} > ${name}_raw.txt 2> ${name}.error.log
   kraken-report --db /kraken-database/minikraken_20171013_4GB ${name}_raw.txt > ${name}.kraken.txt 2> ${name}.error.log
   find -name ${name}.error.log -size 0 -exec rm {} +
   """
 }
 
-//Step3: Run SeroBA
+//Run SeroBA
 process seroba {
   tag "$name"
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: "*[_pred.tsv,_detailed_serogroup_info.txt]"
@@ -137,7 +101,7 @@ process seroba {
   errorStrategy 'finish'
 
   input:
-  set val(name), file(reads) from step3
+  set val(name), file(reads) from read_files_step3
 
   output:
   file("${name}_pred.tsv") into step3_results
@@ -155,7 +119,7 @@ process seroba {
   """
 }
 
-//Step4: Collect and format results
+//Collect and format results of first three steps
 process results {
   publishDir "${params.outdir}", mode: 'copy'
   echo true
@@ -273,6 +237,23 @@ process results {
         result = results[id]
         comments = "; ".join(result.comments)
         writer.writerow([result.id,result.quality,result.pass_cov_quality,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
+  #create output file
+  with open("kraken_results.tsv",'w') as csvout:
+    writer = csv.writer(csvout,delimiter='\\t')
+    writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken"])
+    for id in results:
+        result = results[id]
+        comments = "; ".join(result.comments)
+        writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken])
+  #create output file
+  with open("seroba_results.tsv",'w') as csvout:
+    writer = csv.writer(csvout,delimiter='\\t')
+    writer.writerow(["Sample","Serotype","Comments"])
+    for id in results:
+        result = results[id]
+        comments = "; ".join(result.comments)
+        writer.writerow([result.id,result.pred,comments])
+
   """
 }
 
