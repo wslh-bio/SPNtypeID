@@ -121,7 +121,9 @@ process seroba {
 
 //Collect and format results of first three steps
 process results {
-  publishDir "${params.outdir}", mode: 'copy'
+  publishDir "${params.outdir}/kraken", mode: 'copy', pattern: 'kraken_results.tsv'
+  publishDir "${params.outdir}/seroba", mode: 'copy', pattern: 'seroba_results.tsv'
+
   echo true
 
   input:
@@ -580,7 +582,7 @@ process merge_results {
   file(step4) from step4_results
 
   output:
-  file('spriggan_report.csv')
+  file('spntypeid_report.csv')
 
   script:
   """
@@ -603,6 +605,6 @@ process merge_results {
   # merged = merged[['Sample','Total Reads','Reads Removed','Median Coverage','Average Coverage','Contigs','Assembly Length (bp)','N50','Primary Species (%)','Secondary Species (%)','Unclassified Reads (%)','krakenDB','MLST Scheme','Gene','Coverage','Identity','Selected AMR Genes','Selected AMR Genes Coverage','Selected AMR Genes Identity','amrDB']]
   # merged = merged.rename(columns={'Contigs':'Contigs (#)','Average Coverage':'Mean Coverage','Gene':'AMR','Coverage':'AMR Coverage','Identity':'AMR Identity','krakenDB':'Kraken Database Verion','amrDB':'AMRFinderPlus Database Version'})
 
-  merged.to_csv('spriggan_report.csv', index=False, sep=',', encoding='utf-8')
+  merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
   """
 }
