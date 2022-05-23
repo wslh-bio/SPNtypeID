@@ -133,6 +133,8 @@ process results {
 
   output:
   file "SPNtypeID_results.tsv" into step4_results
+  file "kraken_results.tsv"
+  file "seroba_results.tsv"
 
   script:
   """
@@ -200,6 +202,12 @@ process results {
                 percent_secondgenus = float(row[0])
         result.secondgenus = secondgenus
         result.percent_secondgenus = percent_secondgenus
+        if result.percent_spn == "NotRun":
+            result.percent_spn = 0.0
+        if result.percent_secondgenus == "NotRun":
+            result.percent_secondgenus = 0.0
+        if result.percent_strep == "NotRun":
+            result.percent_strep = 0.0
         if result.percent_strep >= 82.0 and result.percent_spn >= 62.0 and result.percent_secondgenus < 1.0:
             result.pass_kraken = True
         if result.percent_strep < 82.0:
@@ -237,23 +245,19 @@ process results {
         result = results[id]
         comments = "; ".join(result.comments)
         writer.writerow([result.id,result.quality,result.pass_cov_quality,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
-  #create output file
+        #create output file
   with open("kraken_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
     writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken"])
     for id in results:
         result = results[id]
-        comments = "; ".join(result.comments)
         writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken])
-  #create output file
   with open("seroba_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
-    writer.writerow(["Sample","Serotype","Comments"])
+    writer.writerow(["Sample","Serotype"])
     for id in results:
         result = results[id]
-        comments = "; ".join(result.comments)
-        writer.writerow([result.id,result.pred,comments])
-
+        writer.writerow([result.id,result.pred])
   """
 }
 
