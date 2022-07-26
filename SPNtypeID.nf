@@ -4,7 +4,7 @@
 //Author: Kelsey Florek
 //eMail: kelsey.florek@slh.wisc.edu
 
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 params.test = false
 
@@ -58,7 +58,7 @@ process preProcess {
 //QC Step: Trim reads and remove adapters and remove PhiX contamination
 process clean_reads {
   tag "$name"
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/trimming", mode: 'copy',pattern:"*.trim.txt"
 
   input:
@@ -78,7 +78,7 @@ process clean_reads {
 
 //Summary Step: Summarize BBDuk results
 process bbduk_summary {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/trimming",mode:'copy'
 
   input:
@@ -128,7 +128,7 @@ process bbduk_summary {
 
 //QC Step: Run FastQC on processed and cleaned reads
 process fastqc {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   tag "$name"
   publishDir "${params.outdir}/fastqc", mode: 'copy',saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 
@@ -146,7 +146,7 @@ process fastqc {
 
 //Summary Step: Summarize FastQC results
 process fastqc_summary {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/fastqc", mode: 'copy'
 
   input:
@@ -178,7 +178,7 @@ process fastqc_summary {
 
 //Assembly step: Assemble trimmed reads with Shovill and map reads back to assembly
 process shovill {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   tag "$name"
 
   publishDir "${params.outdir}/assembled", mode: 'copy',pattern:"*.fa"
@@ -188,8 +188,8 @@ process shovill {
   tuple val(name), path(cleaned_reads)
 
   output:
-  tuple name, path("${name}.contigs.fa"), emit: assembled_genomes
-  tuple name, path("${name}.sam"), emit: sam_files
+  tuple val(name), path("${name}.contigs.fa"), emit: assembled_genomes
+  tuple val(name), path("${name}.sam"), emit: sam_files
 
   script:
   """
@@ -202,7 +202,7 @@ process shovill {
 
 //Index and sort bam file then calculate coverage
 process samtools {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   tag "$name"
 
   publishDir "${params.outdir}/mapping/bams", mode: 'copy', pattern:"*.sorted.bam*"
@@ -229,7 +229,7 @@ process samtools {
 
 //QC Step: Calculate coverage stats
 process coverage_stats {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/coverage", mode: 'copy'
 
   input:
@@ -279,7 +279,7 @@ process coverage_stats {
 
 //QC Step: Run QUAST on assemblies
 process quast {
-//  errorStrategy 'ignore'
+//  //errorStrategy 'ignore'
   tag "$name"
 
   publishDir "${params.outdir}/quast",mode:'copy',pattern: "${name}.quast.tsv"
@@ -301,7 +301,7 @@ process quast {
 
 //QC Step: Run QUAST on assemblies
 process quast_summary {
-  errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/quast",mode:'copy'
 
   input:
@@ -426,7 +426,7 @@ process typing_summary {
   path("data*/*")
 
   output:
-  path("SPNtypeID_results.tsv"), emit: typing_summary_results
+  path("typing_results.tsv"), emit: typing_summary_results
   path("kraken_results.tsv")
   path("seroba_results.tsv")
 
@@ -450,15 +450,15 @@ process typing_summary {
         self.pred = "NotRun"
 
   # get list of result files
-  cg_result_list = glob.glob("*_qual.tsv")
-  kraken_list = glob.glob("*.kraken.txt")
-  seroba_list = glob.glob("*_pred.tsv")
+  cg_result_list = glob.glob("data*/*_qual.tsv")
+  kraken_list = glob.glob("data*/*.kraken.txt")
+  seroba_list = glob.glob("data*/*_pred.tsv")
 
   results = {}
 
   #collect all cg_pipeline results
   for file in cg_result_list:
-    id = file.split("_qual")[0]
+    id = file.split("/")[1].split("_qual")[0]
     result = result_values(id)
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -476,7 +476,7 @@ process typing_summary {
 
   #collect all kraken results
   for file in kraken_list:
-    id = file.split(".")[0]
+    id = file.split("/")[1].split(".")[0]
     result = results[id]
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -515,7 +515,7 @@ process typing_summary {
 
   #collect all seroba results
   for file in seroba_list:
-    id = file.split("_pred")[0]
+    id = file.split("/")[1].split("_pred")[0]
     result = results[id]
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -532,7 +532,7 @@ process typing_summary {
     results[id] = result
 
   #create output file
-  with open("SPNtypeID_results.tsv",'w') as csvout:
+  with open("typing_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
     writer.writerow(["Sample","Avg Quality","Pass Qual","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Serotype","Comments"])
     for id in results:
@@ -555,36 +555,16 @@ process typing_summary {
   """
 }
 
-//QC Step: MultiQC
-process multiqc {
-  publishDir "${params.outdir}",mode:'copy'
 
-  input:
-  file(a) from multiqc_clean_reads.collect()
-  file(b) from fastqc_multiqc.collect()
-  file(c) from stats_multiqc.collect()
-  file(d) from kraken_multiqc.collect()
-  file(e) from quast_multiqc.collect()
-  file(config) from multiqc_config
-
-  output:
-  file("*.html") into multiqc_output
-
-  script:
-  """
-  multiqc -c ${config} .
-  """
-}
-
-//Merge results
+//QC Step: Merge QC results into one tsv
 process merge_results {
   publishDir "${params.outdir}/", mode: 'copy'
 
   input:
-  file(bbduk) from bbduk_tsv
-  file(quast) from quast_tsv
-  file(coverage) from coverage_tsv
-  file(step4) from step4_results
+  path("bbduk_results.tsv")
+  path("quast_results.tsv")
+  path("coverage_stats.tsv")
+  path("typing_results.tsv")
 
   output:
   file('spntypeid_report.csv')
@@ -606,11 +586,29 @@ process merge_results {
       df = pd.read_csv(file, header=0, delimiter='\\t')
       dfs.append(df)
 
-  merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
-  # merged = merged[['Sample','Total Reads','Reads Removed','Median Coverage','Average Coverage','Contigs','Assembly Length (bp)','N50','Primary Species (%)','Secondary Species (%)','Unclassified Reads (%)','krakenDB','MLST Scheme','Gene','Coverage','Identity','Selected AMR Genes','Selected AMR Genes Coverage','Selected AMR Genes Identity','amrDB']]
-  # merged = merged.rename(columns={'Contigs':'Contigs (#)','Average Coverage':'Mean Coverage','Gene':'AMR','Coverage':'AMR Coverage','Identity':'AMR Identity','krakenDB':'Kraken Database Verion','amrDB':'AMRFinderPlus Database Version'})
+  merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],
+                                              how='left'), dfs)
+
+  merged = merged.rename(columns={'Contigs':'Contigs (#)'})
 
   merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
+  """
+}
+
+//Summary Step: MultiQC
+process multiqc {
+  publishDir "${params.outdir}",mode:'copy'
+
+  input:
+  path("data*/*")
+  path(config)
+
+  output:
+  path("*.html"), emit: multiqc_output
+
+  script:
+  """
+  multiqc -c ${config} .
   """
 }
 
@@ -648,7 +646,7 @@ workflow {
 
     typing_summary(cg_pipeline.out.cg_pipeline_results.mix(kraken.out.kraken_results,seroba.out.seroba_results).collect())
 
-    merge_results(bbduk_summary.out.bbduk_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,kraken_summary.out.kraken_tsv,typing_summary.out.typing_summary_results)
+    merge_results(bbduk_summary.out.bbduk_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results)
 
     multiqc(clean_reads.out.bbduk_files.mix(clean_reads.out.bbduk_stats,fastqc.out.fastqc_results,samtools.out.stats_multiqc,kraken.out.kraken_results,quast.out.quast_reports).collect(),multiqc_config)
 }
