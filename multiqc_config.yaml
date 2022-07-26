@@ -26,7 +26,7 @@ long_read_count_desc: "thousands"
 base_count_multiplier: 0.000001
 base_count_prefix: "Mb"
 base_count_desc: "millions"
-output_fn_name: "spriggan_multiqc_report.html"
+output_fn_name: "spntypeid_multiqc_report.html"
 data_dir_name: "multiqc_data"
 plots_dir_name: "multiqc_plots"
 data_format: "tsv"
