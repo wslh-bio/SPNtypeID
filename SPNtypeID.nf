@@ -59,7 +59,8 @@ process preProcess {
 process clean_reads {
   tag "$name"
   //errorStrategy 'ignore'
-  publishDir "${params.outdir}/trimming", mode: 'copy',pattern:"*.trim.txt"
+  publishDir "${params.outdir}/trimming/stats", mode: 'copy', pattern:"*.trim.txt"
+  publishDir "${params.outdir}/trimming/reads", mode: 'copy', pattern:"*.gz"
 
   input:
   tuple val(name), path(processed_reads)
@@ -277,25 +278,26 @@ process coverage_stats {
   """
 }
 
+
 //QC Step: Run QUAST on assemblies
 process quast {
-//  //errorStrategy 'ignore'
+  //errorStrategy 'ignore'
   tag "$name"
 
-  publishDir "${params.outdir}/quast",mode:'copy',pattern: "${name}.quast.tsv"
+  publishDir "${params.outdir}/quast",mode:'copy',pattern: "*.quast.report.tsv"
 
   input:
   tuple val(name), path(assembled_genomes)
 
   output:
-  path("*.transposed.quast.tsv"), emit: quast_files
-  path("*.report.quast.tsv"), emit: quast_reports
+  path("*.transposed.quast.report.tsv"), emit: quast_files
+  path("*.quast.report.tsv"), emit: multiqc_quast
 
   script:
   """
   quast.py ${name}.contigs.fa -o .
-  mv report.tsv ${name}.report.quast.tsv
-  mv transposed_report.tsv ${name}.transposed.quast.tsv
+  mv report.tsv ${name}.quast.report.tsv
+  mv transposed_report.tsv ${name}.transposed.quast.report.tsv
   """
 }
 
@@ -648,5 +650,5 @@ workflow {
 
     merge_results(bbduk_summary.out.bbduk_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results)
 
-    multiqc(clean_reads.out.bbduk_files.mix(clean_reads.out.bbduk_stats,fastqc.out.fastqc_results,samtools.out.stats_multiqc,kraken.out.kraken_results,quast.out.quast_reports).collect(),multiqc_config)
+    multiqc(clean_reads.out.bbduk_files.mix(clean_reads.out.bbduk_stats,fastqc.out.fastqc_results,samtools.out.stats_multiqc,kraken.out.kraken_results,quast.out.multiqc_quast).collect(),multiqc_config)
 }
