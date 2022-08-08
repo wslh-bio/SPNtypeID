@@ -19,11 +19,6 @@ The pipeline is designed to start from raw Illumina reads. All reads must be in 
 nextflow SPNtypeID.nf --reads [path-to-reads] -profile [docker,singularity,aws]
 ```
 
-You can also test the pipeline with example data using `--test`, note this requires NextFlow version `21.07.0-edge` or greater:
-```
-nextflow SPNtypeID.nf --test -profile [docker,singularity,aws]
-```
-
 You can specify a version of the pipeline and run it directly from the github repository by using:
 ```
 nextflow wslh-bio/SPNtypeID -r [version] --reads [path-to-reads] -profile [docker,singularity,aws]
