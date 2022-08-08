@@ -231,7 +231,7 @@ process samtools {
 //QC Step: Calculate coverage stats
 process coverage_stats {
   //errorStrategy 'ignore'
-  publishDir "${params.outdir}/coverage", mode: 'copy'
+  publishDir "${params.outdir}/mapping", mode: 'copy'
 
   input:
   path("data*/*")
@@ -337,35 +337,40 @@ process quast_summary {
       return df
 
   # get quast output files
-  files = glob.glob("data*/*.transposed.quast.tsv")
+  files = glob.glob("data*/*.transposed.quast.report.tsv*")
 
   # summarize quast output files
   dfs = map(summarize_quast,files)
+  dfs = list(dfs)
 
   # concatenate dfs and write data frame to file
-  dfs_concat = pd.concat(dfs)
-  dfs_concat.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
+  if len(dfs) > 1:
+    dfs_concat = pd.concat(dfs)
+    dfs_concat.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
+  else:
+    dfs = dfs[0]
+    dfs.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
   """
 }
 
 //Run CG-Pipeline
 process cg_pipeline {
   tag "$name"
-  publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: '*_qual.tsv'
+  publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: '*.qual.tsv'
   publishDir "${params.outdir}/cg_pipeline/logs", mode: 'copy', pattern: '*.log'
 
   input:
   tuple val(name), path(processed_reads)
 
   output:
-  path("${name}_qual.tsv"), emit: cg_pipeline_results
+  path("${name}.qual.tsv"), emit: cg_pipeline_results
   path("${name}.error.log"), optional: true
 
   script:
     //Run the cg_pipeline
     """
     cat ${processed_reads[0]} ${processed_reads[1]} > ${name}_cgqc.fastq.gz
-    run_assembly_readMetrics.pl --fast --numcpus ${task.cpus} -e 2200000 ${name}_cgqc.fastq.gz > ${name}_qual.tsv 2> ${name}.error.log
+    run_assembly_readMetrics.pl --fast --numcpus ${task.cpus} -e 2200000 ${name}_cgqc.fastq.gz > ${name}.qual.tsv 2> ${name}.error.log
     find -name ${name}.error.log -size 0 -exec rm {} +
     """
 }
@@ -394,7 +399,7 @@ process kraken {
 //Run SeroBA
 process seroba {
   tag "$name"
-  publishDir "${params.outdir}/seroba", mode: 'copy', pattern: "*[_pred.tsv,_detailed_serogroup_info.txt]"
+  publishDir "${params.outdir}/seroba", mode: 'copy', pattern: "*[.pred.tsv,_detailed_serogroup_info.txt]"
   publishDir "${params.outdir}/seroba/logs", mode: 'copy', pattern: '*.log'
   errorStrategy 'finish'
 
@@ -402,14 +407,14 @@ process seroba {
   tuple val(name), path(processed_reads)
 
   output:
-  path("${name}_pred.tsv"), emit: seroba_results
+  path("${name}.pred.tsv"), emit: seroba_results
   path("${name}_detailed_serogroup_info.txt"), optional: true
   path("${name}.error.log"), optional: true
 
   script:
   """
   seroba runSerotyping --noclean /seroba*/database ${processed_reads[0]} ${processed_reads[1]} ${name}
-  mv ${name}/pred.tsv ${name}_pred.tsv > ${name}.out.log 2> ${name}.error.log
+  mv ${name}/pred.tsv ${name}.pred.tsv > ${name}.out.log 2> ${name}.error.log
   if [ -f detailed_serogroup_info.txt ]; then
    mv detailed_serogroup_info.txt ${name}_detailed_serogroup_info.txt
   fi
@@ -421,6 +426,7 @@ process seroba {
 process typing_summary {
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: 'kraken_results.tsv'
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: 'seroba_results.tsv'
+  publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: 'quality_results.tsv'
 
   echo true
 
@@ -431,6 +437,7 @@ process typing_summary {
   path("typing_results.tsv"), emit: typing_summary_results
   path("kraken_results.tsv")
   path("seroba_results.tsv")
+  path("quality_results.tsv")
 
   script:
   """
@@ -452,15 +459,15 @@ process typing_summary {
         self.pred = "NotRun"
 
   # get list of result files
-  cg_result_list = glob.glob("data*/*_qual.tsv")
+  cg_result_list = glob.glob("data*/*.qual.tsv")
   kraken_list = glob.glob("data*/*.kraken.txt")
-  seroba_list = glob.glob("data*/*_pred.tsv")
+  seroba_list = glob.glob("data*/*.pred.tsv")
 
   results = {}
 
   #collect all cg_pipeline results
   for file in cg_result_list:
-    id = file.split("/")[1].split("_qual")[0]
+    id = file.split("/")[1].split(".qual")[0]
     result = result_values(id)
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -478,7 +485,7 @@ process typing_summary {
 
   #collect all kraken results
   for file in kraken_list:
-    id = file.split("/")[1].split(".")[0]
+    id = file.split("/")[1].split(".kraken.txt")[0]
     result = results[id]
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -517,7 +524,7 @@ process typing_summary {
 
   #collect all seroba results
   for file in seroba_list:
-    id = file.split("/")[1].split("_pred")[0]
+    id = file.split("/")[1].split(".pred")[0]
     result = results[id]
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
@@ -541,7 +548,13 @@ process typing_summary {
         result = results[id]
         comments = "; ".join(result.comments)
         writer.writerow([result.id,result.quality,result.pass_cov_quality,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
-        #create output file
+  with open("quality_results.tsv",'w') as csvout:
+    writer = csv.writer(csvout,delimiter='\\t')
+    writer.writerow(["Sample","Avg Quality","Pass Qual"])
+    for id in results:
+        result = results[id]
+        comments = "; ".join(result.comments)
+        writer.writerow([result.id,result.quality,result.pass_cov_quality])
   with open("kraken_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
     writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken"])
