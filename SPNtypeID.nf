@@ -353,31 +353,79 @@ process quast_summary {
   """
 }
 
-//Run CG-Pipeline
-process cg_pipeline {
+
+//Run bioawk
+process bioawk {
   tag "$name"
-  publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: '*.qual.tsv'
-  publishDir "${params.outdir}/cg_pipeline/logs", mode: 'copy', pattern: '*.log'
+  //errorStrategy 'ignore'
+  publishDir "${params.outdir}/quality", mode: 'copy', pattern: '*.qual.tsv'
 
   input:
   tuple val(name), path(processed_reads)
 
   output:
-  path("${name}.qual.tsv"), emit: cg_pipeline_results
-  path("${name}.error.log"), optional: true
+  path("${name}.qual.tsv"), emit: qual_results
 
   script:
-    //Run the cg_pipeline
     """
-    cat ${processed_reads[0]} ${processed_reads[1]} > ${name}_cgqc.fastq.gz
-    run_assembly_readMetrics.pl --fast --numcpus ${task.cpus} -e 2200000 ${name}_cgqc.fastq.gz > ${name}.qual.tsv 2> ${name}.error.log
-    find -name ${name}.error.log -size 0 -exec rm {} +
+    cat ${processed_reads[0]} ${processed_reads[1]} > ${name}_qc.fastq.gz
+    bioawk -c fastx '{print ">"\$name; print meanqual(\$qual)}' ${name}_qc.fastq.gz > ${name}.bioawk.tsv
+    awk 'NR % 2 == 0' ${name}.bioawk.tsv > ${name}.qual.tsv
     """
+}
+
+//QC Step: Calculate read quality from bioawk output
+process quality_stats {
+  //errorStrategy 'ignore'
+  publishDir "${params.outdir}/quality", mode: 'copy'
+
+  input:
+  path("data*/*")
+
+  output:
+  path('quality_stats.tsv'), emit: quality_tsv
+
+  script:
+  """
+  #!/usr/bin/env python3
+  import glob
+  import os
+  from numpy import median
+  from numpy import average
+
+  # function for summarizing samtools depth files
+  def summarize_qual(file):
+      # get sample id from file name and set up data list
+      sid = os.path.basename(file).split('.')[0]
+      data = []
+      # open bioawk depth file and get read quality
+      with open(file,'r') as inFile:
+          for line in inFile:
+              data.append(int(float(line.strip().split()[0])))
+      # get median and read quality
+      med = int(float(median(data)))
+      avg = int(float(average(data)))
+      # return sample id, median and average read quality
+      result = f"{sid}\\t{med}\\t{avg}\\n"
+      return result
+
+  # get all bioawk quality files
+  files = glob.glob("data*/*.qual.tsv")
+
+  # summarize read quality
+  results = map(summarize_qual,files)
+  # write results to file
+  with open('quality_stats.tsv', 'w') as outFile:
+      outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\n")
+      for result in results:
+          outFile.write(result)
+  """
 }
 
 //Check sample is SPN using Kraken
 process kraken {
   tag "$name"
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: '*.kraken.txt'
   publishDir "${params.outdir}/kraken/logs", mode: 'copy', pattern: '*.log'
 
@@ -399,9 +447,9 @@ process kraken {
 //Run SeroBA
 process seroba {
   tag "$name"
+  errorStrategy 'finish'
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: "*[.pred.tsv,_detailed_serogroup_info.txt]"
   publishDir "${params.outdir}/seroba/logs", mode: 'copy', pattern: '*.log'
-  errorStrategy 'finish'
 
   input:
   tuple val(name), path(processed_reads)
@@ -424,9 +472,9 @@ process seroba {
 
 //Collect and format results of first three steps
 process typing_summary {
+  //errorStrategy 'ignore'
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: 'kraken_results.tsv'
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: 'seroba_results.tsv'
-  publishDir "${params.outdir}/cg_pipeline", mode: 'copy', pattern: 'quality_results.tsv'
 
   echo true
 
@@ -437,7 +485,6 @@ process typing_summary {
   path("typing_results.tsv"), emit: typing_summary_results
   path("kraken_results.tsv")
   path("seroba_results.tsv")
-  path("quality_results.tsv")
 
   script:
   """
@@ -449,8 +496,6 @@ process typing_summary {
     def __init__(self,id):
         self.id = id
         self.comments = []
-        self.quality = "NotRun"
-        self.pass_cov_quality = False
         self.percent_strep = "NotRun"
         self.percent_spn = "NotRun"
         self.secondgenus = "NotRun"
@@ -459,34 +504,15 @@ process typing_summary {
         self.pred = "NotRun"
 
   # get list of result files
-  cg_result_list = glob.glob("data*/*.qual.tsv")
   kraken_list = glob.glob("data*/*.kraken.txt")
   seroba_list = glob.glob("data*/*.pred.tsv")
 
   results = {}
 
-  #collect all cg_pipeline results
-  for file in cg_result_list:
-    id = file.split("/")[1].split(".qual")[0]
-    result = result_values(id)
-    with open(file,'r') as csvfile:
-        dialect = csv.Sniffer().sniff(csvfile.read(1024))
-        csvfile.seek(0)
-        reader = csv.reader(csvfile,dialect)
-        for row in reader:
-            if "File" not in row:
-                result.quality = float(row[5])
-                if result.quality > 30.0:
-                    result.pass_cov_quality = True
-                if result.quality <= 30.0:
-                    result.comments.append("Lower than 30.0 average base quality")
-
-    results[id] = result
-
   #collect all kraken results
   for file in kraken_list:
     id = file.split("/")[1].split(".kraken.txt")[0]
-    result = results[id]
+    result = result_values(id)
     with open(file,'r') as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
         csvfile.seek(0)
@@ -543,18 +569,11 @@ process typing_summary {
   #create output file
   with open("typing_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
-    writer.writerow(["Sample","Avg Quality","Pass Qual","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Serotype","Comments"])
+    writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Serotype","Comments"])
     for id in results:
         result = results[id]
         comments = "; ".join(result.comments)
-        writer.writerow([result.id,result.quality,result.pass_cov_quality,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
-  with open("quality_results.tsv",'w') as csvout:
-    writer = csv.writer(csvout,delimiter='\\t')
-    writer.writerow(["Sample","Avg Quality","Pass Qual"])
-    for id in results:
-        result = results[id]
-        comments = "; ".join(result.comments)
-        writer.writerow([result.id,result.quality,result.pass_cov_quality])
+        writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
   with open("kraken_results.tsv",'w') as csvout:
     writer = csv.writer(csvout,delimiter='\\t')
     writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken"])
@@ -577,8 +596,9 @@ process merge_results {
 
   input:
   path("bbduk_results.tsv")
-  path("quast_results.tsv")
+  path("quality_stats.tsv")
   path("coverage_stats.tsv")
+  path("quast_results.tsv")
   path("typing_results.tsv")
 
   output:
@@ -653,15 +673,17 @@ workflow {
 
     quast_summary(quast.out.quast_files.collect())
 
-    cg_pipeline(preProcess.out.processed_reads)
+    bioawk(preProcess.out.processed_reads)
+
+    quality_stats(bioawk.out.qual_results.collect())
 
     kraken(preProcess.out.processed_reads)
 
     seroba(preProcess.out.processed_reads)
 
-    typing_summary(cg_pipeline.out.cg_pipeline_results.mix(kraken.out.kraken_results,seroba.out.seroba_results).collect())
+    typing_summary(kraken.out.kraken_results.mix(seroba.out.seroba_results).collect())
 
-    merge_results(bbduk_summary.out.bbduk_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results)
+    merge_results(bbduk_summary.out.bbduk_tsv,quality_stats.out.quality_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results)
 
     multiqc(clean_reads.out.bbduk_files.mix(clean_reads.out.bbduk_stats,fastqc.out.fastqc_results,samtools.out.stats_multiqc,kraken.out.kraken_results,quast.out.multiqc_quast).collect(),multiqc_config)
 }
