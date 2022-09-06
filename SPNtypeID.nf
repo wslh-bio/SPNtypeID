@@ -90,9 +90,10 @@ process bbduk_summary {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
   import os
   import glob
+  import numpy
   import pandas as pd
   from pandas import DataFrame
 
@@ -241,7 +242,7 @@ process coverage_stats {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
   import glob
   import os
   from numpy import median
@@ -314,7 +315,7 @@ process quast_summary {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
   import os
   import glob
   import pandas as pd
@@ -387,7 +388,7 @@ process quality_stats {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
   import glob
   import os
   from numpy import median
@@ -488,7 +489,7 @@ process typing_summary {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
   import os, sys
   import glob, csv
 
@@ -606,7 +607,7 @@ process merge_results {
 
   script:
   """
-  #!/usr/bin/env python3
+  #!/usr/bin/python3.7
 
   import os
   import glob
