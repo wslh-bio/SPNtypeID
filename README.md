@@ -1,16 +1,16 @@
 # SPNtypeID
 
-SPNtypeID is a [NextFlow](https://www.nextflow.io/) pipeline used for assembly of SPN whole genome sequence data and identification of serotype.
+SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for assembly of SPN whole genome sequence data and identification of serotype.
 
 ### Table of Contents:
-[Usage](#using-the-pipeline)  
+[Usage](#using-the-workflow)  
 [Workflow outline](#workflow-outline)  
 [Read trimming and quality assessment](#read-trimming-and-quality-assessment)  
 [Genome assembly](#genome-assembly)  
 [Assembly quality assessment](#assembly-quality-assessment)  
 [Genome coverage](#genome-coverage)  
-[Contamination detection](#contamination-detection)
-[Serotyping](#serotyping)                                                                                                                                   
+[Contamination detection](#contamination-detection)  
+[Serotyping](#serotpying)                                                                                                                                   
 [Output](#output-files)  
 
 ### Using the workflow
@@ -27,16 +27,16 @@ nextflow wslh-bio/SPNtypeID -r [version] --reads [path-to-reads] -profile [docke
 ### Workflow outline
 
 #### Read trimming and quality assessment
-Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads.
+Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads.
 
 #### Genome assembly
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
 
 #### Assembly quality assessment
-Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast)
+Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast).
 
 #### Genome coverage
-Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [samtools v1.10](http://www.htslib.org/)
+Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [samtools v1.10](http://www.htslib.org/).
 
 #### Contamination detection
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
