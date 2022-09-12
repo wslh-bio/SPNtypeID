@@ -243,6 +243,7 @@ process coverage_stats {
   script:
   """
   #!/usr/bin/python3.7
+
   import glob
   import os
   from numpy import median
@@ -260,20 +261,23 @@ process coverage_stats {
       # get median and average depth
       med = int(median(data))
       avg = int(average(data))
-      # return sample id, median and average depth
-      result = f"{sid}\\t{med}\\t{avg}\\n"
+      # return sample id, median and average depth, and check for coverage fail
+      if avg >= 70:
+        result = f"{sid}\\t{med}\\t{avg}\\tPASS\\tAverage coverage >= 70X\\n"
+      if avg < 70:
+        result = f"{sid}\\t{med}\\t{avg}\\tFAIL\\tAverage coverage < 70X\\n"
       return result
 
   # get all samtools depth files
   files = glob.glob("data*/*.depth.tsv")
-  print(files)
 
   # summarize samtools depth files
   results = map(summarize_depth,files)
 
   # write results to file
   with open('coverage_stats.tsv', 'w') as outFile:
-      outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\n")
+      outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\tPass Coverage\\tComments\\n")
+      # outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\tPass Coverage\\tCoverage Comments\\n")
       for result in results:
           outFile.write(result)
   """
@@ -346,11 +350,11 @@ process quast_summary {
 
   # concatenate dfs and write data frame to file
   if len(dfs) > 1:
-    dfs_concat = pd.concat(dfs)
-    dfs_concat.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
+      dfs_concat = pd.concat(dfs)
+      dfs_concat.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
   else:
-    dfs = dfs[0]
-    dfs.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
+      dfs = dfs[0]
+      dfs.to_csv(f'quast_results.tsv',sep='\\t', index=False, header=True, na_rep='NaN')
   """
 }
 
@@ -406,8 +410,11 @@ process quality_stats {
       # get median and read quality
       med = int(float(median(data)))
       avg = int(float(average(data)))
-      # return sample id, median and average read quality
-      result = f"{sid}\\t{med}\\t{avg}\\n"
+      # return sample id, median and average depth, and check for coverage fail
+      if avg >= 30:
+          result = f"{sid}\\t{med}\\t{avg}\\tPASS\\tAverage read quality >= 30\\n"
+      if avg < 30:
+          result = f"{sid}\\t{med}\\t{avg}\\tFAIL\\tAverage read quality < 30\\n"
       return result
 
   # get all bioawk quality files
@@ -415,9 +422,11 @@ process quality_stats {
 
   # summarize read quality
   results = map(summarize_qual,files)
+
   # write results to file
   with open('quality_stats.tsv', 'w') as outFile:
-      outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\n")
+      outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tComments\\n")
+      # outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tQuality Comments\\n")
       for result in results:
           outFile.write(result)
   """
@@ -615,17 +624,23 @@ process merge_results {
   from functools import reduce
 
   files = glob.glob('*.tsv')
-
   dfs = []
-
   for file in files:
       df = pd.read_csv(file, header=0, delimiter='\\t')
       dfs.append(df)
 
+  # Merge tsvs frames
   merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],
                                               how='left'), dfs)
 
-  merged = merged.rename(columns={'Contigs':'Contigs (#)'})
+  # Merge comment columns and drop individual columns that were merged
+  cols = ['Comments', 'Comments_x', 'Comments_y']
+  merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
+  merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
+  merged.drop(cols,axis=1, inplace=True)
+
+  # Rename columns
+  merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments'})
 
   merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
   """
