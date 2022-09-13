@@ -59,6 +59,7 @@ process preProcess {
 process clean_reads {
   tag "$name"
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/trimming/stats", mode: 'copy', pattern:"*.trim.txt"
   publishDir "${params.outdir}/trimming/reads", mode: 'copy', pattern:"*.gz"
 
@@ -80,6 +81,7 @@ process clean_reads {
 //Summary Step: Summarize BBDuk results
 process bbduk_summary {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/trimming",mode:'copy'
 
   input:
@@ -131,6 +133,7 @@ process bbduk_summary {
 //QC Step: Run FastQC on processed and cleaned reads
 process fastqc {
   //errorStrategy 'ignore'
+
   tag "$name"
   publishDir "${params.outdir}/fastqc", mode: 'copy',saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 
@@ -149,6 +152,7 @@ process fastqc {
 //Summary Step: Summarize FastQC results
 process fastqc_summary {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/fastqc", mode: 'copy'
 
   input:
@@ -180,8 +184,8 @@ process fastqc_summary {
 
 //Assembly step: Assemble trimmed reads with Shovill and map reads back to assembly
 process shovill {
-  //errorStrategy 'ignore'
   tag "$name"
+  //errorStrategy 'ignore'
 
   publishDir "${params.outdir}/assembled", mode: 'copy',pattern:"*.fa"
   publishDir "${params.outdir}/mapping/sams", mode: 'copy', pattern:"*.sam"
@@ -204,8 +208,8 @@ process shovill {
 
 //Index and sort bam file then calculate coverage
 process samtools {
-  //errorStrategy 'ignore'
   tag "$name"
+  //errorStrategy 'ignore'
 
   publishDir "${params.outdir}/mapping/bams", mode: 'copy', pattern:"*.sorted.bam*"
   publishDir "${params.outdir}/mapping/depth", mode: 'copy', pattern:"*.depth.tsv"
@@ -232,6 +236,7 @@ process samtools {
 //QC Step: Calculate coverage stats
 process coverage_stats {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/mapping", mode: 'copy'
 
   input:
@@ -263,9 +268,9 @@ process coverage_stats {
       avg = int(average(data))
       # return sample id, median and average depth, and check for coverage fail
       if avg >= 70:
-        result = f"{sid}\\t{med}\\t{avg}\\tPASS\\tAverage coverage >= 70X\\n"
+        result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
       if avg < 70:
-        result = f"{sid}\\t{med}\\t{avg}\\tFAIL\\tAverage coverage < 70X\\n"
+        result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage coverage < 70X\\n"
       return result
 
   # get all samtools depth files
@@ -277,7 +282,6 @@ process coverage_stats {
   # write results to file
   with open('coverage_stats.tsv', 'w') as outFile:
       outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\tPass Coverage\\tComments\\n")
-      # outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\tPass Coverage\\tCoverage Comments\\n")
       for result in results:
           outFile.write(result)
   """
@@ -286,8 +290,8 @@ process coverage_stats {
 
 //QC Step: Run QUAST on assemblies
 process quast {
-  //errorStrategy 'ignore'
   tag "$name"
+  //errorStrategy 'ignore'
 
   publishDir "${params.outdir}/quast",mode:'copy',pattern: "*.quast.report.tsv"
 
@@ -309,6 +313,7 @@ process quast {
 //QC Step: Run QUAST on assemblies
 process quast_summary {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/quast",mode:'copy'
 
   input:
@@ -363,6 +368,7 @@ process quast_summary {
 process bioawk {
   tag "$name"
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/quality", mode: 'copy', pattern: '*.qual.tsv'
 
   input:
@@ -382,6 +388,7 @@ process bioawk {
 //QC Step: Calculate read quality from bioawk output
 process quality_stats {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/quality", mode: 'copy'
 
   input:
@@ -412,9 +419,9 @@ process quality_stats {
       avg = int(float(average(data)))
       # return sample id, median and average depth, and check for coverage fail
       if avg >= 30:
-          result = f"{sid}\\t{med}\\t{avg}\\tPASS\\tAverage read quality >= 30\\n"
+          result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
       if avg < 30:
-          result = f"{sid}\\t{med}\\t{avg}\\tFAIL\\tAverage read quality < 30\\n"
+          result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage read quality < 30\\n"
       return result
 
   # get all bioawk quality files
@@ -426,7 +433,6 @@ process quality_stats {
   # write results to file
   with open('quality_stats.tsv', 'w') as outFile:
       outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tComments\\n")
-      # outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tQuality Comments\\n")
       for result in results:
           outFile.write(result)
   """
@@ -436,6 +442,7 @@ process quality_stats {
 process kraken {
   tag "$name"
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: '*.kraken.txt'
   publishDir "${params.outdir}/kraken/logs", mode: 'copy', pattern: '*.log'
 
@@ -445,9 +452,11 @@ process kraken {
   output:
   path("${name}.kraken.txt"), emit: kraken_results
   path("${name}.error.log"), optional: true
+  path("Kraken2_DB.txt"), emit: kraken_version
 
   script:
   """
+  ls /kraken-database/ > Kraken2_DB.txt
   kraken --db /kraken-database/minikraken_20171013_4GB --threads ${task.cpus} --paired ${processed_reads[0]} ${processed_reads[1]} > ${name}_raw.txt 2> ${name}.error.log
   kraken-report --db /kraken-database/minikraken_20171013_4GB ${name}_raw.txt > ${name}.kraken.txt 2> ${name}.error.log
   find -name ${name}.error.log -size 0 -exec rm {} +
@@ -457,7 +466,8 @@ process kraken {
 //Run SeroBA
 process seroba {
   tag "$name"
-  errorStrategy 'finish'
+  //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: "*[.pred.tsv,_detailed_serogroup_info.txt]"
   publishDir "${params.outdir}/seroba/logs", mode: 'copy', pattern: '*.log'
 
@@ -483,6 +493,7 @@ process seroba {
 //Collect and format results of first three steps
 process typing_summary {
   //errorStrategy 'ignore'
+
   publishDir "${params.outdir}/kraken", mode: 'copy', pattern: 'kraken_results.tsv'
   publishDir "${params.outdir}/seroba", mode: 'copy', pattern: 'seroba_results.tsv'
 
@@ -610,6 +621,7 @@ process merge_results {
   path("coverage_stats.tsv")
   path("quast_results.tsv")
   path("typing_results.tsv")
+  path("Kraken2_DB.txt")
 
   output:
   file('spntypeid_report.csv')
@@ -622,6 +634,9 @@ process merge_results {
   import glob
   import pandas as pd
   from functools import reduce
+
+  with open('Kraken2_DB.txt', 'r') as krakenFile:
+      krakenDB_version = krakenFile.readline().strip()
 
   files = glob.glob('*.tsv')
   dfs = []
@@ -637,10 +652,14 @@ process merge_results {
   cols = ['Comments', 'Comments_x', 'Comments_y']
   merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
   merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
+  merged['Combined'] = merged['Combined'].str.replace('; nan', '')
+  merged['Combined'] = merged['Combined'].str.replace('contamination', 'Contamination')
+  merged['Combined'] = merged['Combined'].str.replace('nan', '')
   merged.drop(cols,axis=1, inplace=True)
+  merged = merged.assign(krakenDB=krakenDB_version)
 
   # Rename columns
-  merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments'})
+  merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','krakenDB':'Kraken Database Verion'})
 
   merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
   """
@@ -699,7 +718,7 @@ workflow {
 
     typing_summary(kraken.out.kraken_results.mix(seroba.out.seroba_results).collect())
 
-    merge_results(bbduk_summary.out.bbduk_tsv,quality_stats.out.quality_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results)
+    merge_results(bbduk_summary.out.bbduk_tsv,quality_stats.out.quality_tsv,coverage_stats.out.coverage_tsv,quast_summary.out.quast_tsv,typing_summary.out.typing_summary_results,kraken.out.kraken_version.first())
 
     multiqc(clean_reads.out.bbduk_files.mix(clean_reads.out.bbduk_stats,fastqc.out.fastqc_results,samtools.out.stats_multiqc,kraken.out.kraken_results,quast.out.multiqc_quast).collect(),multiqc_config)
 }
