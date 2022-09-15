@@ -6,24 +6,30 @@
 
 nextflow.enable.dsl=2
 
-params.test = false
+// Uncomment when test samples are selected
+// params.test = false
+// 
+// if(params.test){
+//   testIDS = []
+// 
+//   println "Running test analysis using the following samples:"
+//   println testIDS
+//   Channel
+//       .fromSRA(testIDS)
+//       .set { raw_reads }
+// 
+// } else{
+//   //setup channel to read in and pair the fastq files
+//   Channel
+//       .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.{fastq,fq}.gz", size: 2 )
+//       .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads} Path must not end with /" }
+//       .set { raw_reads }
+// }
 
-if(params.test){
-  testIDS = []
-
-  println "Running test analysis using the following samples:"
-  println testIDS
-  Channel
-      .fromSRA(testIDS)
-      .set { raw_reads }
-
-} else{
-  //setup channel to read in and pair the fastq files
-  Channel
-      .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.{fastq,fq}.gz", size: 2 )
-      .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads} Path must not end with /" }
-      .set { raw_reads }
-}
+Channel
+    .fromFilePairs( "${params.reads}/*{R1,R2,_1,_2}*.{fastq,fq}.gz", size: 2 )
+    .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads} Path must not end with /" }
+    .set { raw_reads }
 
 Channel
   .fromPath("$baseDir/configs/multiqc_config.yaml")
