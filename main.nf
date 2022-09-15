@@ -185,7 +185,7 @@ process fastqc_summary {
 //Assembly step: Assemble trimmed reads with Shovill and map reads back to assembly
 process shovill {
   tag "$name"
-  //errorStrategy 'ignore'
+  errorStrategy 'ignore'
 
   publishDir "${params.outdir}/assembled", mode: 'copy',pattern:"*.fa"
   publishDir "${params.outdir}/mapping/sams", mode: 'copy', pattern:"*.sam"
