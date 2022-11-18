@@ -6,7 +6,6 @@
 
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.input, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
@@ -61,7 +60,7 @@ include { QUALITY_STATS                 } from '../modules/local/quality_stats'
 include { KRAKEN                        } from '../modules/local/kraken'
 include { SEROBA                        } from '../modules/local/seroba'
 include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
-include { MERGE_RESULTS                 } from '../modules/local/merge_results'
+include { RESULTS                       } from '../modules/local/results'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
