@@ -10,8 +10,15 @@
 
 ## Pipeline tools
 
-- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-
+- [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/)
+- [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) 
+- [Bioawk v1.0](https://github.com/lh3/bioawk)
+- [Shovill v1.1.0](https://github.com/tseemann/shovill)
+- [QUAST v5.0.2](http://bioinf.spbau.ru/quast)
+- [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/)
+- [Samtools v1.10](http://www.htslib.org/)
+- [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/)
+- [SeroBA v1.0.2](https://github.com/sanger-pathogens/seroba)
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
 
