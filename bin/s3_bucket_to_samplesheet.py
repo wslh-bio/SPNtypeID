@@ -101,7 +101,7 @@ def fastq_s3_to_samplesheet(
         response = s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)
         for content in response['Contents']:
             if extension in content['Key']:
-                object_list.append(os.path.join(fastq_s3,content['Key']))
+                object_list.append(os.path.join('s3://',response['Name'],content['Key']))
     
         ## if content is in parts fetch other parts
         if response['IsTruncated']:
@@ -109,7 +109,7 @@ def fastq_s3_to_samplesheet(
                 response = s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix, ContinuationToken=response['NextContinuationToken'])
                 for content in response['Contents']:
                     if extension in content['Key']:
-                        object_list.append(os.path.join(fastq_s3,content['Key']))
+                        object_list.append(os.path.join('s3://',response['Name'],content['Key']))
 
         return sorted(object_list)
 
