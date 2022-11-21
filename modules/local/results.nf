@@ -9,6 +9,7 @@ process RESULTS {
     path("coverage_stats.tsv")
     path("quast_results.tsv")
     path("typing_results.tsv")
+    path("kraken_ntc_data/*")
     path("kraken_version.yml")
 
     output:
@@ -23,6 +24,7 @@ process RESULTS {
 
     import os
     import glob
+    import csv
     import pandas as pd
     from functools import reduce
 
@@ -55,28 +57,46 @@ process RESULTS {
     # Add NTC columns
     ntc = merged[merged['Sample'].str.match('NTC')]
 
-    if ntc.empty:
-        merged = merged.assign(ntc_reads="No NTC in data set")
+    kraken_ntc_results = glob.glob("kraken_ntc_data/*")
+
+    ntc_result = 'PASS'
+    ntc_total_reads = []
+    ntc_SPN_reads = []
+    for file in kraken_ntc_results:
+        id = file.split("/")[1].split(".kraken.txt")[0]
+        spn_reads = 0
+        total_reads = 0
+        with open(file,'r') as csvfile:
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            csvfile.seek(0)
+            reader = csv.reader(csvfile,dialect)
+            for row in reader:
+                if row[3] == "U":
+                    total_reads += int(row[1])
+                if "root" in row[5]:
+                    total_reads += int(row[1])
+                if row[4] == "1300":
+                    spn_reads += int(row[1])
+
+        if total_reads >= ${params.ntc_read_limit}:
+            ntc_result = "FAIL"
+        if spn_reads >= ${params.ntc_spn_read_limit}:
+            ntc_result = "FAIL"
+
+        ntc_total_reads.append(f"{id}: {total_reads}")
+        ntc_SPN_reads.append(f"{id}: {spn_reads}")
+
+    if not kraken_ntc_results:
         merged = merged.assign(ntc_reads="No NTC in data set")
         merged = merged.assign(ntc_spn="No NTC in data set")
+        merged = merged.assign(ntc_result="FAIL")
 
     else:
-        ntc_sample = ntc['Sample'].tolist()
-        ntc_sample = '; '.join(ntc_sample)
+        merged = merged.assign(ntc_reads=", ".join(ntc_total_reads))
+        merged = merged.assign(ntc_spn=", ".join(ntc_SPN_reads))
+        merged = merged.assign(ntc_result=ntc_result)
 
-        ntc_reads = ntc['Total Reads'].tolist()
-        ntc_reads = list(map(str, ntc_reads))
-        ntc_reads = '; '.join(ntc_reads)
-
-        ntc_spn = ntc['Percent SPN'].tolist()
-        ntc_spn = list(map(str, ntc_spn))
-        ntc_spn = '; '.join(ntc_spn)
-
-        merged = merged.assign(ntc_sample=ntc_sample)
-        merged = merged.assign(ntc_reads=ntc_reads)
-        merged = merged.assign(ntc_spn=ntc_spn)
-
-    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','krakenDB':'Kraken Database Version','ntc_sample':'NTC Sample(s)','ntc_reads':'NTC Reads (#)','ntc_spn':'NTC Percent SPN'})
+    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','krakenDB':'Kraken Database Version','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL',})
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
     """
 }
