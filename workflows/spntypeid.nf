@@ -57,7 +57,7 @@ include { QUAST                         } from '../modules/local/quast'
 include { QUAST_SUMMARY                 } from '../modules/local/quast_summary'
 include { BIOAWK                        } from '../modules/local/bioawk'
 include { QUALITY_STATS                 } from '../modules/local/quality_stats'
-include { KRAKEN                        } from '../modules/local/kraken'
+include { KRAKEN; KRAKEN as KRAKEN_NTC  } from '../modules/local/kraken'
 include { SEROBA                        } from '../modules/local/seroba'
 include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
 include { RESULTS                       } from '../modules/local/results'
@@ -85,11 +85,18 @@ workflow SPNTYPEID {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    INPUT_CHECK.out.reads
+        .branch {
+            ntc: it[0]['id'].contains('NTC')
+            sample: !it[0]['id'].contains('NTC')
+        }
+        .set{ ch_input_reads }
+
     //
     // MODULE: BBDUK
     //
     BBDUK (
-        INPUT_CHECK.out.reads,
+        ch_input_reads.sample,
         params.contaminants
     )
     ch_versions = ch_versions.mix(BBDUK.out.versions.first())
@@ -158,7 +165,7 @@ workflow SPNTYPEID {
     // MODULE: BIOAWK
     //
     BIOAWK (
-        INPUT_CHECK.out.reads
+        ch_input_reads.sample
     )
     ch_versions = ch_versions.mix(BIOAWK.out.versions.first())
 
@@ -173,15 +180,22 @@ workflow SPNTYPEID {
     // MODULE: KRAKEN
     //
     KRAKEN (
-        INPUT_CHECK.out.reads
+        ch_input_reads.sample
     )
     ch_versions = ch_versions.mix(KRAKEN.out.versions.first())
+
+    //
+    // MODULE: KRAKEN_NTC
+    //
+    KRAKEN_NTC (
+        ch_input_reads.ntc
+    )
 
     //
     // MODULE: SEROBA
     //
     SEROBA (
-        INPUT_CHECK.out.reads
+        ch_input_reads.sample
     )
     ch_versions = ch_versions.mix(SEROBA.out.versions.first())
 
@@ -193,14 +207,15 @@ workflow SPNTYPEID {
     )
 
     //
-    // MODULE: MERGE_RESULTS
+    // MODULE: RESULTS
     //
-    MERGE_RESULTS (
+    RESULTS (
         BBDUK_SUMMARY.out.bbduk_tsv,
         QUALITY_STATS.out.quality_tsv,
         COVERAGE_STATS.out.coverage_tsv,
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
+        KRAKEN_NTC.out.kraken_results.collect(),
         KRAKEN.out.versions.first()
     )
 
@@ -227,6 +242,7 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_trim.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN.out.kraken_results.collect().ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.result.collect().ifEmpty([]))
 
     MULTIQC (
