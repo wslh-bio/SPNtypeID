@@ -215,7 +215,7 @@ workflow SPNTYPEID {
         COVERAGE_STATS.out.coverage_tsv,
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
-        KRAKEN_NTC.out.kraken_results.collect(),
+        KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
         KRAKEN.out.versions.first()
     )
 
