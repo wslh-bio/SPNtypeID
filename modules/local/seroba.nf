@@ -23,10 +23,7 @@ process SEROBA {
     """
     export MPLCONFIGDIR=\$(pwd)
 
-    ln -s ${reads[0]} ${prefix}_R1.fastq.gz
-    ln -s ${reads[1]} ${prefix}_R2.fastq.gz 
-
-    seroba runSerotyping $args /seroba*/database ${prefix}_R1.fastq.gz ${prefix}_R2.fastq.gz ${prefix} &> seroba.log
+    seroba runSerotyping $args /seroba*/database ${reads[0]} ${reads[1]} ${prefix} &> seroba.log
     mv ${prefix}/pred.tsv ${prefix}.pred.tsv
     if [ -f detailed_serogroup_info.txt ]; then
         mv detailed_serogroup_info.txt ${prefix}_detailed_serogroup_info.txt
