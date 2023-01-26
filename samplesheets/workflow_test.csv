@@ -1,0 +1,5 @@
+sample,fastq_1,fastq_2
+NTC01,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R2.fastq.gz
+SPN_Sample_01,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_01_R1.fq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_01_R2.fq.gz
+SPN_Sample_02,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_02_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_02_R2.fastq.gz
+SPN_Sample_03,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_03_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_03_R2.fastq.gz
