@@ -4,7 +4,7 @@ process TYPING_SUMMARY {
     container "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458"
 
     input:
-    path("data*/*")
+    path("data/*")
 
     output:
     path("typing_results.tsv")  , emit: typing_summary_results
@@ -32,8 +32,8 @@ process TYPING_SUMMARY {
             self.pred = "NotRun"
 
     # get list of result files
-    kraken_list = glob.glob("data*/*.kraken.txt")
-    seroba_list = glob.glob("data*/*.pred.tsv")
+    kraken_list = glob.glob("data/*.kraken.txt")
+    seroba_list = glob.glob("data/*.pred.tsv")
 
     results = {}
 
@@ -65,14 +65,14 @@ process TYPING_SUMMARY {
                 result.percent_secondgenus = 0.0
             if result.percent_strep == "NotRun":
                 result.percent_strep = 0.0
-            if result.percent_strep >= 82.0 and result.percent_spn >= 62.0 and result.percent_secondgenus < 1.0:
+            if result.percent_strep >= int(${params.minpctstrep}) and result.percent_spn >= int(${params.minpctspn}) and result.percent_secondgenus < int(${params.maxpctother}):
                 result.pass_kraken = True
-            if result.percent_strep < 82.0:
-                result.comments.append("Less than 82.0% of reads are Strep")
-            if result.percent_spn < 62.0:
-                result.comments.append("Less than 62.0% of reads are SPN")
-            if result.percent_secondgenus >= 1.0:
-                result.comments.append("More than 1.0% of reads are from "+secondgenus)
+            if result.percent_strep < int(${params.minpctstrep}):
+                result.comments.append("Less than ${params.minpctstrep}% of reads are Strep")
+            if result.percent_spn < int(${params.minpctspn}):
+                result.comments.append("Less than ${params.minpctspn}% of reads are SPN")
+            if result.percent_secondgenus >= int(${params.maxpctother}):
+                result.comments.append("More than ${params.maxpctother}% of reads are from "+secondgenus)
 
         results[id] = result
 

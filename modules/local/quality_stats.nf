@@ -34,10 +34,10 @@ process QUALITY_STATS {
         med = int(float(median(data)))
         avg = int(float(average(data)))
         # return sample id, median and average depth, and check for coverage fail
-        if avg >= 30:
+        if avg >= int(${params.minavgreadq}):
             result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
-        if avg < 30:
-            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage read quality < 30\\n"
+        if avg < int(${params.minavgreadq}):
+            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage read quality < ${params.minavgreadq}\\n"
         return result
 
     # get all bioawk quality files

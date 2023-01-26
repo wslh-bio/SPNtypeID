@@ -34,10 +34,10 @@ process COVERAGE_STATS {
         med = int(median(data))
         avg = int(average(data))
         # return sample id, median and average depth, and check for coverage fail
-        if avg >= 70:
+        if avg >= int(${params.mincoverage}):
             result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
-        if avg < 70:
-            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage coverage < 70X\\n"
+        if avg < int(${params.mincoverage}):
+            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage coverage < ${params.mincoverage}X\\n"
         return result
 
     # get all samtools depth files
