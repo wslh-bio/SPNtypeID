@@ -95,7 +95,7 @@
                     "default": "1.0"
                 },
                 "workflow_test": {
-                    "type": "string",
+                    "type": "boolean",
                     "hidden": true,
                     "default": "false",
                     "description": "Run the workflow test"
@@ -105,6 +105,16 @@
                     "default": "[]",
                     "description": "Path to fasta of contaminants for removal, defaults to BBDuk's adapters fasta.",
                     "fa_icon": "fas fa-cog"
+                },
+                "ntc_spn_read_limit": {
+                    "type": "integer",
+                    "description": "Set the maximum number of strep pneumonia reads allowed in the no template control",
+                    "default": 100
+                },
+                "ntc_read_limit": {
+                    "type": "integer",
+                    "description": "Set the maximum number of reads allowed in the no template control",
+                    "default": 10000
                 }
             }
         },
