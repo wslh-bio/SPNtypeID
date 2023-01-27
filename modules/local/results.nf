@@ -13,7 +13,7 @@ process RESULTS {
     path("kraken_version.yml")
 
     output:
-    file('spntypeid_report.csv')
+    path('spntypeid_report.csv')   , emit: result_csv
 
     when:
     task.ext.when == null || task.ext.when
