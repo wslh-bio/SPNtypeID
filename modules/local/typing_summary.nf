@@ -65,13 +65,13 @@ process TYPING_SUMMARY {
                 result.percent_secondgenus = 0.0
             if result.percent_strep == "NotRun":
                 result.percent_strep = 0.0
-            if result.percent_strep >= int(${params.minpctstrep}) and result.percent_spn >= int(${params.minpctspn}) and result.percent_secondgenus < int(${params.maxpctother}):
+            if result.percent_strep >= float(${params.minpctstrep}) and result.percent_spn >= float(${params.minpctspn}) and result.percent_secondgenus < float(${params.maxpctother}):
                 result.pass_kraken = True
-            if result.percent_strep < int(${params.minpctstrep}):
+            if result.percent_strep < float(${params.minpctstrep}):
                 result.comments.append("Less than ${params.minpctstrep}% of reads are Strep")
-            if result.percent_spn < int(${params.minpctspn}):
+            if result.percent_spn < float(${params.minpctspn}):
                 result.comments.append("Less than ${params.minpctspn}% of reads are SPN")
-            if result.percent_secondgenus >= int(${params.maxpctother}):
+            if result.percent_secondgenus >= float(${params.maxpctother}):
                 result.comments.append("More than ${params.maxpctother}% of reads are from "+secondgenus)
 
         results[id] = result
