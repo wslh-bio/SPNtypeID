@@ -57,10 +57,12 @@ include { QUAST                         } from '../modules/local/quast'
 include { QUAST_SUMMARY                 } from '../modules/local/quast_summary'
 include { BIOAWK                        } from '../modules/local/bioawk'
 include { QUALITY_STATS                 } from '../modules/local/quality_stats'
-include { KRAKEN; KRAKEN as KRAKEN_NTC  } from '../modules/local/kraken'
+include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
+include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
 include { SEROBA                        } from '../modules/local/seroba'
 include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
 include { RESULTS                       } from '../modules/local/results'
+include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
@@ -177,12 +179,12 @@ workflow SPNTYPEID {
     )
 
     //
-    // MODULE: KRAKEN
+    // MODULE: KRAKEN_SAMPLE
     //
-    KRAKEN (
+    KRAKEN_SAMPLE (
         ch_input_reads.sample
     )
-    ch_versions = ch_versions.mix(KRAKEN.out.versions.first())
+    ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
 
     //
     // MODULE: KRAKEN_NTC
@@ -203,7 +205,7 @@ workflow SPNTYPEID {
     // MODULE: TYPING_SUMMARY
     //
     TYPING_SUMMARY (
-        KRAKEN.out.kraken_results.mix(SEROBA.out.seroba_results).collect()
+        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect()
     )
 
     //
@@ -216,7 +218,16 @@ workflow SPNTYPEID {
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
-        KRAKEN.out.versions.first()
+        KRAKEN_SAMPLE.out.versions.first()
+    )
+
+    //
+    // MODULE: WORKFLOW_TEST
+    //
+    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
+    WORKFLOW_TEST (
+        ch_valid_dataset.collect(),
+        RESULTS.out.result_csv
     )
 
 
@@ -241,7 +252,7 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_adapters.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_trim.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN.out.kraken_results.collect().ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_SAMPLE.out.kraken_results.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.result.collect().ifEmpty([]))
 
