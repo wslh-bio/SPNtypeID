@@ -69,6 +69,37 @@
                     "description": "Set the minimum read length.",
                     "fa_icon": "fas fa-cog"
                 },
+                "minavgreadq": {
+                    "type": "integer",
+                    "description": "Set the minimum average read quality score",
+                    "default": 30
+                },
+                "mincoverage": {
+                    "type": "integer",
+                    "description": "Set the minimum coverage",
+                    "default": 40
+                },
+                "minpctspn": {
+                    "type": "string",
+                    "description": "Set the minimum percentage of reads that must be strep pneumonia",
+                    "default": "62.0"
+                },
+                "minpctstrep": {
+                    "type": "string",
+                    "description": "Set the minimum percentage of reads that must be strep",
+                    "default": "82.0"
+                },
+                "maxpctother": {
+                    "type": "string",
+                    "description": "Set the maximum percentage of reads from other organisms",
+                    "default": "1.0"
+                },
+                "workflow_test": {
+                    "type": "string",
+                    "hidden": true,
+                    "default": "false",
+                    "description": "Run the workflow test"
+                },
                 "contaminants": {
                     "type": "string",
                     "default": "[]",
