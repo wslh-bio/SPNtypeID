@@ -11,7 +11,7 @@ jobs:
     name: Launch on Nextflow Tower
     # Don't try to run on forked repos
     # run when commit message contains [test]
-    if: github.repository == 'wslh-bio/SPNtypeID' && "contains(github.event.head_commit.message, '[test]')"
+    if: github.repository == 'wslh-bio/SPNtypeID' && contains(github.event.head_commit.message, '[test]')
     runs-on: ubuntu-latest
     steps:
       - uses: k-florek/tower-action@2b4d1789af2ca09a12b231703a25023ce085e68b
