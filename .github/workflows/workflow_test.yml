@@ -1,4 +1,4 @@
-name: Launch on Tower
+name: Build Test
 
 # Manually trigger the action with a button in GitHub
 # Alternatively, trigger on release / push etc.
@@ -8,7 +8,7 @@ on:
 
 jobs:
   run-workflow-on-tower:
-    name: Launch on Nextflow Tower
+    name: Test on Nextflow Tower
     # Don't try to run on forked repos
     # run when commit message contains [test]
     if: github.repository == 'wslh-bio/SPNtypeID' && contains(github.event.head_commit.message, '[test]')
