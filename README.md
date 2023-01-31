@@ -2,6 +2,10 @@
 
 SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome assembly and serotyping of *Streptococcus pneumoniae*.
 
+![SPNtypeID](https://github.com/wslh-bio/SPNtypeID/actions/workflows/workflow_test.yml/badge.svg)
+![GPL-3.0](https://img.shields.io/github/license/wslh-bio/SPNtypeID)
+![GitHub Release](https://img.shields.io/github/release/wslh-bio/SPNtypeID)
+
 ### Table of Contents:
 [Usage](#using-the-workflow)  
 [Workflow outline](#workflow-outline)  
