@@ -1,18 +1,10 @@
-----------------------------------------------------
-                                        ,--./,-.
-        ___     __   __   __   ___     /,-._.--~\\
-  |\\ | |__  __ /  ` /  \\ |__) |__         }  {
-  | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
-                                        `._,._,'
-  nf-core/spntypeid v${version}
-----------------------------------------------------
 Run Name: $runName
 
 <% if (success){
-    out << "## nf-core/spntypeid execution completed successfully! ##"
+    out << "## wslh-bio/spntypeid execution completed successfully! ##"
 } else {
     out << """####################################################
-## nf-core/spntypeid execution completed unsuccessfully! ##
+## wslh-bio/spntypeid execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -35,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-nf-core/spntypeid
-https://github.com/nf-core/spntypeid
+wslh-bio/spntypeid
+https://github.com/wslh-bio/spntypeid
