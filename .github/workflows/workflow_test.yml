@@ -7,19 +7,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-workflow-on-tower:
+  test-full:
     name: Test on Nextflow Tower
     # Don't try to run on forked repos
     # run when commit message contains [test]
     if: github.repository == 'wslh-bio/SPNtypeID' && contains(github.event.head_commit.message, '[test]')
     runs-on: ubuntu-latest
     steps:
-      - uses: k-florek/tower-action@2b4d1789af2ca09a12b231703a25023ce085e68b
+      - uses: k-florek/tower-action@main
         # Use repository secrets for sensitive fields
         with:
           workspace_id: ${{ secrets.TOWER_WORKSPACE_ID }}
           access_token: ${{ secrets.NEXTFLOW_TOWER_ACCESS_TOKEN }}
           compute_env: ${{ secrets.TOWER_COMPUTE_ENV }}
+          run_name: ${{ github.job }}_${{ github.run_attempt }}
           workdir: ${{ secrets.AWS_S3_BUCKET }}/work/${{ github.sha }}
           # Set any custom pipeline params here - JSON object as a string
           parameters: |
