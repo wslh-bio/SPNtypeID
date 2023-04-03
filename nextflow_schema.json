@@ -102,7 +102,6 @@
                 },
                 "contaminants": {
                     "type": "string",
-                    "default": "[]",
                     "description": "Path to fasta of contaminants for removal, defaults to BBDuk's adapters fasta.",
                     "fa_icon": "fas fa-cog"
                 },
