@@ -54,6 +54,9 @@ process RESULTS {
     # Add kraken DB column
     merged = merged.assign(krakenDB=krakenDBVersion)
 
+    # Add Workflow version column
+    merged = merged.assign(workflowVersion=${workflow.manifest.version})
+
     # Add NTC columns
     ntc = merged[merged['Sample'].str.match('NTC')]
 
@@ -96,7 +99,7 @@ process RESULTS {
         merged = merged.assign(ntc_spn=", ".join(ntc_SPN_reads))
         merged = merged.assign(ntc_result=ntc_result)
 
-    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','krakenDB':'Kraken Database Version','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL',})
+    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version'})
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
     """
 }
