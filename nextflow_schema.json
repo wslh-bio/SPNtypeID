@@ -97,7 +97,7 @@
                 "workflow_test": {
                     "type": "boolean",
                     "hidden": true,
-                    "default": "false",
+                    "default": false,
                     "description": "Run the workflow test"
                 },
                 "contaminants": {
