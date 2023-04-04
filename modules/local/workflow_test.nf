@@ -1,3 +1,4 @@
+params.workflow_test = false
 process WORKFLOW_TEST {
     tag "workflow_validation"
     label 'process_low'
@@ -12,7 +13,7 @@ process WORKFLOW_TEST {
     path "validation.log"
 
     when:
-    workflow_test = true
+    params.workflow_test == true
 
     script:
     """
