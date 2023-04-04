@@ -211,7 +211,6 @@ workflow SPNTYPEID {
     //
     // MODULE: RESULTS
     //
-    workflow_version = ${workflow.manifest.version}
     RESULTS (
         BBDUK_SUMMARY.out.bbduk_tsv,
         QUALITY_STATS.out.quality_tsv,
@@ -219,8 +218,7 @@ workflow SPNTYPEID {
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
-        KRAKEN_SAMPLE.out.versions.first(),
-        workflow_version
+        KRAKEN_SAMPLE.out.versions.first()
     )
 
     //
