@@ -11,6 +11,7 @@ process RESULTS {
     path("typing_results.tsv")
     path("kraken_ntc_data/*")
     path("kraken_version.yml")
+    val(workflow_version)
 
     output:
     path('spntypeid_report.csv')   , emit: result_csv
@@ -55,7 +56,7 @@ process RESULTS {
     merged = merged.assign(krakenDB=krakenDBVersion)
 
     # Add Workflow version column
-    merged = merged.assign(workflowVersion=${workflow.manifest.version})
+    merged = merged.assign(workflowVersion=${workflow_version})
 
     # Add NTC columns
     ntc = merged[merged['Sample'].str.match('NTC')]
