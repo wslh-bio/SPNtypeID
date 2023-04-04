@@ -31,6 +31,8 @@ nextflow wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir 
 
 ### Workflow outline
 
+<img src ='/assets/SPNtypeID.jpg'>
+
 #### Read trimming and quality assessment
 Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads.
 
