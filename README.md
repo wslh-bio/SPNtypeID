@@ -21,8 +21,6 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 
 ### Using the workflow
 The pipeline is designed to start from raw, paired-end Illumina reads. Start the pipeline using:
-
-Then start the pipeline using:
 ```
 nextflow SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] -profile [docker,singularity,aws]
 ```
