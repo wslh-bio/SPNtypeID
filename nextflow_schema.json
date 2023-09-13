@@ -108,12 +108,12 @@
                 "ntc_spn_read_limit": {
                     "type": "integer",
                     "description": "Set the maximum number of strep pneumonia reads allowed in the no template control",
-                    "default": 100
+                    "default": 500
                 },
                 "ntc_read_limit": {
                     "type": "integer",
                     "description": "Set the maximum number of reads allowed in the no template control",
-                    "default": 10000
+                    "default": 5000
                 }
             }
         },
