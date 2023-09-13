@@ -54,7 +54,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | minpctspn | Sets the minimum percentage of reads that must be S. pneumoniae (default: 60.0) |
 | minpctstrep | Sets the minimum percentage of reads that must be Streptococcus (default: 80.0) |
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
-| trimdirection | Sets the BBDuk trimming direction (default: "lr") |
+| trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
 
 ### Workflow outline
