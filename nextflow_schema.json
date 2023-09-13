@@ -82,12 +82,12 @@
                 "minpctspn": {
                     "type": "string",
                     "description": "Set the minimum percentage of reads that must be strep pneumonia",
-                    "default": "62.0"
+                    "default": "60.0"
                 },
                 "minpctstrep": {
                     "type": "string",
                     "description": "Set the minimum percentage of reads that must be strep",
-                    "default": "82.0"
+                    "default": "80.0"
                 },
                 "maxpctother": {
                     "type": "string",
