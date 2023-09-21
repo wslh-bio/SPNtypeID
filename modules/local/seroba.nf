@@ -23,7 +23,13 @@ process SEROBA {
     """
     export MPLCONFIGDIR=\$(pwd)
 
-    seroba runSerotyping $args /seroba*/database ${reads[0]} ${reads[1]} ${prefix} &> seroba.log
+    # If fastq file ends with _R1_001/_R2_001 or _1/_2 rename those files to end with _R1/_R2 so seroBA does not throw an error
+    find . -name "*_R1_001.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R1.fastq.gz' - '{}' +
+    find . -name "*_R2_001.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R2.fastq.gz' - '{}' +
+    find . -name "*_1.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R1.fastq.gz' - '{}' +
+    find . -name "*_2.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R2.fastq.gz' - '{}' +
+
+    seroba runSerotyping $args /seroba*/database ${prefix}_R1.fastq.gz ${prefix}_R2.fastq.gz ${prefix} &> seroba.log
     mv ${prefix}/pred.tsv ${prefix}.pred.tsv
     if [ -f detailed_serogroup_info.txt ]; then
         mv detailed_serogroup_info.txt ${prefix}_detailed_serogroup_info.txt
