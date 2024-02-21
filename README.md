@@ -16,7 +16,7 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 [Assembly quality assessment](#assembly-quality-assessment)  
 [Genome coverage](#genome-coverage)  
 [Contamination detection](#contamination-detection)  
-[Serotyping](#serotpying)                                                                                                                                  
+[Serotyping](#serotyping)                                                                                                                                  
 [Output](#output-files)  
 
 ### Using the workflow
@@ -78,7 +78,7 @@ Mean and median genome coverage is determined by mapping the cleaned reads back 
 #### Contamination detection
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
 
-#### Serotpying
+#### Serotyping
 Serotyping is performed using [SeroBA v1.0.2](https://github.com/sanger-pathogens/seroba).
 
 ### Output files
