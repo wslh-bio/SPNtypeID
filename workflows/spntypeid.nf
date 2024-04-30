@@ -89,7 +89,7 @@ workflow SPNTYPEID {
 
     INPUT_CHECK.out.reads
         .branch {
-            ntc: !!(it[0]['id'] =~ params.ntcregex)
+            ntc: !!(it[0]['id'] =~ params.ntc_regex)
             sample: true
         }
         .set{ ch_input_reads }
