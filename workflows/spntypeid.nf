@@ -89,8 +89,8 @@ workflow SPNTYPEID {
 
     INPUT_CHECK.out.reads
         .branch {
-            ntc: it[0]['id'].contains('NTC')
-            sample: !it[0]['id'].contains('NTC')
+            ntc: !!(it[0]['id'] =~ params.ntc_regex)
+            sample: true
         }
         .set{ ch_input_reads }
 
