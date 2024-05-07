@@ -113,7 +113,7 @@
                 "ntc_read_limit": {
                     "type": "integer",
                     "description": "Set the maximum number of reads allowed in the no template control",
-                    "default": 5000
+                    "default": 10000
                 },
                 "ntc_regex": {
                     "type": "string",
