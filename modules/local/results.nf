@@ -26,6 +26,7 @@ process RESULTS {
     import glob
     import csv
     import pandas as pd
+    import re
     from functools import reduce
 
     with open('kraken_version.yml', 'r') as krakenFile:
@@ -100,7 +101,28 @@ process RESULTS {
         merged = merged.assign(ntc_result=ntc_result)
 
     merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version'})
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL']]
+
+    sample_names = merged['Sample'].tolist()
+    sampleIDs = []
+    runIDs = []
+    for name in sample_names:
+        if re.search('${params.sample_name_regex}',name):
+            result = re.search('${params.sample_name_regex}',name)
+            sampleIDs.append(result.group(0))
+        else:
+            sampleIDs.append(name)
+
+    for name in sample_names:
+        if re.search('${params.run_name_regex}',name):
+            result = re.search('${params.run_name_regex}',name)
+            runIDs.append(result.group(0))
+        else:
+            runIDs.append("NA")
+    
+    merged = merged.assign(Sample=sampleIDs)
+    merged = merged.assign(Run=runIDs)
+    
+    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run']]
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
     """
 }

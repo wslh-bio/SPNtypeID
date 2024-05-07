@@ -113,7 +113,22 @@
                 "ntc_read_limit": {
                     "type": "integer",
                     "description": "Set the maximum number of reads allowed in the no template control",
-                    "default": 5000
+                    "default": 10000
+                },
+                "ntc_regex": {
+                    "type": "string",
+                    "description": "Regex pattern for identifying NTC files",
+                    "default": "NTC"
+                },
+                "sample_name_regex": {
+                    "type": "string",
+                    "description": "Regex pattern for sample names",
+                    "default": "[0-9][0-9][A-z][A-z][0-9]*"
+                },
+                "run_name_regex": {
+                    "type": "string",
+                    "description": "Regex pattern for run names",
+                    "default": "WI-\\D\\d{4}-\\d{6}"
                 }
             }
         },
