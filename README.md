@@ -59,8 +59,8 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
 | ntc_regex | Regex pattern for identifying NTC files (default: 'NTC') |
-| sample_name_regex | Regex pattern for sample names (default: '[0-9][0-9][A-z][A-z][0-9]*') |
-| run_name_regex | Regex pattern for run names (default: 'WI-\\D\\d{4}-\\d{6}') |
+| split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
+| run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
 
 ### Workflow outline
 
