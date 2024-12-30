@@ -86,7 +86,8 @@ workflow SPNTYPEID {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    INPUT_CHECK.out.reads.view()
+    ch_output = {CheckGZIPLines.DataInTheFirstFourLines(it)}
+    ch_output.view()
 
     INPUT_CHECK.out.reads
         .branch {
