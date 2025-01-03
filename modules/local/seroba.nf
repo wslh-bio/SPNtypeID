@@ -29,6 +29,21 @@ process SEROBA {
     find . -name "*_1.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R1.fastq.gz' - '{}' +
     find . -name "*_2.fastq.gz" -exec bash -c 'mv "\$1" "${prefix}"_R2.fastq.gz' - '{}' +
 
+    # Check to make sure the prefix and file handle match, if not, rename the file with the correct prefix
+    for i in "_R1.fastq.gz" "_R2.fastq.gz";
+        do
+            count_file=`ls -1 *\$i 2>/dev/null | wc -l`
+            if [ \$count_file != 0 ]
+            then
+                f1=`ls *\$i`
+                f2="${prefix}""\$i"
+                if ! [ "\$f1" = "\$f2" ]
+                then
+                    mv \$f1 \$f2
+                fi
+            fi
+        done
+
     seroba runSerotyping $args /seroba*/database ${prefix}_R1.fastq.gz ${prefix}_R2.fastq.gz ${prefix} &> seroba.log
     mv ${prefix}/pred.tsv ${prefix}.pred.tsv
     if [ -f detailed_serogroup_info.txt ]; then
