@@ -45,6 +45,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
+
 include { BBDUK                         } from '../modules/local/bbduk'
 include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
 include { FASTQC                        } from '../modules/local/fastqc'
@@ -85,9 +86,6 @@ workflow SPNTYPEID {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    ch_output = {CheckGZIPLines.DataInTheFirstFourLines(it)}
-    ch_output.view()
 
     INPUT_CHECK.out.reads
         .branch {
