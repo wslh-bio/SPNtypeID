@@ -1,17 +1,13 @@
 #!/usr/bin/env groovy
+
 import java.util.zip.GZIPInputStream
-import java.io.IOException
 
+// Function that actually looks at the file to see if it is empty or not
 static def checkFastqFile(filePath) {
-    File file = new File(filePath)
-
-    if (!file.exists()) {
-        println "File not found: ${filePath}"
-        return false
-    }
+    File inputfile = new File(filePath)
 
     try {
-        GZIPInputStream gzipInputStream = new GZIPInputStream(new FileInputStream(file))
+        GZIPInputStream gzipInputStream = new GZIPInputStream(new FileInputStream(inputfile))
         BufferedReader reader = new BufferedReader(new InputStreamReader(gzipInputStream))
 
         int lineCount = 0
@@ -32,14 +28,35 @@ static def checkFastqFile(filePath) {
     return false
 }
 
+// Starting function to process the samplesheet filepaths
 static def processMeta( filePaths ) {
+
     if (!(filePaths instanceof List)) {
         filePaths = filePaths.toList()
     }
 
+    // Assigns true or false based on the checkFastqFile function
     boolean pass = filePaths.every { filePath ->
-        checkFastqFile(filePath as String)
+        checkFastqFile(filePath as String) // Check each file and ensure all pass
     }
 
-    return [filePaths, pass]
+    return [pass]
+}
+
+// Function that writes the failed files to their own output file
+static def failedFile(meta, outdir) {
+
+    def fileName = "$outdir/Empty_samples.txt"
+    def newFile = new File(fileName)
+
+    // Extracts everything between the : and , to get the sample name
+    def sample_name = (meta =~ /:(.+?),/).find() ? (meta =~ /:(.+?),/)[0][1] : null
+
+    if (!newFile.exists()) {
+        newFile.createNewFile()
+    }
+
+    newFile.withWriterAppend { writer ->
+        writer.write("$sample_name\n")
+    }
 }
