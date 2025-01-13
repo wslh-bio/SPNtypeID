@@ -88,6 +88,27 @@ workflow SPNTYPEID {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     INPUT_CHECK.out.reads
+        .map { meta, filepairs -> 
+            [meta, filepairs, CheckGZIPLines.processMeta(filepairs)]
+            }
+        .branch { meta, filepairs, pass -> 
+            pass: pass[-1] == true
+            fail: pass[-1] == false
+            }
+        .set{ ch_intermediate_reads }
+    
+    ch_intermediate_reads.pass
+        .map { meta, filepairs, pass ->
+            [meta, filepairs]
+            }
+        .set{ ch_filtered }
+
+    ch_intermediate_reads.fail
+        .map { meta, filepairs, pass ->
+            [CheckGZIPLines.failedFile(meta, params.outdir)]
+            }
+
+    ch_filtered
         .branch {
             ntc: !!(it[0]['id'] =~ params.ntc_regex)
             sample: true
