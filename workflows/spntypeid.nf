@@ -85,28 +85,35 @@ workflow SPNTYPEID {
     INPUT_CHECK (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     INPUT_CHECK.out.reads
-        .map { meta, filepairs -> 
-            [meta, filepairs, CheckGZIPLines.processMeta(filepairs)]
-            }
-        .branch { meta, filepairs, pass -> 
-            pass: pass[-1] == true
-            fail: pass[-1] == false
-            }
-        .set{ ch_intermediate_reads }
-    
-    ch_intermediate_reads.pass
-        .map { meta, filepairs, pass ->
-            [meta, filepairs]
+        .map { meta, file ->
+        [meta, file, file[0].countFastq()]
+        }
+        .branch{ meta, file, count ->
+            pass: count > 0
+            fail: count == 0
+        }
+        .set{ ch_count }
+
+    ch_count.pass
+        .map { meta, file, count ->
+            [meta, file]
             }
         .set{ ch_filtered }
 
-    ch_intermediate_reads.fail
-        .map { meta, filepairs, pass ->
-            [CheckGZIPLines.failedFile(meta, params.outdir)]
-            }
+    ch_count.fail
+        .map{ meta, file, count -> 
+            [meta.id]
+        }
+        .flatten()
+        .set{ch_failed}
+    ch_failed
+        .collectFile(
+            storeDir: "${params.outdir}/rejected_samples",
+            name: 'Empty_samples.csv',
+            newLine: true
+        )
 
     ch_filtered
         .branch {
