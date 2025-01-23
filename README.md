@@ -125,6 +125,8 @@ out_directory
 │   ├── SPN_Sample_01.transposed.quast.report.tsv
 ├── quast_summary
 │   └── quast_results.tsv
+├── rejected_samples
+│   └── Empty_samples.csv
 ├── results
 │   └── spntypeid_report.csv
 ├── samtools
