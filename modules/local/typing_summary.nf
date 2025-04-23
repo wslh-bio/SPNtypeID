@@ -33,7 +33,7 @@ process TYPING_SUMMARY {
 
     # get list of result files
     kraken_list = glob.glob("data/*.kraken.txt")
-    seroba_list = glob.glob("data/*.pred.tsv")
+    seroba_list = glob.glob("data/*.pred.csv")
 
     results = {}
 
@@ -76,19 +76,20 @@ process TYPING_SUMMARY {
 
         results[id] = result
 
-    #collect all seroba results
+    # collect all seroba results
     for file in seroba_list:
         id = file.split("/")[1].split(".pred")[0]
         result = results[id]
         with open(file,'r') as csvfile:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
             csvfile.seek(0)
+            next(csvfile)
             reader = csv.reader(csvfile,dialect)
             types = []
             for row in reader:
-                types.append(row[1])
+                types.append(row[1].replace('Serotype ',''))
                 try:
-                    result.comments.append(row[2])
+                    result.comments.append(row[3])
                 except IndexError:
                     pass
             result.pred = " ".join(types)

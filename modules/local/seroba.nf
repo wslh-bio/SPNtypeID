@@ -2,13 +2,13 @@ process SEROBA {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/wslh-bioinformatics/seroba@sha256:1846871901c1dfe25c43028ed0ec326bb0747d5eb11a5d907b3fb35197c420fa"
+    container "sangerbentleygroup/seroba@sha256:885beab80a454d2722fa9f85efeb3f18b930770d1be07f53548dad5708d0c542"
 
     input:
     tuple val(meta), path(reads)
 
     output:
-    path("${meta.id}.pred.tsv")                         , emit: seroba_results
+    path("${meta.id}.pred.csv")                         , emit: seroba_results
     path("${meta.id}_detailed_serogroup_info.txt")      , optional: true, emit: seroba_detailed_results
     path("seroba.log")                                  , emit: log
     path "versions.yml"                                 , emit: versions
@@ -45,7 +45,7 @@ process SEROBA {
         done
 
     seroba runSerotyping $args /seroba*/database ${prefix}_R1.fastq.gz ${prefix}_R2.fastq.gz ${prefix} &> seroba.log
-    mv ${prefix}/pred.tsv ${prefix}.pred.tsv
+    mv ${prefix}/pred.csv ${prefix}.pred.csv
     if [ -f detailed_serogroup_info.txt ]; then
         mv detailed_serogroup_info.txt ${prefix}_detailed_serogroup_info.txt
     fi
