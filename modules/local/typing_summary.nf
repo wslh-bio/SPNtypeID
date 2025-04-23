@@ -89,7 +89,9 @@ process TYPING_SUMMARY {
             for row in reader:
                 types.append(row[1].replace('Serotype ',''))
                 try:
-                    result.comments.append(row[3])
+                    #row3 = row[3].replace('contamination','Contamination'))
+                    #row3 = row3.replace('NA','SeroBA did not find contamination'))
+                    result.comments.append(row[3].replace('contamination','Contamination').replace('NA','SeroBA did not find contamination'))
                 except IndexError:
                     pass
             result.pred = " ".join(types)
