@@ -13,7 +13,7 @@ process RESULTS {
     path("kraken_version.yml")
 
     output:
-    path('spntypeid_report.csv')   , emit: result_csv
+    path('*spntypeid_report.csv')   , emit: result_csv
 
     when:
     task.ext.when == null || task.ext.when
@@ -132,6 +132,6 @@ process RESULTS {
     merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run']]
 
     # Write data frame to csv file
-    merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
+    merged.to_csv('${workflow.runName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
     """
 }
