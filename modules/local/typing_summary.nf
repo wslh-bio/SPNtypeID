@@ -37,7 +37,7 @@ process TYPING_SUMMARY {
 
     results = {}
 
-    #collect all kraken results
+    # collect all kraken results
     for file in kraken_list:
         id = file.split("/")[1].split(".kraken.txt")[0]
         result = result_values(id)
@@ -59,12 +59,14 @@ process TYPING_SUMMARY {
                     percent_secondgenus = float(row[0])
             result.secondgenus = secondgenus
             result.percent_secondgenus = percent_secondgenus
+            # check for NotRun
             if result.percent_spn == "NotRun":
                 result.percent_spn = 0.0
             if result.percent_secondgenus == "NotRun":
                 result.percent_secondgenus = 0.0
             if result.percent_strep == "NotRun":
                 result.percent_strep = 0.0
+            # check for passing QC
             if result.percent_strep >= float(${params.minpctstrep}) and result.percent_spn >= float(${params.minpctspn}) and result.percent_secondgenus < float(${params.maxpctother}):
                 result.pass_kraken = True
             if result.percent_strep < float(${params.minpctstrep}):
@@ -86,8 +88,10 @@ process TYPING_SUMMARY {
             next(csvfile)
             reader = csv.reader(csvfile,dialect)
             types = []
+            # get Serotype (if any)
             for row in reader:
                 types.append(row[1].replace('Serotype ',''))
+                # get comments and edit
                 try:
                     result.comments.append(row[3].replace('contamination','Contamination').replace('NA','SeroBA did not find contamination'))
                 except IndexError:
@@ -95,7 +99,7 @@ process TYPING_SUMMARY {
             result.pred = " ".join(types)
         results[id] = result
 
-    #create output file
+    # create output files
     with open("typing_results.tsv",'w') as csvout:
         writer = csv.writer(csvout,delimiter='\\t')
         writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Serotype","Comments"])
