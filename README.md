@@ -85,7 +85,7 @@ Mean and median genome coverage is determined by mapping the cleaned reads back 
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
 
 #### Serotyping
-Serotyping is performed using [SeroBA v1.0.2](https://github.com/sanger-pathogens/seroba).
+Serotyping is performed using [SeroBA v2.0.4](https://github.com/GlobalPneumoSeq/seroba).
 
 ### Output files
 Example of pipeline output:
