@@ -50,7 +50,7 @@ def initialize_variables():
     taxid = "NA" #DATABASE
     stdev = "NA" #CALCULATED
     stdevs = "NA" #CALCULATED
-    assembly_length = "NA" #spriggan report, quast_results, 
+    assembly_length = "NA" #Quast_results, 
     expected_length = "NA" #CALCULATED
     total_tax = "NA" #DATABASE
 
