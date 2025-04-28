@@ -4,6 +4,8 @@ process RESULTS {
     container "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458"
 
     input:
+    path("gc_stats_results.tsv")
+    path("assembly_stats_results.tsv")
     path("bbduk_results.tsv")
     path("quality_stats.tsv")
     path("coverage_stats.tsv")
@@ -25,8 +27,10 @@ process RESULTS {
     import os
     import glob
     import csv
-    import pandas as pd
     import re
+
+    import pandas as pd
+
     from functools import reduce
 
     # Open Kraken version file to get Kraken version
@@ -129,7 +133,7 @@ process RESULTS {
     merged = merged.assign(Run=runIDs)
 
     # Put columns in specific order
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run']]
+    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)']]
 
     # Write data frame to csv file
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
