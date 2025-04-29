@@ -50,7 +50,6 @@ process RESULTS {
     merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
     merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
     merged['Combined'] = merged['Combined'].str.replace('; nan', '')
-    merged['Combined'] = merged['Combined'].str.replace('contamination', 'Contamination')
     merged['Combined'] = merged['Combined'].str.replace('nan', '')
     merged.drop(cols,axis=1,inplace=True)
 
