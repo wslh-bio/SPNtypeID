@@ -5,6 +5,7 @@ process QUALITY_STATS {
 
     input:
     path("data*/*")
+    val minavgreadq
 
     output:
     path('quality_stats.tsv')   , emit: quality_tsv
@@ -15,6 +16,6 @@ process QUALITY_STATS {
 
     script:
     """
-    quality_stats.py
+    quality_stats.py ${minavgreadq}
     """
 }
