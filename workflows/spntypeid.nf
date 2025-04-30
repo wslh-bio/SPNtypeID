@@ -253,7 +253,8 @@ workflow SPNTYPEID {
     // MODULE: QUALITY_STATS
     //
     QUALITY_STATS (
-        BIOAWK.out.qual_results.collect()
+        BIOAWK.out.qual_results.collect(),
+        params.minavgreadq
     )
 
     //
@@ -336,7 +337,9 @@ workflow SPNTYPEID {
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
-        KRAKEN_SAMPLE.out.versions.first()
+        KRAKEN_SAMPLE.out.versions.first(),
+        params.ntc_read_limit,
+        params.ntc_spn_read_limit
     )
 
     //
