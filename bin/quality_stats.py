@@ -30,9 +30,9 @@ def summarize_qual(file, minavgreadq):
     avg = int(float(average(data)))
     # return sample id, median and average depth, and check for coverage fail
     if avg >= int(minavgreadq):
-        result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
+        result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
     if avg < int(minavgreadq):
-        result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage read quality < minavgreadq\\n"
+        result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage read quality < minavgreadq\n"
     return result
 
 
@@ -47,7 +47,7 @@ def main(args=None):
 
     # write results to file
     with open('quality_stats.tsv', 'w') as outFile:
-        outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tComments\\n")
+        outFile.write("Sample\tMedian Read Quality\tAverage Read Quality\tPass Average Read Quality\tComments\n")
         for result in results:
             outFile.write(result)
 
