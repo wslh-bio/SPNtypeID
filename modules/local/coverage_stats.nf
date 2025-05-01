@@ -5,6 +5,7 @@ process COVERAGE_STATS {
 
     input:
     path("data*/*")
+    val mincoverage
 
     output:
     path('coverage_stats.tsv'), emit: coverage_tsv
@@ -14,6 +15,6 @@ process COVERAGE_STATS {
 
     script:
     """
-    coverage_stats.py
+    coverage_stats.py ${mincoverage}
     """
 }
