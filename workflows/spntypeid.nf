@@ -213,7 +213,8 @@ workflow SPNTYPEID {
     // MODULE: COVERAGE_STATS
     //
     COVERAGE_STATS (
-        SAMTOOLS.out.cov_files.collect()
+        SAMTOOLS.out.cov_files.collect(),
+        params.mincoverage
     )
 
     //
@@ -291,7 +292,10 @@ workflow SPNTYPEID {
     // MODULE: TYPING_SUMMARY
     //
     TYPING_SUMMARY (
-        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect()
+        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect(),
+        params.minpctstrep,
+        params.minpctspn,
+        params.maxpctother
     )
 
     ch_kraken_tsv = KRAKEN_SUMMARY.out.kraken_tsv
