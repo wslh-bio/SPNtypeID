@@ -30,9 +30,9 @@ def summarize_depth(file, mincoverage):
         avg = int(average(data))
         # return sample id, median and average depth, and check for coverage fail
         if avg >= int(mincoverage):
-            result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
+            result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
         if avg < int(mincoverage):
-            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage coverage < (mincoverage)X\\n"
+            result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage coverage < (mincoverage)X\n"
     return result
 
 
@@ -47,7 +47,7 @@ def main(args=None):
 
     # write results to file
     with open('coverage_stats.tsv', 'w') as outFile:
-        outFile.write("Sample\\tMedian Coverage\\tAverage Coverage\\tPass Coverage\\tComments\\n")
+        outFile.write("Sample\tMedian Coverage\tAverage Coverage\tPass Coverage\tComments\n")
         for result in results:
             outFile.write(result)
 
