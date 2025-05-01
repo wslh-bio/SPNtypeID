@@ -5,6 +5,9 @@ process TYPING_SUMMARY {
 
     input:
     path("data/*")
+    val minpctstrep
+    val minpctspn
+    val maxpctother
 
     output:
     path("typing_results.tsv")  , emit: typing_summary_results
@@ -16,6 +19,6 @@ process TYPING_SUMMARY {
 
     script:
     """
-    typing_summary.py
+    typing_summary.py ${minpctstrep} ${minpctspn} ${maxpctother}
     """
 }
