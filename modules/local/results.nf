@@ -15,6 +15,8 @@ process RESULTS {
     path kv,            name: "kraken_version.yml"
     val ntc_read_limit
     val ntc_spn_read_limit
+    val run_name_regex
+    val split_regex
 
     output:
     path('spntypeid_report.csv')   , emit: result_csv
@@ -24,7 +26,7 @@ process RESULTS {
 
     script:
     """
-    results.py ${workflow.manifest.version} \
+    results.py \
         --gc_stats ${gc} \
         --assembly_stats ${asr} \
         --bbduk_stats ${bb} \
@@ -35,6 +37,7 @@ process RESULTS {
         --kraken_ntc_data ${kntc} \
         --kraken_version ${kv} \
         --ntc_read_limit ${ntc_read_limit} \
-        --ntc_spn_read_limit ${ntc_spn_read_limit}
+        --ntc_spn_read_limit ${ntc_spn_read_limit} \
+        --workflowVersion ${workflow.manifest.version} 
     """
 }
