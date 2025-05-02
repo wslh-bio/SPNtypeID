@@ -30,16 +30,16 @@ def parse_args(args=None):
     parser.add_argument('-cs', '--coverage_stats', 
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-qr', 'quast_results',
+    parser.add_argument('-qr', '--quast_results',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-tr', 'typing_results',
+    parser.add_argument('-tr', '--typing_results',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-kntc', 'kraken_ntc_data',
+    parser.add_argument('-kntc', '--kraken_ntc_data',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-kv', 'kraken_version',
+    parser.add_argument('-kv', '--kraken_version',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--ntc_read_limit',
@@ -48,9 +48,19 @@ def parse_args(args=None):
     parser.add_argument('--ntc_spn_read_limit',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--workflowVersion',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--run_name_regex',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--split_regex',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion):
     # Open Kraken version file to get Kraken version
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -80,7 +90,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = merged.assign(krakenDB=krakenDBVersion)
 
     # Add Workflow version column
-    merged = merged.assign(workflowVersion='')
+    merged = merged.assign(workflowVersion=WFVersion)
 
     # Add NTC columns
     ntc = merged[merged['Sample'].str.match('NTC')]
@@ -160,7 +170,11 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
 
 def main(args=None):
     args = parse_args(args)
-    process_results(args.ntc_read_limit, args.ntc_spn_read_limit, args.run_name_regex, args.split_regex)
+    process_results(args.ntc_read_limit, 
+                    args.ntc_spn_read_limit, 
+                    args.run_name_regex, 
+                    args.split_regex, 
+                    args.workflowVersion)
 
 if __name__ == "__main__":
     sys.exit(main())

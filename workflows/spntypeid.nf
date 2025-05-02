@@ -343,7 +343,9 @@ workflow SPNTYPEID {
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
         KRAKEN_SAMPLE.out.versions.first(),
         params.ntc_read_limit,
-        params.ntc_spn_read_limit
+        params.ntc_spn_read_limit,
+        params.run_name_regex,
+        params.split_regex
     )
 
     //
