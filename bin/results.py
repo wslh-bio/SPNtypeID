@@ -1,6 +1,5 @@
 #!/usr/bin/python3.7
 
-import os
 import re
 import csv
 import sys
@@ -57,7 +56,7 @@ def parse_args(args=None):
     parser.add_argument('--split_regex',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    
+
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion):
@@ -71,7 +70,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     files = glob.glob('*.tsv')
     dfs = []
     for file in files:
-        df = pd.read_csv(file, header=0, delimiter='\\t')
+        df = pd.read_csv(file, header=0, delimiter='\t')
         dfs.append(df)
 
     # Merge data frames
@@ -123,9 +122,10 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
 
         ntc_total_reads.append(f"{id}: {total_reads}")
         ntc_SPN_reads.append(f"{id}: {spn_reads}")
-
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print(len(kraken_ntc_results))
     # Account for no NTC in data set
-    if not kraken_ntc_results:
+    if len(kraken_ntc_results) == 0:
         merged = merged.assign(ntc_reads="No NTC in data set")
         merged = merged.assign(ntc_spn="No NTC in data set")
         merged = merged.assign(ntc_result="FAIL")
