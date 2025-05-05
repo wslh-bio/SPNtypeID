@@ -91,6 +91,9 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     # Add Workflow version column
     merged = merged.assign(workflowVersion=WFVersion)
 
+    # Add NTC columns
+    ntc = merged[merged['Sample'].str.match('NTC')]
+
     # Get Kraken NTC results
     kraken_ntc_results = glob.glob("kraken_ntc_data/*")
 
@@ -115,15 +118,14 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                 if row[4] == "1300":
                     spn_reads += int(row[1])
 
-    if total_reads >= int(ntc_read_limit):
-        ntc_result = "FAIL"
-    if spn_reads >= int(ntc_spn_read_limit):
-        ntc_result = "FAIL"
+        if total_reads >= int(ntc_read_limit):
+            ntc_result = "FAIL"
+        if spn_reads >= int(ntc_spn_read_limit):
+            ntc_result = "FAIL"
 
         ntc_total_reads.append(f"{id}: {total_reads}")
         ntc_SPN_reads.append(f"{id}: {spn_reads}")
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(len(kraken_ntc_results))
+
     # Account for no NTC in data set
     if len(kraken_ntc_results) == 0:
         merged = merged.assign(ntc_reads="No NTC in data set")
