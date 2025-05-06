@@ -91,9 +91,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     # Add Workflow version column
     merged = merged.assign(workflowVersion=WFVersion)
 
-    # Add NTC columns
-    ntc = merged[merged['Sample'].str.match('NTC')]
-
     # Get Kraken NTC results
     kraken_ntc_results = glob.glob("kraken_ntc_data/*")
 
