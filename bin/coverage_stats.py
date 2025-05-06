@@ -25,14 +25,14 @@ def summarize_depth(file, mincoverage):
     with open(file,'r') as inFile:
         for line in inFile:
                 data.append(int(line.strip().split()[2]))
-        # get median and average depth
-        med = int(median(data))
-        avg = int(average(data))
-        # return sample id, median and average depth, and check for coverage fail
-        if avg >= int(mincoverage):
-            result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
-        if avg < int(mincoverage):
-            result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage coverage < (mincoverage)X\n"
+    # get median and average depth
+    med = int(median(data))
+    avg = int(average(data))
+    # return sample id, median and average depth, and check for coverage fail
+    if avg >= int(mincoverage):
+        result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
+    if avg < int(mincoverage):
+        result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage coverage < {mincoverage}X\n"
     return result
 
 
