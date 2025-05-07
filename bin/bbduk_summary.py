@@ -1,8 +1,6 @@
 #!/usr/bin/python3.7
 import os
 import glob
-import numpy
-import pandas as pd
 from pandas import DataFrame
 
 # function for summarizing bbduk output
