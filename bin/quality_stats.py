@@ -4,6 +4,7 @@ import sys
 import glob
 import argparse
 
+from functools import partial
 from numpy import median
 from numpy import average
 
@@ -32,7 +33,7 @@ def summarize_qual(file, minavgreadq):
     if avg >= int(minavgreadq):
         result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
     if avg < int(minavgreadq):
-        result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage read quality < minavgreadq\n"
+        result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage read quality < {minavgreadq}\n"
     return result
 
 
@@ -42,8 +43,10 @@ def main(args=None):
     # get all bioawk quality files
     files = glob.glob("data*/*.qual.tsv")
 
+    summarize_qual_partial = partial(summarize_qual, minavgreadq=args.minavgreadq)
+
     # summarize read quality
-    results = map(summarize_qual,files, args.minavgreadq)
+    results = map(summarize_qual_partial,files)
 
     # write results to file
     with open('quality_stats.tsv', 'w') as outFile:

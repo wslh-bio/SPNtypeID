@@ -5,6 +5,7 @@ import sys
 import glob
 import argparse
 
+from functools import partial
 from numpy import median
 from numpy import average
 
@@ -24,7 +25,7 @@ def summarize_depth(file, mincoverage):
     # open samtools depth file and get depth
     with open(file,'r') as inFile:
         for line in inFile:
-                data.append(int(line.strip().split()[2]))
+            data.append(int(line.strip().split()[2]))
     # get median and average depth
     med = int(median(data))
     avg = int(average(data))
@@ -35,15 +36,16 @@ def summarize_depth(file, mincoverage):
         result = f"{sid}\t{med}\t{avg}\tFALSE\tAverage coverage < {mincoverage}X\n"
     return result
 
-
 def main(args=None):
     args = parse_args(args)
 
     # get all samtools depth files
     files = glob.glob("data*/*.depth.tsv")
 
+    summarize_depth_partial = partial(summarize_depth, mincoverage=args.mincoverage)
+
     # summarize samtools depth files
-    results = map(summarize_depth, files, args.mincoverage)
+    results = map(summarize_depth_partial, files)
 
     # write results to file
     with open('coverage_stats.tsv', 'w') as outFile:
