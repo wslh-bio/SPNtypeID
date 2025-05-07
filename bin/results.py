@@ -5,10 +5,13 @@ import csv
 import sys
 import argparse
 import glob
+import logging
 
 import pandas as pd
 
 from functools import reduce
+
+logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
 def parse_args(args=None):
     Description='A script to summarize stats'
@@ -60,23 +63,23 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion):
-    # Open Kraken version file to get Kraken version
+    logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
             if "kraken DB:" in l.strip():
                 krakenDBVersion = l.strip().split(':')[1].strip()
 
-    # Get all tsv files and read them in as data frames
+    logging.debug("Get all tsv files and read them in as data frames")
     files = glob.glob('*.tsv')
     dfs = []
     for file in files:
         df = pd.read_csv(file, header=0, delimiter='\t')
         dfs.append(df)
 
-    # Merge data frames
+    logging.debug("Merge data frames")
     merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
-    # Merge comment columns and drop individual columns that were merged
+    logging.debug("Merge comment columns and drop individual columns that were merged")
     cols = ['Comments', 'Comments_x', 'Comments_y']
     merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
     merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
@@ -85,16 +88,16 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged['Combined'] = merged['Combined'].str.replace('nan', '')
     merged.drop(cols,axis=1,inplace=True)
 
-    # Add kraken DB column
+    logging.debug("Add kraken DB column")
     merged = merged.assign(krakenDB=krakenDBVersion)
 
-    # Add Workflow version column
+    logging.debug("Add Workflow version column")
     merged = merged.assign(workflowVersion=WFVersion)
 
-    # Get Kraken NTC results
+    logging.debug("Get Kraken NTC results")
     kraken_ntc_results = glob.glob("kraken_ntc_data/*")
 
-    # Add NTC column and calculate Kraken NTC read totals
+    logging.debug("Add NTC column and calculate Kraken NTC read totals")
     ntc_result = 'PASS'
     ntc_total_reads = []
     ntc_SPN_reads = []
@@ -123,19 +126,19 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         ntc_total_reads.append(f"{id}: {total_reads}")
         ntc_SPN_reads.append(f"{id}: {spn_reads}")
 
-    # Account for no NTC in data set
+    logging.debug("Account for no NTC in data set")
     if len(kraken_ntc_results) == 0:
         merged = merged.assign(ntc_reads="No NTC in data set")
         merged = merged.assign(ntc_spn="No NTC in data set")
         merged = merged.assign(ntc_result="FAIL")
 
-        # Otherwise add NTC totals to data frame
     else:
+        logging.debug("Otherwise add NTC totals to data frame")
         merged = merged.assign(ntc_reads=", ".join(ntc_total_reads))
         merged = merged.assign(ntc_spn=", ".join(ntc_SPN_reads))
         merged = merged.assign(ntc_result=ntc_result)
 
-    # Rename columns to nicer names
+    logging.debug("Rename columns to nicer names")
     merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version'})
 
     sample_names = merged['Sample'].tolist()
@@ -158,14 +161,16 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = merged.assign(Sample=sampleIDs)
     merged = merged.assign(Run=runIDs)
 
-    # Put columns in specific order
+    logging.debug("Put columns in specific order")
     merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)']]
 
-    # Write data frame to csv file
+    logging.info("Writing results to csv file")
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
 
 def main(args=None):
     args = parse_args(args)
+
+    logging.info("Begin compiling all results for final output file.")
     process_results(args.ntc_read_limit, 
                     args.ntc_spn_read_limit, 
                     args.run_name_regex, 
