@@ -1,35 +1,43 @@
 #!/usr/bin/python3
 import os
 import glob
+import logging
 
 from pandas import DataFrame
 
-# function for summarizing assembly output
+logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
+
+logging.debug("Function for summarizing assembly output")
 def summarize_assembly_file(file):
-    # get sample id from file name and set up data list
+    logging.debug("Get sample id from file name and set up data list")
     pattern = "_Assembly_ratio_"
     sample_id = os.path.basename(file).split(pattern)[0]
     data = []
     data.append(sample_id)
     with open(file,"r") as inFile:
+
         for line in inFile:
-            # Get Expected genome length
+
+            logging.debug("Get expected genome length")
             if "Expected_length:" in line:
                 expected_length = line.split(" ")[1].strip("\n")
                 data.append(expected_length)
-            # Get ratio
+
+            logging.debug("Get ratio")
             if "Ratio Actual:Expected:" in line:
                 ratio = line.split(" ")[2].strip("\n")
                 data.append(ratio)
+
     return data
 
-# get all calculate output files
+logging.info("Obtaining all assembly ratio output files to begin processing.")
 assembly_files = glob.glob("data/*_Assembly_ratio_*")
 
-# summarize output files
+logging.info("Summarizing output files.")
 assembly_results = map(summarize_assembly_file, assembly_files)
 
-# convert results to data frame and write to tsv
+logging.debug("Converting results to data frame and write to tsv")
 df = DataFrame(assembly_results,columns=['Sample','Expected Genome Length','Genome Length Ratio (Actual/Expected)'])
 
+logging.debug("Writing results to tsv file")
 df.to_csv(f'assembly_stats_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
