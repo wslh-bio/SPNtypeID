@@ -167,7 +167,6 @@ def process_NCBI_and_tax(taxonomy_to_compare, tax, sample_name):
                 species = "No species found"
 
             total_tax = f"{genus} {species}"
-
             return total_tax, genus, species, found
 
     else:
@@ -184,34 +183,45 @@ def process_NCBI_and_tax(taxonomy_to_compare, tax, sample_name):
 
         return total_tax, genus, species, found
 
-def search_ncbi_ratio_file(NCBI_ratio, genus, species, assembly_length, sample_name, NCBI_ratio_date, total_tax, sample_gc_percent, found):
+def search_ncbi_ratio_file(NCBI_ratio, genus, species, assembly_length, sample_name, NCBI_ratio_date, total_tax, sample_gc_percent, found, taxid):
 
-    # Search in NCBI_ratio file
+    logging.debug("Search in NCBI_ratio file")
+
+    found = False
+
     with open(NCBI_ratio, 'r') as infile:
         for line in infile:
 
             line = line.strip().split('\t')
 
             if f"{genus.lower()} {species.lower()}" == line[0].lower():
+                logging.debug("If genus and species match set taxid to 19")
+
                 taxid = line[19]
 
+                logging.debug("If taxid is -2, no mode available")
                 if taxid == -2:
                     taxid = "No mode available when determining tax id"
 
                 elif taxid == -1:
+                    logging.debug("If taxid is -1, no id or empty when looking up")
                     taxid = "No tax id given or empty when making lookup"
 
+                logging.debug("Calculating the expected length by multiplying line 4 by 1,000,000")
                 expected_length = int(1000000 * float(line[4])) // 1
+
+                logging.debug("Determining reference count and calculating stdev")
                 reference_count = line[6]
                 stdev = int(1000000 * float(line[5])) // 1
 
+                logging.debug("If the reference count is less than 10, then do not calculate the stdevs")
                 if int(reference_count) < 10:
                     stdev = "Not calculated on species with n<10 references"
                     stdevs = "NA"
 
                 else:
 
-                    logging.debug("If you have a reference count on more than 10")
+                    logging.debug("If you have a reference count on more than 10, then determine the stdev")
                     if int(assembly_length) > int(expected_length):
                         bigger = int(assembly_length)
                         smaller = int(expected_length)
@@ -245,15 +255,15 @@ def search_ncbi_ratio_file(NCBI_ratio, genus, species, assembly_length, sample_n
     if not found:
         logging.debug("If it was not found, write no matching found")
 
-        logging.info(f"No match found for '{genus} {species}'")
+        logging.info(f"No match found for '{genus} {species}' in database {NCBI_ratio}")
 
         with open(f"{sample_name}_Assembly_ratio_{NCBI_ratio_date}.txt", 'w') as outfile:
-            outfile.write(f"Sample: {sample_name}\nTax: {total_tax}\nNCBI_TAXID: {taxid}\nSpecies_StDev: NA\nIsolate_St.Devs: NA\nActual_length: {assembly_length}\nExpected_length: {expected_length}\nRatio Actual:Expected: -1\nRatio Expected:Actual: NA")
+            outfile.write(f"Sample: {sample_name}\nTax: {total_tax}\nNCBI_TAXID: {taxid}\nSpecies_StDev: NA\nIsolate_St.Devs: NA\nActual_length: No Match Found\nExpected_length: No Match Found\nRatio Actual:Expected: -1\nRatio Expected:Actual: NA")
 
         with open(f"{sample_name}_GC_content_{NCBI_ratio_date}.txt", 'w') as outfile:
             outfile.write(f"Sample: {sample_name}\nTax: {total_tax}\nNCBI_TAXID: {taxid}\nSpecies_GC_StDev: No Match Found\nSpecies_GC_Min: No Match Found\nSpecies_GC_Max: No Match Found\nSpecies_GC_Mean: No Match Found\nSpecies_GC_Count: No Match Found\nSample_GC_Percent: No Match Found")
 
-        sys.exit(0)
+        sys.exit(1)
 
 def calculate_ratio(sample_name, NCBI_ratio_date, expected_length, total_tax, taxid, assembly_length, gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdev):
 
@@ -286,8 +296,8 @@ def calculate_ratio(sample_name, NCBI_ratio_date, expected_length, total_tax, ta
 
     logging.info(f"Actual - {assembly_length}")
     logging.info(f"Expected - {expected_length}")
-    logging.info(f"Ratio Actual:Expected - {ratio_a_e:.4f}")
-    logging.info(f"Ratio Expected:Actual - {ratio_e_a:.4f}")
+    logging.info(f"Ratio Actual:Expected - {ratio_a_e}")
+    logging.info(f"Ratio Expected:Actual - {ratio_e_a}")
 
     return ratio_a_e, ratio_e_a
 
@@ -324,7 +334,7 @@ def main(args=None):
     total_tax, genus, species, found = process_NCBI_and_tax(args.taxonomy_to_compare, args.tax_file, sample_name)
 
     #Grabbing stats 
-    stdev, gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdevs, expected_length, taxid = search_ncbi_ratio_file(NCBI_ratio_file, genus, species, assembly_length, sample_name, NCBI_ratio_date, total_tax, sample_gc_percent, found)
+    stdev, gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdevs, expected_length, taxid = search_ncbi_ratio_file(NCBI_ratio_file, genus, species, assembly_length, sample_name, NCBI_ratio_date, total_tax, sample_gc_percent, found, taxid)
 
     #Calculating ratio 
     ratio_a_e, ratio_e_a = calculate_ratio(sample_name, NCBI_ratio_file, expected_length, total_tax, taxid, assembly_length,gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdev)
