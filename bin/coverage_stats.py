@@ -4,10 +4,13 @@ import os
 import sys
 import glob
 import argparse
+import logging
 
 from functools import partial
 from numpy import median
 from numpy import average
+
+logging.basicConfig(level=logging.INFO, format='%(levelname)s : %(message)s')
 
 def parse_args(args=None):
     Description='A script go through kraken and seroba results and summarize them.'
@@ -17,19 +20,23 @@ def parse_args(args=None):
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
-# function for summarizing samtools depth files
+logging.debug("Function for summarizing samtools depth files")
 def summarize_depth(file, mincoverage):
-    # get sample id from file name and set up data list
+
+    logging.debug("get sample id from file name and set up data list")
     sid = os.path.basename(file).split('.')[0]
     data = []
-    # open samtools depth file and get depth
+
+    logging.debug("Open samtools depth file and get depth")
     with open(file,'r') as inFile:
         for line in inFile:
             data.append(int(line.strip().split()[2]))
-    # get median and average depth
+
+    logging.debug("Get median and average depth")
     med = int(median(data))
     avg = int(average(data))
-    # return sample id, median and average depth, and check for coverage fail
+
+    logging.debug("Return sample id, median and average depth, and check for coverage fail")
     if avg >= int(mincoverage):
         result = f"{sid}\t{med}\t{avg}\tTRUE\t\n"
     if avg < int(mincoverage):
@@ -39,15 +46,15 @@ def summarize_depth(file, mincoverage):
 def main(args=None):
     args = parse_args(args)
 
-    # get all samtools depth files
+    logging.info("Get all samtools depth files")
     files = glob.glob("data*/*.depth.tsv")
 
     summarize_depth_partial = partial(summarize_depth, mincoverage=args.mincoverage)
 
-    # summarize samtools depth files
+    logging.info("Summarize samtools depth files")
     results = map(summarize_depth_partial, files)
 
-    # write results to file
+    logging.info("Write results to file")
     with open('coverage_stats.tsv', 'w') as outFile:
         outFile.write("Sample\tMedian Coverage\tAverage Coverage\tPass Coverage\tComments\n")
         for result in results:
