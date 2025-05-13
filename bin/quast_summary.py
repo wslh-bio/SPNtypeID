@@ -5,9 +5,7 @@ import logging
 
 import pandas as pd
 
-from pandas import DataFrame
-
-logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
 logging.debug("Function for summarizing quast output")
 def summarize_quast(file):
@@ -16,13 +14,13 @@ def summarize_quast(file):
     logging.debug("Read in data frame from file")
     df = pd.read_csv(file, sep='\t')
     logging.debug("Get contigs, total length and assembly length columns")
-    df = df.iloc[:,[1,7,17]]
+    df = df.loc[:,["# contigs (>= 0 bp)","Total length (>= 0 bp)", "GC (%)", "N50"]]
     logging.debug("Assign sample id as column")
     df = df.assign(Sample=sample_id)
     logging.debug("Rename columns")
     df = df.rename(columns={'# contigs (>= 0 bp)':'Contigs','Total length (>= 0 bp)':'Assembly Length (bp)'})
     logging.debug("Re-order data frame")
-    df = df[['Sample', 'Contigs','Assembly Length (bp)', 'N50']]
+    df = df[['Sample', 'Contigs','Assembly Length (bp)', 'N50', 'GC (%)']]
     return df
 
 logging.info("Obtaining all quast output files")
