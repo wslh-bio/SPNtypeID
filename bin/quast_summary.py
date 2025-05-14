@@ -14,7 +14,7 @@ def summarize_quast(file):
     logging.debug("Read in data frame from file")
     df = pd.read_csv(file, sep='\t')
     logging.debug("Get contigs, total length and assembly length columns")
-    df = df.loc[:,["# contigs (>= 0 bp)","Total length (>= 0 bp)", "GC (%)", "N50"]]
+    df = df.loc[:,["# contigs","Total length", "GC (%)", "N50"]]
     logging.debug("Assign sample id as column")
     df = df.assign(Sample=sample_id)
     logging.debug("Create pass contigs column")
