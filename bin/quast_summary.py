@@ -5,7 +5,7 @@ import logging
 
 import pandas as pd
 
-logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
 logging.debug("Function for summarizing quast output")
 def summarize_quast(file):
