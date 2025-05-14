@@ -112,14 +112,10 @@ def check_quast_stats(quast_report, NCBI, sample_name, taxid, stdev, stdevs, ass
         # Check if quast assembly stats exist
         with open(quast_report, 'r') as infile:
 
-            logging.debug("Setting up column names here")
-            assembly_length_row_name = "Total length (>= 0 bp)"
-            gc_percent_row_name = "GC (%)"
-
             logging.debug("Going through quast file to get result for assembly length and sample gc")
             df = pd.read_csv(infile,sep = '\t')
-            assembly_length = df[assembly_length_row_name][0]
-            sample_gc_percent = df[gc_percent_row_name][0]
+            assembly_length = df["Total length (>= 0 bp)"][0]
+            sample_gc_percent = df["GC (%)"][0]
 
             return assembly_length, sample_gc_percent
 
@@ -207,12 +203,12 @@ def search_ncbi_ratio_file(NCBI_ratio, genus, species, assembly_length, sample_n
                     logging.debug("If taxid is -1, no id or empty when looking up")
                     taxid = "No tax id given or empty when making lookup"
 
-                logging.debug("Calculating the expected length by multiplying line 4 by 1,000,000")
-                expected_length = int(1000000 * float(line[4])) // 1
+                else:
+                    logging.debug("Calculating the expected length by multiplying line 4 by 1,000,000")
+                    expected_length = int(1000000 * float(line[4])) // 1
 
                 logging.debug("Determining reference count and calculating stdev")
                 reference_count = line[6]
-                stdev = int(1000000 * float(line[5])) // 1
 
                 logging.debug("If the reference count is less than 10, then do not calculate the stdevs")
                 if int(reference_count) < 10:
@@ -220,37 +216,40 @@ def search_ncbi_ratio_file(NCBI_ratio, genus, species, assembly_length, sample_n
                     stdevs = "NA"
 
                 else:
+                    stdev = int(1000000 * float(line[5])) // 1
 
-                    logging.debug("If you have a reference count on more than 10, then determine the stdev")
-                    if int(assembly_length) > int(expected_length):
-                        bigger = int(assembly_length)
-                        smaller = int(expected_length)
+            else:
 
-                    else:
-                        smaller = int(assembly_length)
-                        bigger = int(expected_length)
-
-                    logging.debug("Calculating the standard deviations")
-                    stdevs = (bigger - smaller) / stdev
-
-                logging.debug("Gathering GC information based on NCBI database")
-                gc_min = line[7]
-                gc_max = line[8]
-                gc_mean = line[10]
-                gc_count = line[12]
-
-                if int(gc_count) < 10:
-                    gc_stdev = "Not calculated on species with n<10 references"
+                logging.debug("If you have a reference count on more than 10, then determine the stdev")
+                if int(assembly_length) > int(expected_length):
+                    bigger = int(assembly_length)
+                    smaller = int(expected_length)
 
                 else:
-                    gc_stdev = line[11]
+                    smaller = int(assembly_length)
+                    bigger = int(expected_length)
 
-                with open(f"{sample_name}_GC_content_{NCBI_ratio_date}.txt", 'w') as outfile:
-                    outfile.write(f"Sample: {sample_name}\nTax: {total_tax}\nNCBI_TAXID: {taxid}\nSpecies_GC_StDev: {gc_stdev}\nSpecies_GC_Min: {gc_min}\nSpecies_GC_Max: {gc_max}\nSpecies_GC_Mean: {gc_mean}\nSpecies_GC_Count: {gc_count}\nSample_GC_Percent: {sample_gc_percent}")
+                logging.debug("Calculating the standard deviations")
+                stdevs = (bigger - smaller) / stdev
 
-                found = True
+            logging.debug("Gathering GC information based on NCBI database")
+            gc_min = line[7]
+            gc_max = line[8]
+            gc_mean = line[10]
+            gc_count = line[12]
 
-                return stdev, gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdevs, expected_length, taxid
+            if int(gc_count) < 10:
+                gc_stdev = "Not calculated on species with n<10 references"
+
+            else:
+                gc_stdev = line[11]
+
+            with open(f"{sample_name}_GC_content_{NCBI_ratio_date}.txt", 'w') as outfile:
+                outfile.write(f"Sample: {sample_name}\nTax: {total_tax}\nNCBI_TAXID: {taxid}\nSpecies_GC_StDev: {gc_stdev}\nSpecies_GC_Min: {gc_min}\nSpecies_GC_Max: {gc_max}\nSpecies_GC_Mean: {gc_mean}\nSpecies_GC_Count: {gc_count}\nSample_GC_Percent: {sample_gc_percent}")
+
+            found = True
+
+            return stdev, gc_stdev, gc_min, gc_max, gc_mean, gc_count, stdevs, expected_length, taxid
 
     if not found:
         logging.debug("If it was not found, write no matching found")
