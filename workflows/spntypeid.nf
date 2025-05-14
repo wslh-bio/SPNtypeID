@@ -59,11 +59,15 @@ include { BIOAWK                        } from '../modules/local/bioawk'
 include { QUALITY_STATS                 } from '../modules/local/quality_stats'
 include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
 include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
+include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
 include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
 include { RESULTS                       } from '../modules/local/results'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
+include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
+include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
+include { GC_STATS_SUMMARY              } from '../modules/local/gc_stats_summary.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
@@ -209,7 +213,8 @@ workflow SPNTYPEID {
     // MODULE: COVERAGE_STATS
     //
     COVERAGE_STATS (
-        SAMTOOLS.out.cov_files.collect()
+        SAMTOOLS.out.cov_files.collect(),
+        params.mincoverage
     )
 
     //
@@ -223,8 +228,18 @@ workflow SPNTYPEID {
     //
     // MODULE: QUAST_SUMMARY
     //
+    QUAST
+        .out
+        .transposed_report
+        .map { meta, path -> 
+            path 
+            }
+        .collect()
+        .set { ch_quast_summary }
+
+
     QUAST_SUMMARY (
-        QUAST.out.transposed_report.collect()
+        ch_quast_summary
     )
 
     //
@@ -239,7 +254,8 @@ workflow SPNTYPEID {
     // MODULE: QUALITY_STATS
     //
     QUALITY_STATS (
-        BIOAWK.out.qual_results.collect()
+        BIOAWK.out.qual_results.collect(),
+        params.minavgreadq
     )
 
     //
@@ -249,6 +265,13 @@ workflow SPNTYPEID {
         ch_input_reads.sample
     )
     ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
+
+        //
+    // MODULE: KRAKEN_SUMMARY
+    //
+    KRAKEN_SUMMARY (
+        KRAKEN_SAMPLE.out.kraken_results.collect()
+    )
 
     //
     // MODULE: KRAKEN_NTC
@@ -269,20 +292,60 @@ workflow SPNTYPEID {
     // MODULE: TYPING_SUMMARY
     //
     TYPING_SUMMARY (
-        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect()
+        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect(),
+        params.minpctstrep,
+        params.minpctspn,
+        params.maxpctother
+    )
+
+    ch_kraken_tsv = KRAKEN_SUMMARY.out.kraken_tsv
+
+    QUAST.out.transposed_report
+        .map{meta, result -> 
+            [[id:meta.id], result]
+            }
+            .set { ch_quast }
+
+    //
+    // MODULE: CALCULATE ASSEMBLY STATS
+    //
+    CALCULATE_ASSEMBLY_STATS (
+        ch_quast,
+        ch_kraken_tsv,
+        params.ncbi_assembly_stats
+    )
+
+    //
+    // MODULE: ASSEMBLY_STATS_SUMMARY
+    //
+    ASSEMBLY_STATS_SUMMARY (
+        CALCULATE_ASSEMBLY_STATS.out.assembly_ratio.collect()
+    )
+
+    //
+    // MODULE: GC_STATS_SUMMARY
+    //
+    GC_STATS_SUMMARY(
+        CALCULATE_ASSEMBLY_STATS.out.gc_content.collect()
     )
 
     //
     // MODULE: RESULTS
     //
     RESULTS (
+        GC_STATS_SUMMARY.out.gc_stats_tsv,
+        ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
         BBDUK_SUMMARY.out.bbduk_tsv,
         QUALITY_STATS.out.quality_tsv,
         COVERAGE_STATS.out.coverage_tsv,
         QUAST_SUMMARY.out.quast_tsv,
         TYPING_SUMMARY.out.typing_summary_results,
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
-        KRAKEN_SAMPLE.out.versions.first()
+        KRAKEN_SAMPLE.out.versions.first(),
+        params.ntc_read_limit,
+        params.ntc_spn_read_limit,
+        params.run_name_regex,
+        params.split_regex
     )
 
     //
