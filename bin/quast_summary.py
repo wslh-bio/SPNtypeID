@@ -18,7 +18,7 @@ def summarize_quast(file):
     logging.debug("Assign sample id as column")
     df = df.assign(Sample=sample_id)
     logging.debug("Create pass contigs column")
-    df = df.assign(PassContigs='PASS')
+    df = df.assign(PassContigs='True')
     logging.debug("Check contig number and set to WARN if threshold is exceeded")
     df['PassContigs'].mask(df['# contigs'] > 300, 'WARNING', inplace=True)
     logging.debug("Rename columns")
