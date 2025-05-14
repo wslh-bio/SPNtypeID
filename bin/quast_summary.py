@@ -17,10 +17,14 @@ def summarize_quast(file):
     df = df.loc[:,["# contigs (>= 0 bp)","Total length (>= 0 bp)", "GC (%)", "N50"]]
     logging.debug("Assign sample id as column")
     df = df.assign(Sample=sample_id)
+    logging.debug("Create pass contigs column")
+    df = df.assign(PassContigs='PASS')
+    logging.debug("Check contig number and set to WARN if threshold is exceeded")
+    df['PassContigs'].mask(df['# contigs'] > 300, 'WARNING', inplace=True)
     logging.debug("Rename columns")
-    df = df.rename(columns={'# contigs (>= 0 bp)':'Contigs','Total length (>= 0 bp)':'Assembly Length (bp)'})
+    df = df.rename(columns={'# contigs':'Contigs','Total length':'Assembly Length (bp)','PassContigs':'Pass Contigs'})
     logging.debug("Re-order data frame")
-    df = df[['Sample', 'Contigs','Assembly Length (bp)', 'N50', 'GC (%)']]
+    df = df[['Sample','Assembly Length (bp)','Contigs','N50','Pass Contigs']]
     return df
 
 logging.info("Obtaining all quast output files")
