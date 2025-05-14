@@ -172,7 +172,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 If you use SPNtypeID for your analysis, please cite it using the following:
 
-` A.C. Shockey, K. Florek, & E. Gunawan (2014). SPNtypeID (Version 1.6.2) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
+` A.C. Shockey, K. Florek, & E. Gunawan (2014). SPNtypeID (Version 1.7.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
 
 An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
