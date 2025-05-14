@@ -162,7 +162,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = merged.assign(Run=runIDs)
 
     logging.debug("Put columns in specific order")
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','GC Content','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)']]
+    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','GC Content','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)','Pass Contigs']]
 
     logging.info("Writing results to csv file")
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
