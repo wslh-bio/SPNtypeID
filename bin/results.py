@@ -59,10 +59,13 @@ def parse_args(args=None):
     parser.add_argument('--split_regex',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--workflowRunName',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
 
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName):
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -165,7 +168,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','GC Content','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)']]
 
     logging.info("Writing results to csv file")
-    merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
+    merged.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
 
 def main(args=None):
     args = parse_args(args)
@@ -175,7 +178,8 @@ def main(args=None):
                     args.ntc_spn_read_limit, 
                     args.run_name_regex, 
                     args.split_regex, 
-                    args.workflowVersion)
+                    args.workflowVersion,
+                    args.workflowRunName)
 
 if __name__ == "__main__":
     sys.exit(main())
