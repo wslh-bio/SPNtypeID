@@ -239,7 +239,8 @@ workflow SPNTYPEID {
 
 
     QUAST_SUMMARY (
-        ch_quast_summary
+        ch_quast_summary,
+        params.maxcontigs
     )
 
     //
