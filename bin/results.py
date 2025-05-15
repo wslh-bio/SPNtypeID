@@ -80,7 +80,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
     logging.debug("Merge comment columns and drop individual columns that were merged")
-    cols = ['Comments', 'Comments_x', 'Comments_y']
+    cols = ['Typing Summary Comments', 'Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments']
     merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
     merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
     merged['Combined'] = merged['Combined'].str.replace('; nan', '')
@@ -139,7 +139,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         merged = merged.assign(ntc_result=ntc_result)
 
     logging.debug("Rename columns to nicer names")
-    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version', 'GC (%)':'GC Content'})
+    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version','Sample GC Content (%)':'Genome GC Content (%)'})
 
     sample_names = merged['Sample'].tolist()
     sampleIDs = []
@@ -162,7 +162,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = merged.assign(Run=runIDs)
 
     logging.debug("Put columns in specific order")
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','GC Content','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)','Pass Contigs']]
+    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)','Genome GC Content (%)','Pass Contigs']]
 
     logging.info("Writing results to csv file")
     merged.to_csv('spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
