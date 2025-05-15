@@ -5,6 +5,7 @@ process QUAST_SUMMARY {
 
     input:
     path("data*/*")
+    val maxcontigs
 
     output:
     path("quast_results.tsv"), emit: quast_tsv
@@ -14,6 +15,6 @@ process QUAST_SUMMARY {
 
     script:
     """
-    quast_summary.py
+    quast_summary.py ${maxcontigs}
     """
 }
