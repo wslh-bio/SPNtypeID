@@ -56,7 +56,7 @@ def main(args=None):
 
     logging.info("Write results to file")
     with open('coverage_stats.tsv', 'w') as outFile:
-        outFile.write("Sample\tMedian Coverage\tAverage Coverage\tPass Coverage\tComments\n")
+        outFile.write("Sample\tMedian Coverage\tAverage Coverage\tPass Coverage\tCoverage Stats Comments\n")
         for result in results:
             outFile.write(result)
 
