@@ -55,7 +55,7 @@ def main(args=None):
 
     logging.info("Writing results to output file")
     with open('quality_stats.tsv', 'w') as outFile:
-        outFile.write("Sample\tMedian Read Quality\tAverage Read Quality\tPass Average Read Quality\tComments\n")
+        outFile.write("Sample\tMedian Read Quality\tAverage Read Quality\tPass Average Read Quality\tQuality Stats Comments\n")
         for result in results:
             outFile.write(result)
 
