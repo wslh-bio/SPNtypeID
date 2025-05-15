@@ -19,7 +19,7 @@ process RESULTS {
     val split_regex
 
     output:
-    path('spntypeid_report.csv')   , emit: result_csv
+    path('*_spntypeid_report.csv')   , emit: result_csv
 
     when:
     task.ext.when == null || task.ext.when
@@ -38,6 +38,7 @@ process RESULTS {
         --kraken_version ${kv} \
         --ntc_read_limit ${ntc_read_limit} \
         --ntc_spn_read_limit ${ntc_spn_read_limit} \
-        --workflowVersion ${workflow.manifest.version} 
+        --workflowVersion ${workflow.manifest.version} \
+        --workflowRunName ${workflow.runName}
     """
 }
