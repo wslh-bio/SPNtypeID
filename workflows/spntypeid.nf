@@ -61,6 +61,7 @@ include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
 include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
 include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
+include { SEROBA_SUMMARY                 } from '../modules/local/seroba_summary'
 include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
 include { RESULTS                       } from '../modules/local/results'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
@@ -267,7 +268,7 @@ workflow SPNTYPEID {
     )
     ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
 
-        //
+    //
     // MODULE: KRAKEN_SUMMARY
     //
     KRAKEN_SUMMARY (
@@ -288,6 +289,13 @@ workflow SPNTYPEID {
         ch_input_reads.sample
     )
     ch_versions = ch_versions.mix(SEROBA.out.versions.first())
+
+    //
+    // MODULE: SEROBA_SUMMARY
+    //
+    SEROBA_SUMMARY (
+        SEROBA.out.seroba_results.collect()
+    )
 
     //
     // MODULE: TYPING_SUMMARY
