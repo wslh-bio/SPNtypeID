@@ -35,9 +35,6 @@ def parse_args(args=None):
     parser.add_argument('-qr', '--quast_results',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-tr', '--typing_results',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-kntc', '--kraken_ntc_data',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
@@ -62,7 +59,12 @@ def parse_args(args=None):
     parser.add_argument('--workflowRunName',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-
+    parser.add_argument('-psr', '--percentStrepResults',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('-sr', '--serobaResults',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName):
@@ -83,11 +85,10 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
     logging.debug("Merge comment columns and drop individual columns that were merged")
-    cols = ['Typing Summary Comments', 'Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments']
+    cols = ['Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments','Percent Strep Comments','SeroBA Comments']
     merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
     merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
     merged['Combined'] = merged['Combined'].str.replace('; nan', '')
-    merged['Combined'] = merged['Combined'].str.replace('contamination', 'Contamination')
     merged['Combined'] = merged['Combined'].str.replace('nan', '')
     merged.drop(cols,axis=1,inplace=True)
 
