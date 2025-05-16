@@ -16,7 +16,7 @@ def summarize_seroba(file):
     logging.debug("Get relevant columns form df")
     df = df.loc[:,['Sample','Serotype','Contamination_Status']]
     logging.debug("Replace missing data in Contamination_Status column")
-    df['Contamination_Status'].mask(df['Contamination_Status'].isna(), 'Sample quality prevented SeroBA from detecting contamination', inplace=True)
+    df['Contamination_Status'].mask(df['Contamination_Status'].isna(), 'Poor sample quality prevented SeroBA from detecting contamination', inplace=True)
     logging.debug("Change SeroBA messages in Contamination_Status column")
     replacements = {r'^contamination$': 'SeroBA detected contamination', 'Pure': 'SeroBA did not detect contamination'}
     df['Contamination_Status'] = df['Contamination_Status'].str.replace('|'.join(replacements.keys()), lambda m: replacements[m.group(0)], regex=True)
