@@ -87,7 +87,7 @@ def main(args=None):
         writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Percent Strep Comments"])
         for id in results:
             result = results[id]
-            comments = '; '.join(result.comments)
+            comments = ';'.join(result.comments)
             writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,comments])
 
 if __name__ == "__main__":
