@@ -179,7 +179,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged_df = merged_df.assign(Run=runIDs)
 
     logging.debug("Put columns in specific order")
-    merged_df = merged_df[['Sample','Contigs (#)',
+    merged_df = merged_df[['Sample',
+                        'Contigs (#)',
                         'Assembly Length (bp)',
                         'N50',
                         'Median Coverage',
