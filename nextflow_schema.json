@@ -299,7 +299,7 @@
                 "tracedir": {
                     "type": "string",
                     "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "fa_icon": "fas fa-cogs",
+                    "fa_icon": "fas fa-cogs"
                 },
                 "validate_params": {
                     "type": "boolean",
