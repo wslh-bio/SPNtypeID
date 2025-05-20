@@ -1,76 +1,54 @@
-#!/usr/bin/python3.7
+#!/usr/bin/python3
 import os
-import sys
 import glob
-import argparse
 import logging
 
-import pandas as pd
-from functools import partial
+from pandas import DataFrame
 
 logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
-def parse_args(args=None):
-	Description='A script to summarize stats'
-	Epilog='Use with quast_summary.py <MAXCONTIGS>'
+logging.debug("Function for summarizing assembly output")
+def summarize_assembly_file(file):
 
-	parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
-	parser.add_argument('maxcontigs',
-	    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-	return parser.parse_args(args)
-
-def summarize_quast(file, maxcontigs):
     logging.debug("Get sample id from file name and set up data list")
-    sample_id = os.path.basename(file).split('.')[0]
+    pattern = "_Assembly_ratio_"
+    sample_id = os.path.basename(file).split(pattern)[0]
+    data = []
+    data.append(sample_id)
+    with open(file,"r") as inFile:
 
-    logging.debug("Read in data frame from file")
-    df = pd.read_csv(file, sep='\t')
+        for line in inFile:
 
-    logging.debug("Get contigs, total length and assembly length columns")
-    df = df.loc[:,['# contigs','Total length', 'N50']]
+            logging.debug("Get expected genome length")
+            if "Expected_length:" in line:
+                expected_length = line.split(" ")[1].strip("\n")
+                data.append(expected_length)
 
-    logging.debug("Assign sample id as column")
-    df = df.assign(Sample=sample_id)
+            logging.debug("Get actual genome length")
+            if "Actual_length:" in line:
+                actual_length = line.split(" ")[1].strip("\n")
+                data.append(actual_length)
 
-    logging.debug("Create pass contigs column")
-    df = df.assign(PassContigs='True')
+            logging.debug("Get ratio")
+            if "Ratio Actual:Expected:" in line:
+                ratio = line.split(" ")[2].strip("\n")
+                data.append(ratio)
 
-    logging.debug("Check contig number and set to WARN if threshold is exceeded")
-    df['PassContigs'].mask(df['# contigs'] > int(maxcontigs), 'WARNING', inplace=True)
+            logging.debug("Z score")
+            if "Z score:" in line:
+                z_score = line.split(" ")[1].strip("\n")
+                data.append(z_score)
 
-    logging.debug("Create comments column")
-    df = df.assign(Comments='')
+    return data
 
-    logging.debug("Add contig # > 300 comment")
-    df['Comments'].mask(df['# contigs'] > int(maxcontigs), f'Contig # > {maxcontigs}', inplace=True)
+logging.info("Obtaining all assembly ratio output files to begin processing.")
+assembly_files = glob.glob("data/*_Assembly_ratio_*")
 
-    logging.debug("Rename columns")
-    df = df.rename(columns={'# contigs':'Contigs','Total length':'Assembly Length (bp)','PassContigs':'Pass Contigs','Comments':'QUAST Summary Comments'})
+logging.info("Summarizing output files.")
+assembly_results = map(summarize_assembly_file, assembly_files)
 
-    logging.debug("Re-order data frame")
-    df = df[['Sample','Assembly Length (bp)','Contigs','N50','Pass Contigs','QUAST Summary Comments']]
+logging.debug("Converting results to data frame and write to tsv")
+df = DataFrame(assembly_results,columns=['Sample','Expected Genome Length','Actual Genome Length','Genome Length Ratio (Actual/Expected)', 'Species_St.Dev'])
 
-    return df
-
-def main(args=None):
-    args = parse_args(args)
-
-    logging.info("Obtaining all QUAST output files")
-    files = glob.glob('data*/*.transposed.quast.report.tsv*')
-
-    summarize_quast_partial = partial(summarize_quast, maxcontigs=args.maxcontigs)
-
-    logging.info("Summarizing quast output files")
-    dfs = map(summarize_quast_partial,files)
-    dfs = list(dfs)
-
-    logging.debug("Concatenate dfs and write data frame to file")
-    if len(dfs) > 1:
-        dfs_concat = pd.concat(dfs)
-        dfs_concat.to_csv(f'quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
-    else:
-        dfs = dfs[0]
-        dfs.to_csv(f'quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
-
-if __name__ == "__main__":
-    sys.exit(main())
+logging.debug("Writing results to tsv file")
+df.to_csv(f'assembly_stats_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
