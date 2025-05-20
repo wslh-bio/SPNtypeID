@@ -31,6 +31,12 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "tracedir": {
+                    "type": "string",
+                    "description": "Directory to keep pipeline Nextflow logs and reports.",
+                    "fa_icon": "fas fa-cogs",
+                    "hidden": true
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -295,12 +301,6 @@
                     "type": "string",
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
                     "fa_icon": "fas fa-cog"
-                },
-                "tracedir": {
-                    "type": "string",
-                    "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "fa_icon": "fas fa-cogs",
-                    "hidden": true
                 },
                 "validate_params": {
                     "type": "boolean",
