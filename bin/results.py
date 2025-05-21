@@ -7,37 +7,17 @@ import argparse
 import glob
 import logging
 
+import numpy as np
 import pandas as pd
 
 from functools import reduce
 
-logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
 def parse_args(args=None):
     Description='A script to summarize stats'
     Epilog='Use with results.py <>'
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
-    parser.add_argument('-gc', '--gc_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-asr', '--assembly_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-bb', '--bbduk_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-qs', '--quality_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-cs', '--coverage_stats', 
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-qr', '--quast_results',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-tr', '--typing_results',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-kntc', '--kraken_ntc_data',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
@@ -83,7 +63,11 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
     logging.debug("Merge comment columns and drop individual columns that were merged")
-    cols = ['Typing Summary Comments', 'Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments']
+    cols = ['Typing Summary Comments', 'Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments', 'Assembly length warning', 'Z score warning']
+
+    merged["Assembly length warning"] = np.where(merged['Assembly Length (bp)'] < 1000000, 'Assembly is less than 1,000,000 bp.', 'N/A')
+    merged["Z score warning"] = np.where(merged['Z score'] > 2.58, 'Z-score is greater than 2.58.', 'N/A')
+
     merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
     merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
     merged['Combined'] = merged['Combined'].str.replace('; nan', '')
@@ -142,12 +126,14 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         merged = merged.assign(ntc_result=ntc_result)
 
     logging.debug("Rename columns to nicer names")
-    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version','Sample GC Content (%)':'Genome GC Content (%)'})
+    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version', 'Stdev':'Stdev (bp)'})
 
+    logging.debug("Getting list of sample names")
     sample_names = merged['Sample'].tolist()
     sampleIDs = []
     runIDs = []
 
+    logging.debug("Getting run IDs")
     for name in sample_names:
         regex = f"r'{run_name_regex}'"
         if re.search(regex,name):
@@ -161,11 +147,14 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
             sampleID = re.split(regex, name)[0]
             sampleIDs.append(sampleID)
 
+    logging.debug("Assigning sample and run IDs to data frame")
     merged = merged.assign(Sample=sampleIDs)
     merged = merged.assign(Run=runIDs)
 
+    merged.to_csv('test.csv', index=False)
+
     logging.debug("Put columns in specific order")
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Comments','Kraken Database Version','SPNtypeID Version','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Run','Genome Length Ratio (Actual/Expected)','Genome GC Content (%)','Pass Contigs']]
+    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Ratio of Actual:Expected Genome length','Z score','Pass Contigs','Kraken Database Version','Run','SPNtypeID Version','Comments']]
 
     logging.info("Writing results to csv file")
     merged.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
