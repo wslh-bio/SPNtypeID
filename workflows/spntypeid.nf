@@ -61,7 +61,8 @@ include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
 include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
 include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
-include { TYPING_SUMMARY                } from '../modules/local/typing_summary'
+include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
+include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
 include { RESULTS                       } from '../modules/local/results'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
@@ -267,7 +268,7 @@ workflow SPNTYPEID {
     )
     ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
 
-        //
+    //
     // MODULE: KRAKEN_SUMMARY
     //
     KRAKEN_SUMMARY (
@@ -290,10 +291,17 @@ workflow SPNTYPEID {
     ch_versions = ch_versions.mix(SEROBA.out.versions.first())
 
     //
-    // MODULE: TYPING_SUMMARY
+    // MODULE: SEROBA_SUMMARY
     //
-    TYPING_SUMMARY (
-        KRAKEN_SAMPLE.out.kraken_results.mix(SEROBA.out.seroba_results).collect(),
+    SEROBA_SUMMARY (
+        SEROBA.out.seroba_results.collect()
+    )
+
+    //
+    // MODULE: PERCENT_STREP_SUMMARY
+    //
+    PERCENT_STREP_SUMMARY (
+        KRAKEN_SAMPLE.out.kraken_results.collect(),
         params.minpctstrep,
         params.minpctspn,
         params.maxpctother
@@ -340,13 +348,14 @@ workflow SPNTYPEID {
         QUALITY_STATS.out.quality_tsv,
         COVERAGE_STATS.out.coverage_tsv,
         QUAST_SUMMARY.out.quast_tsv,
-        TYPING_SUMMARY.out.typing_summary_results,
         KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
         KRAKEN_SAMPLE.out.versions.first(),
+        PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
+        SEROBA_SUMMARY.out.seroba_tsv,
         params.ntc_read_limit,
         params.ntc_spn_read_limit,
         params.run_name_regex,
-        params.split_regex
+        params.split_regex,
     )
 
     //
