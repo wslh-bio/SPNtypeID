@@ -9,7 +9,7 @@ logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s'
 
 def parse_args(args=None):
     Description='A script go through kraken and seroba results and summarize them.'
-    Epilog='Use with typing_summary.py <args.minpctstrep> <args.minpctspn> <args.maxpctother>'
+    Epilog='Use with percent_strep_summary.py <args.minpctstrep> <args.minpctspn> <args.maxpctother>'
 
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
     parser.add_argument('minpctstrep',
@@ -33,11 +33,9 @@ def main(args=None):
             self.secondgenus = "NotRun"
             self.percent_secondgenus = "NotRun"
             self.pass_kraken = False
-            self.pred = "NotRun"
 
     logging.debug("Get list of result files")
     kraken_list = glob.glob("data/*.kraken.txt")
-    seroba_list = glob.glob("data/*.pred.csv")
 
     results = {}
 
@@ -83,49 +81,14 @@ def main(args=None):
 
         results[id] = result
 
-    logging.debug("Collect all seroba results")
-    for file in seroba_list:
-        id = file.split("/")[1].split(".pred")[0]
-        result = results[id]
-        with open(file,'r') as csvfile:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-            csvfile.seek(0)
-            next(csvfile)
-            reader = csv.reader(csvfile,dialect)
-            types = []
-            for row in reader:
-                types.append(row[1].replace('Serotype ',''))
-                try:
-                    result.comments.append(row[3].replace('contamination','Contamination').replace('NA','SeroBA did not detect contamination'))
-                except IndexError:
-                    pass
-            result.pred = " ".join(types)
-        results[id] = result
-
-    logging.debug("Create typing results output file")
-    with open("typing_results.tsv",'w') as csvout:
+    logging.debug("Create output file")
+    with open("percent_strep_results.tsv",'w') as csvout:
         writer = csv.writer(csvout,delimiter='\t')
-        writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Serotype","Typing Summary Comments"])
+        writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken","Percent Strep Comments"])
         for id in results:
             result = results[id]
-            comments = "; ".join(result.comments)
-            writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,result.pred,comments])
-
-    logging.debug("Create kraken results output file")
-    with open("kraken_results.tsv",'w') as csvout:
-        writer = csv.writer(csvout,delimiter='\t')
-        writer.writerow(["Sample","Percent Strep","Percent SPN","SecondGenus","Percent SecondGenus","Pass Kraken"])
-        for id in results:
-            result = results[id]
-            writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken])
-
-    logging.debug("Create seroba results output file")
-    with open("seroba_results.tsv",'w') as csvout:
-        writer = csv.writer(csvout,delimiter='\t')
-        writer.writerow(["Sample","Serotype"])
-        for id in results:
-            result = results[id]
-            writer.writerow([result.id,result.pred])
+            comments = ';'.join(result.comments)
+            writer.writerow([result.id,result.percent_strep,result.percent_spn,result.secondgenus,result.percent_secondgenus,result.pass_kraken,comments])
 
 if __name__ == "__main__":
     sys.exit(main())
