@@ -4,7 +4,6 @@ process RESULTS {
     container "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458"
 
     input:
-    path gc,            name: "gc_stats_results.tsv"
     path asr,           name: "assembly_stats_results.tsv"
     path bb,            name: "bbduk_results.tsv"
     path qs,            name: "quality_stats.tsv"
@@ -19,7 +18,7 @@ process RESULTS {
     val split_regex
 
     output:
-    path('*_spntypeid_report.csv')   , emit: result_csv
+    path('spntypeid_report.csv')   , emit: result_csv
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,18 +26,12 @@ process RESULTS {
     script:
     """
     results.py \
-        --gc_stats ${gc} \
-        --assembly_stats ${asr} \
-        --bbduk_stats ${bb} \
-        --quality_stats ${qs} \
-        --coverage_stats ${cs} \
-        --quast_results ${qr} \
-        --typing_results ${tr} \
         --kraken_ntc_data ${kntc} \
         --kraken_version ${kv} \
         --ntc_read_limit ${ntc_read_limit} \
         --ntc_spn_read_limit ${ntc_spn_read_limit} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName}
+        --run_name_regex ${run_name_regex} \
+        --split_regex ${split_regex}
     """
 }
