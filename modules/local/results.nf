@@ -18,7 +18,7 @@ process RESULTS {
     val split_regex
 
     output:
-    path('spntypeid_report.csv')   , emit: result_csv
+    path('*_spntypeid_report.csv')   , emit: result_csv
 
     when:
     task.ext.when == null || task.ext.when
