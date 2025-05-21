@@ -3,9 +3,10 @@ import os
 import glob
 import logging
 
+import pandas as pd
 from pandas import DataFrame
 
-logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
 logging.debug("Function for summarizing assembly output")
 def summarize_assembly_file(file):
@@ -13,42 +14,34 @@ def summarize_assembly_file(file):
     logging.debug("Get sample id from file name and set up data list")
     pattern = "_Assembly_ratio_"
     sample_id = os.path.basename(file).split(pattern)[0]
-    data = []
-    data.append(sample_id)
-    with open(file,"r") as inFile:
 
-        for line in inFile:
+    logging.debug("Read in data frame from file")
+    df = pd.read_csv(file, sep='\t')
 
-            logging.debug("Get expected genome length")
-            if "Expected_length:" in line:
-                expected_length = line.split(" ")[1].strip("\n")
-                data.append(expected_length)
+    logging.debug("Get expected, actual length, ratio, and z score columns")
+    df = df.loc[:,['Expected_length','Actual_length','Ratio Actual:Expected','Z_score', 'Stdev']]
 
-            logging.debug("Get actual genome length")
-            if "Actual_length:" in line:
-                actual_length = line.split(" ")[1].strip("\n")
-                data.append(actual_length)
+    logging.debug("Assign sample id as column")
+    df = df.assign(Sample=sample_id)
 
-            logging.debug("Get ratio")
-            if "Ratio Actual:Expected:" in line:
-                ratio = line.split(" ")[2].strip("\n")
-                data.append(ratio)
+    logging.debug("Rename columns")
+    df = df.rename(columns={'Expected_length':'Expected length','Actual_length':'Actual length','Ratio Actual:Expected':'Ratio of Actual:Expected Genome length','Z_score':'Z score'})
 
-            logging.debug("Z score")
-            if "Z score:" in line:
-                z_score = line.split(" ")[1].strip("\n")
-                data.append(z_score)
+    logging.debug("Re-order data frame")
+    df = df[['Sample','Expected length','Actual length','Ratio of Actual:Expected Genome length','Z score', 'Stdev']]
 
-    return data
+    return df
 
 logging.info("Obtaining all assembly ratio output files to begin processing.")
-assembly_files = glob.glob("data/*_Assembly_ratio_*")
+files = glob.glob("data/*_Assembly_ratio_*")
 
 logging.info("Summarizing output files.")
-assembly_results = map(summarize_assembly_file, assembly_files)
+dfs = map(summarize_assembly_file, files)
+dfs = list(dfs)
 
-logging.debug("Converting results to data frame and write to tsv")
-df = DataFrame(assembly_results,columns=['Sample','Expected Genome Length','Actual Genome Length','Genome Length Ratio (Actual/Expected)', 'Species_St.Dev'])
-
-logging.debug("Writing results to tsv file")
-df.to_csv(f'assembly_stats_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+if len(dfs) > 1:
+    dfs_concat = pd.concat(dfs)
+    dfs_concat.to_csv(f'assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+else:
+    dfs = dfs[0]
+    dfs.to_csv(f'assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
