@@ -16,6 +16,8 @@ process RESULTS {
     val ntc_spn_read_limit
     val run_name_regex
     val split_regex
+    val min_assembly_length
+    val max_stdevs
 
     output:
     path('*_spntypeid_report.csv')   , emit: result_csv
@@ -30,8 +32,11 @@ process RESULTS {
         --kraken_version ${kv} \
         --ntc_read_limit ${ntc_read_limit} \
         --ntc_spn_read_limit ${ntc_spn_read_limit} \
-        --workflowVersion ${workflow.manifest.version} \
         --run_name_regex ${run_name_regex} \
-        --split_regex ${split_regex}
+        --split_regex ${split_regex} \
+        --min_assembly_length ${min_assembly_length} \
+        --max_stdevs ${max_stdevs} \
+        --workflowVersion ${workflow.manifest.version} \
+        --workflowRunName ${workflow.runName}
     """
 }

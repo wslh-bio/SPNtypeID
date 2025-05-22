@@ -42,10 +42,16 @@ def parse_args(args=None):
     parser.add_argument('--workflowRunName',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--min_assembly_length',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--max_stdevs',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
 
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -60,26 +66,38 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         dfs.append(df)
 
     logging.debug("Merge data frames")
-    merged = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
+    merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
-    logging.debug("Merge comment columns and drop individual columns that were merged")
-    cols = ['Typing Summary Comments', 'Quality Stats Comments', 'QUAST Summary Comments', 'Coverage Stats Comments', 'Assembly length warning', 'Z score warning']
+    logging.debug("Make list of comment columns that will be merged")
+    comment_cols = ['Typing Summary Comments',
+                    'Quality Stats Comments',
+                    'QUAST Summary Comments',
+                    'Coverage Stats Comments',
+                    'Assembly Length Comments',
+                    'Z score Comments']
 
-    merged["Assembly length warning"] = np.where(merged['Assembly Length (bp)'] < 1000000, 'Assembly is less than 1,000,000 bp.', 'N/A')
-    merged["Z score warning"] = np.where(merged['Z score'] > 2.58, 'Z-score is greater than 2.58.', 'N/A')
+    logging.debug("Check assembly length and set pass to False if threshold is exceeded")
+    merged_df["Assembly Length Comments"] = np.where(merged_df['Assembly Length (bp)'] < int(min_assembly_length), 'Assembly is less than 1,000,000 bp.', str(''))
+    logging.debug("Check assembly length and set to pass to False if threshold is exceeded")
+    merged_df = merged_df.assign(PassAssemblyLength='True')
+    merged_df['PassAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), 'False', inplace=True)
 
-    merged['Combined'] = merged[cols].apply(lambda row: '; '.join(row.values.astype(str)), axis=1)
-    merged['Combined'] = merged['Combined'].str.replace('nan; ', '')
-    merged['Combined'] = merged['Combined'].str.replace('; nan', '')
-    merged['Combined'] = merged['Combined'].str.replace('contamination', 'Contamination')
-    merged['Combined'] = merged['Combined'].str.replace('nan', '')
-    merged.drop(cols,axis=1,inplace=True)
+    logging.debug("Check Z score and set pass to False if threshold is exceeded")
+    merged_df["Z score Comments"] = np.where(merged_df['Z score'] > float(max_stdevs), 'Z-score is greater than 2.58.', str(''))
+    merged_df = merged_df.assign(PassZScore='True')
+    merged_df['PassZScore'].mask(merged_df['Z score'] > float(max_stdevs), 'False', inplace=True)
+
+    logging.debug("Merge comment columns")
+    merged_df['Comments'] = merged_df.apply( lambda x: x[comment_cols].str.cat(sep=';'), axis=1 )
+
+    logging.debug("Drop columns that were merged")
+    merged_df.drop(comment_cols,axis=1,inplace=True)
 
     logging.debug("Add kraken DB column")
-    merged = merged.assign(krakenDB=krakenDBVersion)
+    merged_df = merged_df.assign(krakenDB=krakenDBVersion)
 
     logging.debug("Add Workflow version column")
-    merged = merged.assign(workflowVersion=WFVersion)
+    merged_df = merged_df.assign(workflowVersion=WFVersion)
 
     logging.debug("Get Kraken NTC results")
     kraken_ntc_results = glob.glob("kraken_ntc_data/*")
@@ -115,21 +133,30 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
 
     logging.debug("Account for no NTC in data set")
     if len(kraken_ntc_results) == 0:
-        merged = merged.assign(ntc_reads="No NTC in data set")
-        merged = merged.assign(ntc_spn="No NTC in data set")
-        merged = merged.assign(ntc_result="FAIL")
+        merged_df = merged_df.assign(ntc_reads="No NTC in data set")
+        merged_df = merged_df.assign(ntc_spn="No NTC in data set")
+        merged_df = merged_df.assign(ntc_result="FAIL")
 
     else:
         logging.debug("Otherwise add NTC totals to data frame")
-        merged = merged.assign(ntc_reads=", ".join(ntc_total_reads))
-        merged = merged.assign(ntc_spn=", ".join(ntc_SPN_reads))
-        merged = merged.assign(ntc_result=ntc_result)
+        merged_df = merged_df.assign(ntc_reads=", ".join(ntc_total_reads))
+        merged_df = merged_df.assign(ntc_spn=", ".join(ntc_SPN_reads))
+        merged_df = merged_df.assign(ntc_result=ntc_result)
 
     logging.debug("Rename columns to nicer names")
-    merged = merged.rename(columns={'Contigs':'Contigs (#)','Combined':'Comments','ntc_reads':'Total NTC Reads','ntc_spn':'Total NTC SPN Reads','ntc_result':'NTC PASS/FAIL','krakenDB':'Kraken Database Version','workflowVersion':'SPNtypeID Version', 'Stdev':'Stdev (bp)'})
+    merged_df = merged_df.rename(columns={'Contigs':'Contigs (#)',
+                                          'Combined':'Comments',
+                                          'ntc_reads':'Total NTC Reads',
+                                          'ntc_spn':'Total NTC SPN Reads',
+                                          'ntc_result':'NTC PASS/FAIL',
+                                          'krakenDB':'Kraken Database Version',
+                                          'workflowVersion':'SPNtypeID Version',
+                                          'Stdev':'Stdev (bp)',
+                                          'PassAssemblyLength':'Pass Assembly Length',
+                                          'PassZScore':'Pass Z Score'})
 
     logging.debug("Getting list of sample names")
-    sample_names = merged['Sample'].tolist()
+    sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
     runIDs = []
 
@@ -148,16 +175,45 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
             sampleIDs.append(sampleID)
 
     logging.debug("Assigning sample and run IDs to data frame")
-    merged = merged.assign(Sample=sampleIDs)
-    merged = merged.assign(Run=runIDs)
+    merged_df = merged_df.assign(Sample=sampleIDs)
+    merged_df = merged_df.assign(Run=runIDs)
 
-    merged.to_csv('test.csv', index=False)
+    merged_df.to_csv('test.csv', index=False)
 
     logging.debug("Put columns in specific order")
-    merged = merged[['Sample','Contigs (#)','Assembly Length (bp)','N50','Median Coverage','Average Coverage','Pass Coverage','Total Reads','Reads Removed','Median Read Quality','Average Read Quality','Pass Average Read Quality','Percent Strep','Percent SPN', 'SecondGenus','Percent SecondGenus','Pass Kraken','Serotype','Total NTC Reads','Total NTC SPN Reads','NTC PASS/FAIL','Ratio of Actual:Expected Genome length','Z score','Pass Contigs','Kraken Database Version','Run','SPNtypeID Version','Comments']]
+    merged_df = merged_df[['Sample',
+                        'Contigs (#)',
+                        'Assembly Length (bp)',
+                        'N50',
+                        'Median Coverage',
+                        'Average Coverage',
+                        'Pass Coverage',
+                        'Total Reads',
+                        'Reads Removed',
+                        'Median Read Quality',
+                        'Average Read Quality',
+                        'Pass Average Read Quality',
+                        'Percent Strep',
+                        'Percent SPN',
+                        'SecondGenus',
+                        'Percent SecondGenus',
+                        'Pass Kraken',
+                        'Serotype',
+                        'Comments',
+                        'Kraken Database Version',
+                        'SPNtypeID Version',
+                        'Total NTC Reads',
+                        'Total NTC SPN Reads',
+                        'NTC PASS/FAIL',
+                        'Run',
+                        'Ratio of Actual:Expected Genome length',
+                        'Z score',
+                        'Pass Contigs',
+                        'Pass Assembly Length',
+                        'Pass Z Score']]
 
     logging.info("Writing results to csv file")
-    merged.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
+    merged_df.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
 
 def main(args=None):
     args = parse_args(args)
@@ -168,7 +224,9 @@ def main(args=None):
                     args.run_name_regex, 
                     args.split_regex, 
                     args.workflowVersion,
-                    args.workflowRunName)
+                    args.workflowRunName,
+                    args.min_assembly_length,
+                    args.max_stdevs)
 
 if __name__ == "__main__":
     sys.exit(main())

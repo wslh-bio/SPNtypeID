@@ -337,7 +337,9 @@ workflow SPNTYPEID {
         params.ntc_read_limit,
         params.ntc_spn_read_limit,
         params.run_name_regex,
-        params.split_regex
+        params.split_regex,
+        params.minassemblylength,
+        params.maxstdevs
     )
 
     //
