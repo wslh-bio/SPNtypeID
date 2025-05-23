@@ -73,22 +73,27 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                     'Quality Stats Comments',
                     'QUAST Summary Comments',
                     'Coverage Stats Comments',
-                    'Assembly Length Comments',
-                    'Z score Comments']
+                    'commentsAssemblyLength',
+                    'commentsZscore']
 
-    logging.debug("Check assembly length and set pass to False if threshold is exceeded")
-    merged_df["Assembly Length Comments"] = np.where(merged_df['Assembly Length (bp)'] < int(min_assembly_length), 'Assembly is less than 1,000,000 bp.', str(''))
-    logging.debug("Check assembly length and set to pass to False if threshold is exceeded")
-    merged_df = merged_df.assign(PassAssemblyLength='True')
-    merged_df['PassAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), 'False', inplace=True)
+    logging.debug("Creating passAssemblyLength and passZscore columns")
+    merged_df = merged_df.assign(passAssemblyLength='')
+    merged_df = merged_df.assign(passZscore='')
+    merged_df = merged_df.assign(commentsAssemblyLength='')
+    merged_df = merged_df.assign(commentsZscore='')
 
-    logging.debug("Check Z score and set pass to False if threshold is exceeded")
-    merged_df["Z score Comments"] = np.where(merged_df['Z score'] > float(max_stdevs), 'Z-score is greater than 2.58.', str(''))
-    merged_df = merged_df.assign(PassZScore='True')
-    merged_df['PassZScore'].mask(merged_df['Z score'] > float(max_stdevs), 'False', inplace=True)
+    logging.debug("Checking assembly length and setting pass to warning if below threshold")
+    merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), f'Assembly lenght is less than {min_assembly_length}.', inplace=True)
+    merged_df['passAssemblyLength'] = np.where(merged_df['commentsAssemblyLength'] =='', True, False)
 
-    logging.debug("Merge comment columns")
-    merged_df['Comments'] = merged_df.apply( lambda x: x[comment_cols].str.cat(sep=';'), axis=1 )
+    logging.debug("Checking Z score and set pass to warning if threshold is exceeded")
+    merged_df['commentsZscore'].mask(merged_df['Z score'] > float(max_stdevs), f'Z score is greater than {max_stdevs}', inplace=True)
+    merged_df['passZscore'] = np.where(merged_df['commentsZscore'] =='', True, False)
+
+    logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
+    logging.debug(";.join joins all of the commens into a single string sep by a ;. Any comments that are na are dropped.")
+    logging.debug("Converted the series to a string to apply the strip mentod to remove any leading or trailing ';'.")
+    merged_df['Comments'] = merged_df.apply(lambda x: ';'.join(x[comment_cols].dropna().astype(str)).strip(';'),axis=1)
 
     logging.debug("Drop columns that were merged")
     merged_df.drop(comment_cols,axis=1,inplace=True)
@@ -152,8 +157,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                                           'krakenDB':'Kraken Database Version',
                                           'workflowVersion':'SPNtypeID Version',
                                           'Stdev':'Stdev (bp)',
-                                          'PassAssemblyLength':'Pass Assembly Length',
-                                          'PassZScore':'Pass Z Score'})
+                                          'passAssemblyLength':'Pass Assembly Length',
+                                          'passZscore':'Pass Z score'})
 
     logging.debug("Getting list of sample names")
     sample_names = merged_df['Sample'].tolist()
@@ -210,7 +215,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Z score',
                         'Pass Contigs',
                         'Pass Assembly Length',
-                        'Pass Z Score']]
+                        'Pass Z score']]
 
     logging.info("Writing results to csv file")
     merged_df.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
