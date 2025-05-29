@@ -9,9 +9,10 @@ process RESULTS {
     path qs,            name: "quality_stats.tsv"
     path cs,            name: "coverage_stats.tsv"
     path qr,            name: "quast_results.tsv"
-    path tr,            name: "typing_results.tsv"
     path kntc,          name: "kraken_ntc_data/*"
     path kv,            name: "kraken_version.yml"
+    path psr,           name: "percent_strep_results.tsv"
+    path sr,            name: "seroba_results.tsv"
     val ntc_read_limit
     val ntc_spn_read_limit
     val run_name_regex
@@ -37,6 +38,8 @@ process RESULTS {
         --min_assembly_length ${min_assembly_length} \
         --max_stdevs ${max_stdevs} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName}
+        --workflowRunName ${workflow.runName} \
+        --percentStrepResults ${psr} \
+        --serobaResults ${sr}
     """
 }

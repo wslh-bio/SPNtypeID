@@ -48,7 +48,12 @@ def parse_args(args=None):
     parser.add_argument('--max_stdevs',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-
+    parser.add_argument('-psr', '--percentStrepResults',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('-sr', '--serobaResults',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
@@ -69,10 +74,11 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
     logging.debug("Make list of comment columns that will be merged")
-    comment_cols = ['Typing Summary Comments',
-                    'Quality Stats Comments',
+    comment_cols = ['Quality Stats Comments',
                     'QUAST Summary Comments',
                     'Coverage Stats Comments',
+                    'Percent Strep Comments',
+                    'SeroBA Comments',
                     'commentsAssemblyLength',
                     'commentsZscore']
 
@@ -112,6 +118,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     ntc_total_reads = []
     ntc_SPN_reads = []
 
+    logging.debug("Read in kraken NTC files and get # of total reads and strep pneumo reads")
     for file in kraken_ntc_results:
         id = file.split("/")[1].split(".kraken.txt")[0]
         spn_reads = 0
@@ -128,6 +135,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                 if row[4] == "1300":
                     spn_reads += int(row[1])
 
+        logging.debug("Mark sample as failed if # of total and strep pneumo reads exceeds thresholds")
         if total_reads >= int(ntc_read_limit):
             ntc_result = "FAIL"
         if spn_reads >= int(ntc_spn_read_limit):
@@ -160,12 +168,12 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                                           'passAssemblyLength':'Pass Assembly Length',
                                           'passZscore':'Pass Z score'})
 
-    logging.debug("Getting list of sample names")
     sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
     runIDs = []
 
-    logging.debug("Getting run IDs")
+
+    logging.debug("Pull run name from sample name using regex")
     for name in sample_names:
         regex = f"r'{run_name_regex}'"
         if re.search(regex,name):
@@ -179,11 +187,9 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
             sampleID = re.split(regex, name)[0]
             sampleIDs.append(sampleID)
 
-    logging.debug("Assigning sample and run IDs to data frame")
+    logging.debug("Re-assign sample column and create run column")
     merged_df = merged_df.assign(Sample=sampleIDs)
     merged_df = merged_df.assign(Run=runIDs)
-
-    merged_df.to_csv('test.csv', index=False)
 
     logging.debug("Put columns in specific order")
     merged_df = merged_df[['Sample',
