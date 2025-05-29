@@ -1,7 +1,6 @@
 process SHOVILL {
     tag "$meta.id"
     label 'process_medium'
-    label 'error_ignore'
 
     container "quay.io/wslh-bioinformatics/shovill@sha256:3884a28889cc8c935bbd9da067d3dcf72d6972a6b5ab0ed1199874aef9c25fd3"
 

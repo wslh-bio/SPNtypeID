@@ -7,34 +7,17 @@ import argparse
 import glob
 import logging
 
+import numpy as np
 import pandas as pd
 
 from functools import reduce
 
-logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
 def parse_args(args=None):
     Description='A script to summarize stats'
     Epilog='Use with results.py <>'
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
-    parser.add_argument('-gc', '--gc_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-asr', '--assembly_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-bb', '--bbduk_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-qs', '--quality_stats',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-cs', '--coverage_stats', 
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-qr', '--quast_results',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-kntc', '--kraken_ntc_data',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
@@ -59,6 +42,12 @@ def parse_args(args=None):
     parser.add_argument('--workflowRunName',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--min_assembly_length',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--max_stdevs',
+    type=str, 
+    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-psr', '--percentStrepResults',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
@@ -67,7 +56,7 @@ def parse_args(args=None):
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -84,13 +73,33 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     logging.debug("Merge data frames")
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
 
-    logging.debug("Merge summary comment columns into one column")
+    logging.debug("Make list of comment columns that will be merged")
     comment_cols = ['Quality Stats Comments',
                     'QUAST Summary Comments',
                     'Coverage Stats Comments',
                     'Percent Strep Comments',
-                    'SeroBA Comments']
-    merged_df['Comments'] = merged_df.apply( lambda x: x[comment_cols].str.cat(sep=';'), axis=1 )
+                    'SeroBA Comments',
+                    'commentsAssemblyLength',
+                    'commentsZscore']
+
+    logging.debug("Creating passAssemblyLength and passZscore columns")
+    merged_df = merged_df.assign(passAssemblyLength='')
+    merged_df = merged_df.assign(passZscore='')
+    merged_df = merged_df.assign(commentsAssemblyLength='')
+    merged_df = merged_df.assign(commentsZscore='')
+
+    logging.debug("Checking assembly length and setting pass to warning if below threshold")
+    merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), f'Assembly lenght is less than {min_assembly_length}.', inplace=True)
+    merged_df['passAssemblyLength'] = np.where(merged_df['commentsAssemblyLength'] =='', True, False)
+
+    logging.debug("Checking Z score and set pass to warning if threshold is exceeded")
+    merged_df['commentsZscore'].mask(merged_df['Z score'] > float(max_stdevs), f'Z score is greater than {max_stdevs}', inplace=True)
+    merged_df['passZscore'] = np.where(merged_df['commentsZscore'] =='', True, False)
+
+    logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
+    logging.debug(";.join joins all of the commens into a single string sep by a ;. Any comments that are na are dropped.")
+    logging.debug("Converted the series to a string to apply the strip mentod to remove any leading or trailing ';'.")
+    merged_df['Comments'] = merged_df.apply(lambda x: ';'.join(x[comment_cols].dropna().astype(str)).strip(';'),axis=1)
 
     logging.debug("Drop columns that were merged")
     merged_df.drop(comment_cols,axis=1,inplace=True)
@@ -149,16 +158,20 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
 
     logging.debug("Rename columns to nicer names")
     merged_df = merged_df.rename(columns={'Contigs':'Contigs (#)',
-                                'ntc_reads':'Total NTC Reads',
-                                'ntc_spn':'Total NTC SPN Reads',
-                                'ntc_result':'NTC PASS/FAIL',
-                                'krakenDB':'Kraken Database Version',
-                                'workflowVersion':'SPNtypeID Version',
-                                'Sample GC Content (%)':'Genome GC Content (%)'})
+                                          'Combined':'Comments',
+                                          'ntc_reads':'Total NTC Reads',
+                                          'ntc_spn':'Total NTC SPN Reads',
+                                          'ntc_result':'NTC PASS/FAIL',
+                                          'krakenDB':'Kraken Database Version',
+                                          'workflowVersion':'SPNtypeID Version',
+                                          'Stdev':'Stdev (bp)',
+                                          'passAssemblyLength':'Pass Assembly Length',
+                                          'passZscore':'Pass Z score'})
 
     sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
     runIDs = []
+
 
     logging.debug("Pull run name from sample name using regex")
     for name in sample_names:
@@ -204,9 +217,11 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Total NTC SPN Reads',
                         'NTC PASS/FAIL',
                         'Run',
-                        'Genome Length Ratio (Actual/Expected)',
-                        'Genome GC Content (%)',
-                        'Pass Contigs']]
+                        'Ratio of Actual:Expected Genome length',
+                        'Z score',
+                        'Pass Contigs',
+                        'Pass Assembly Length',
+                        'Pass Z score']]
 
     logging.info("Writing results to csv file")
     merged_df.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
@@ -220,7 +235,9 @@ def main(args=None):
                     args.run_name_regex, 
                     args.split_regex, 
                     args.workflowVersion,
-                    args.workflowRunName)
+                    args.workflowRunName,
+                    args.min_assembly_length,
+                    args.max_stdevs)
 
 if __name__ == "__main__":
     sys.exit(main())

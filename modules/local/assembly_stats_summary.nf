@@ -7,7 +7,7 @@ process ASSEMBLY_STATS_SUMMARY {
     path("data/*")
 
     output:
-    path("assembly_stats_results.tsv"), emit: assembly_stats_tsv
+    path("assembly_stats_results_summary.tsv"), emit: assembly_stats_tsv
 
     when:
     task.ext.when == null || task.ext.when
