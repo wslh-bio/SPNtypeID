@@ -68,7 +68,6 @@ include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
 include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
-include { GC_STATS_SUMMARY              } from '../modules/local/gc_stats_summary.nf'
 include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
@@ -332,17 +331,9 @@ workflow SPNTYPEID {
     )
 
     //
-    // MODULE: GC_STATS_SUMMARY
-    //
-    GC_STATS_SUMMARY(
-        CALCULATE_ASSEMBLY_STATS.out.gc_content.collect()
-    )
-
-    //
     // MODULE: RESULTS
     //
     RESULTS (
-        GC_STATS_SUMMARY.out.gc_stats_tsv,
         ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
         BBDUK_SUMMARY.out.bbduk_tsv,
         QUALITY_STATS.out.quality_tsv,
@@ -356,6 +347,8 @@ workflow SPNTYPEID {
         params.ntc_spn_read_limit,
         params.run_name_regex,
         params.split_regex,
+        params.minassemblylength,
+        params.maxstdevs
     )
 
     //
@@ -366,7 +359,6 @@ workflow SPNTYPEID {
         ch_valid_dataset.collect(),
         RESULTS.out.result_csv
     )
-
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
