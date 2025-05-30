@@ -48,12 +48,6 @@ def parse_args(args=None):
     parser.add_argument('--max_stdevs',
     type=str, 
     help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-psr', '--percentStrepResults',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('-sr', '--serobaResults',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
