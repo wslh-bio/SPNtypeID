@@ -176,9 +176,10 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged_df = merged_df.assign(Sample=sampleIDs)
     merged_df = merged_df.assign(Run=runIDs)
 
-
+    logging.debug("Add column for missing data warning")
     merged_df = merged_df.assign(PassNA='True')
 
+    logging.debug("Rename columns to nicer names")
     merged_df = merged_df.rename(columns={'Contigs':'Contigs (#)',
                                           'Combined':'Comments',
                                           'ntc_reads':'Total NTC Reads',
@@ -190,6 +191,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                                           'passAssemblyLength':'Pass Assembly Length',
                                           'passZscore':'Pass Z score',
                                           'PassNA':'Pass NA'})
+
+    logging.debug("Get indicies of columns with missing data and add warning")
     ind = merged_df[merged_df[['Sample',
                         'Contigs (#)',
                         'Assembly Length (bp)',
@@ -204,7 +207,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Pass Average Read Quality',
                         'Percent Strep',
                         'Percent SPN',
-                        'SecondGenus',
                         'Percent SecondGenus',
                         'Pass Kraken',
                         'Serotype',
@@ -220,9 +222,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Pass Assembly Length',
                         'Pass Z score']].isna().any(axis=1)].index.tolist()
     merged_df.loc[ind,'Pass NA'] = "WARNING MISSING DATA"
-
-    logging.debug("Rename columns to nicer names")
-
 
     logging.debug("Put columns in specific order")
     merged_df = merged_df[['Sample',
