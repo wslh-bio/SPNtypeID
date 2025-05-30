@@ -38,8 +38,6 @@ process RESULTS {
         --min_assembly_length ${min_assembly_length} \
         --max_stdevs ${max_stdevs} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName} \
-        --percentStrepResults ${psr} \
-        --serobaResults ${sr}
+        --workflowRunName ${workflow.runName}
     """
 }
