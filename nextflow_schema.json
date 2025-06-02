@@ -138,7 +138,7 @@
                 "minassemblylength": {
                     "type": "integer",
                     "description": "Set the minimum number of base pairs allowed in an assembly.",
-                    "default": 300
+                    "default": 1000000
                 },
                 "maxstdevs": {
                     "type": "string",
