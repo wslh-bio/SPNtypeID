@@ -1,7 +1,7 @@
 process ASSEMBLY_STATS_SUMMARY {
     label 'process_single'
 
-    container "quay.io/wslh-bioinformatics/spriggan-pandas@sha256:dee64812a5ec4258f9df4b2df47518bd2e7a16cf21fbc354af68874c498b6ce5"
+    container "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458"
 
     input:
     path("data/*")
