@@ -1,6 +1,6 @@
 process CALCULATE_ASSEMBLY_STATS {
     tag"$meta.id"
-    container "quay.io/wslh-bioinformatics/spriggan-pandas:1.3.2"
+    container "quay.io/wslh-bioinformatics/spriggan-pandas@sha256:dee64812a5ec4258f9df4b2df47518bd2e7a16cf21fbc354af68874c498b6ce5"
 
     label 'process_single'
 
