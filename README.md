@@ -64,6 +64,9 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | ntc_regex | Regex pattern for identifying NTC files (default: 'NTC') |
 | split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
 | run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
+| maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
+| minassemblylength | Set the minimum number of base pairs allowed in an assembly (default: 1000000) |
+| maxstdevs | Set the maximum number of standard deviations from expected genome length allowed (default: 2.58) |
 
 ### Workflow outline
 
