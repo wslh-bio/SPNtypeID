@@ -101,7 +101,7 @@ outdir
 │   ├── *_2.fastq.gz
 │   ├── *.adapter.stats.txt
 │   ├── *.bbduk.log
-│   ├── *.trim.txt
+│   └── *.trim.txt
 ├── bbduk_summary
 │   └── bbduk_results.tsv
 ├── bioawk
@@ -153,7 +153,12 @@ outdir
 │   └── seroba_results.tsv
 └── shovill
     ├── *.contigs.fa
-    └── *.sam
+    ├── *.sam
+    └── *_shovill_output
+        ├── contigs.gfa
+        ├── shovill.corrections
+        ├── shovill.log
+        └── spades.fasta
 ```
 **Notable result files:**  
 **spntypeid_report.csv** - Summary table of each step in SPNtypeID  
