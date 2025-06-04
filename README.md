@@ -84,6 +84,9 @@ Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bi
 #### Genome coverage
 Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/).
 
+#### Genome length assessment
+The genome length is assessed by comparing the expected *Streptococcus pneumoniae* genome length to the observed genome length and calculating a Z score. Samples >2.58 standard deviations from the expected genome length (p-value > 0.01) fail QC.
+
 #### Contamination detection
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
 
