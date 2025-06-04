@@ -13,8 +13,8 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 [Workflow outline](#workflow-outline)  
 [Read trimming and quality assessment](#read-trimming-and-quality-assessment)  
 [Genome assembly](#genome-assembly)  
-[Assembly quality assessment](#assembly-quality-assessment)  
-[Genome coverage](#genome-coverage)  
+[Assembly quality assessment](#genome-assembly-quality-assessment)  
+[Genome coverage](#genome-coverage-quality-assessment)  
 [Contamination detection](#contamination-detection)  
 [Serotyping](#serotyping)                                                                                                                                  
 [Output](#output-files)  
@@ -169,7 +169,7 @@ outdir
 **Empty_samples.csv** - Lists any samples that are empty and were removed from the pipeline. If no samples were empty, file will be absent from output directory. 
 
 ## Credits
-SPNTypeID was written by Dr. [Kelsey Florek](https://github.com/k-florek), Dr. [Abigail C. Shockey](https://github.com/AbigailShockey), and [Eva Gunawan](https://github.com/evagunawan).
+SPNTypeID was written by [Dr. Kelsey Florek](https://github.com/k-florek), [Dr. Abigail C. Shockey](https://github.com/AbigailShockey), and [Eva Gunawan, MS](https://github.com/evagunawan).
 
 We thank the bioinformatics group at the Wisconsin State Laboratory of Hygiene for all of their contributions. 
 
@@ -179,7 +179,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 If you use SPNtypeID for your analysis, please cite it using the following:
 
-` A.C. Shockey, K. Florek, & E. Gunawan (2014). SPNtypeID (Version 1.7.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
+`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.7.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
 
 An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
