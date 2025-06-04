@@ -79,16 +79,16 @@ Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.g
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
 
 #### Assembly quality assessment
-Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast).
+Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast). By default, genome assemblies <1,000,000 bp fail QC, and genome assemblies >300 contigs are flagged with a warning.
 
 #### Genome coverage
-Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/).
+Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/). By default, samples with genome coverage <40% fail QC.
 
 #### Genome length assessment
-The genome length is assessed by comparing the expected *Streptococcus pneumoniae* genome length to the observed genome length and calculating a Z score. Samples >2.58 standard deviations from the expected genome length (p-value > 0.01) fail QC.
+The genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. By default, samples >2.58 standard deviations from the expected genome length fail QC.
 
 #### Contamination detection
-Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
+Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/). By default, samples with >1% of reads from other organisms, <60% of reads from *S. pneumoniae*, and/or <80% of reads from *Streptococcus* fail QC.
 
 #### Serotyping
 Serotyping is performed using [SeroBA v2.0.4](https://github.com/GlobalPneumoSeq/seroba).
