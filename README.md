@@ -78,10 +78,10 @@ Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.g
 #### Genome assembly
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
 
-#### Assembly quality assessment
+#### Genome assembly quality assessment
 Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast). By default, genome assemblies <1,000,000 bp fail QC, and genome assemblies >300 contigs are flagged with a warning.
 
-#### Genome coverage
+#### Genome coverage quality assessment
 Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/). By default, samples with genome coverage <40% fail QC.
 
 #### Genome length assessment
