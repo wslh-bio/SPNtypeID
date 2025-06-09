@@ -1,7 +1,7 @@
 process SAMPLESHEET_CHECK {
     tag "$samplesheet"
 
-    container "quay.io/biocontainers/python@sha256:25b8870fe464a57948723fdc7e8887c003472e2b403997a8da8fdfd1d09b87b1"
+    container "quay.io/wslh-bioinformatics/python@sha256:25b8870fe464a57948723fdc7e8887c003472e2b403997a8da8fdfd1d09b87b1"
 
     input:
     path samplesheet
