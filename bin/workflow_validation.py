@@ -17,7 +17,35 @@ parser.add_argument('spntypeid_report_valid',
                     help='Path to validated spntypeid_report.csv')
 parser.add_argument('spntypeid_report_test',
                     help='Path to spntypeid_report.csv')
+parser.add_argument('--sample_1_z_avg',
+                    default="0.0717459331629362",
+                    help='Z score average for sample 1')
+parser.add_argument('--sample_1_ratio_avg',
+                    default="1.01135760966465",
+                    help='Ratio average for sample 1')
+parser.add_argument('--sample_2_z_avg',
+                    default="0.277706447220696",
+                    help='Z score average for sample 2')
+parser.add_argument('--sample_2_ratio_avg',
+                    default="0.956038185164772",
+                    help='Ratio average for sample 2')
+parser.add_argument('--sample_3_z_avg',
+                    default="0.176565206980577",
+                    help='Z score average for sample 3')
+parser.add_argument('--sample_3_ratio_avg',
+                    default="1.01227524692286",
+                    help='Ratio average for sample 3')
 args = parser.parse_args()
+
+def bondary(average, df, sample, number, column_name, validation):
+    logging.debug("Setting up min and max boundaries for samples")
+    max = float(average) + float(number)
+    min = float(average) - float(number)
+
+    logging.debug("Pulling corresponding value from dataframe")
+    if min <= df <= max:
+        validation = validation.drop(sample,axis=0,level='Sample')
+        return validation
 
 logging.debug("Creating dataframes from valid and test reports")
 valid_results = pd.read_csv(os.path.abspath(args.spntypeid_report_valid),sep=',',index_col="Sample").sort_index()
@@ -59,8 +87,12 @@ if "Ratio of Actual:Expected Genome length" in validation.columns:
         valid_data = validation["Ratio of Actual:Expected Genome length"].loc[sample,"Valid Data"]
         test_data = validation["Ratio of Actual:Expected Genome length"].loc[sample,"Test Data"]
         diff = abs(valid_data-test_data)
-        if diff < 3*0.0005 | diff > 3*0.0005:
-            validation = validation.drop(sample,axis=0,level='Sample')
+        if sample == "SPN_Sample_01":
+            validation = bondary(args.sample_1_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
+        elif sample == "SPN_Sample_02":
+            validation = bondary(args.sample_2_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
+        elif sample == "SPN_Sample_03":
+            validation = bondary(args.sample_3_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
 
 logging.debug("If ratio differs by +/- than 1.1 then remove from dataframe. This number will change based on results from test validation data")
 if "Z score" in validation.columns:
@@ -68,8 +100,12 @@ if "Z score" in validation.columns:
         valid_data = validation["Z score"].loc[sample,"Valid Data"]
         test_data = validation["Z score"].loc[sample,"Test Data"]
         diff = abs(valid_data-test_data)
-        if diff < 3*0.06 | diff > 3*0.06: 
-            validation = validation.drop(sample,axis=0,level='Sample')
+        if sample == "SPN_Sample_01":
+            validation = bondary(args.sample_1_z_avg, test_data, sample, "0.025", "Z score", validation)
+        elif sample == "SPN_Sample_02":
+            validation = bondary(args.sample_2_z_avg, test_data, sample, "0.025", "Z score", validation)
+        elif sample == "SPN_Sample_03":
+            validation = bondary(args.sample_3_z_avg, test_data, sample, "0.025", "Z score", validation)
 
 logging.debug("If no difference validation is successful")
 if validation.empty:
