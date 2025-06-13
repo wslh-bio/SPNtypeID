@@ -319,7 +319,6 @@ workflow SPNTYPEID {
     //
     CALCULATE_ASSEMBLY_STATS (
         ch_quast,
-        ch_kraken_tsv,
         params.ncbi_assembly_stats
     )
 
