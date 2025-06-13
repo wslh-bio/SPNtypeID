@@ -19,35 +19,35 @@ def parse_args(args=None):
     Epilog='Use with results.py <>'
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
     parser.add_argument('-kntc', '--kraken_ntc_data',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-kv', '--kraken_version',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--ntc_read_limit',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--ntc_spn_read_limit',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--workflowVersion',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--run_name_regex',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--split_regex',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--workflowRunName',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--min_assembly_length',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--max_stdevs',
-    type=str, 
-    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+        type=str, 
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
