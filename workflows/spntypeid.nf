@@ -347,7 +347,7 @@ workflow SPNTYPEID {
         params.run_name_regex,
         params.split_regex,
         params.minassemblylength,
-        params.maxstdevs
+        params.maxassemblylength
     )
 
     //
