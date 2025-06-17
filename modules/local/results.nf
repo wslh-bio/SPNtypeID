@@ -18,7 +18,7 @@ process RESULTS {
     val run_name_regex
     val split_regex
     val min_assembly_length
-    val max_stdevs
+    val max_assembly_length
 
     output:
     path('*_spntypeid_report.csv')   , emit: result_csv
@@ -36,7 +36,7 @@ process RESULTS {
         --run_name_regex ${run_name_regex} \
         --split_regex ${split_regex} \
         --min_assembly_length ${min_assembly_length} \
-        --max_stdevs ${max_stdevs} \
+        --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
         --workflowRunName ${workflow.runName}
     """
