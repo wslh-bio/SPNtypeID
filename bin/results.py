@@ -45,12 +45,12 @@ def parse_args(args=None):
     parser.add_argument('--min_assembly_length',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('--max_stdevs',
+    parser.add_argument('--max_assembly_length',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_stdevs):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length):
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -76,22 +76,16 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                     'Coverage Stats Comments',
                     'Percent Strep Comments',
                     'SeroBA Comments',
-                    'commentsAssemblyLength',
-                    'commentsZscore']
+                    'commentsAssemblyLength']
 
-    logging.debug("Creating passAssemblyLength and passZscore columns")
+    logging.debug("Creating passAssemblyLength column")
     merged_df = merged_df.assign(passAssemblyLength='')
-    merged_df = merged_df.assign(passZscore='')
     merged_df = merged_df.assign(commentsAssemblyLength='')
-    merged_df = merged_df.assign(commentsZscore='')
 
     logging.debug("Checking assembly length and setting pass to false if below threshold")
-    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), f'Assembly length is less than {min_assembly_length}.')
+    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < float(min_assembly_length), f'Assembly length is less than {min_assembly_length}.')
+    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] > float(max_assembly_length), f'Assembly length is greater than {max_assembly_length}.')
     merged_df['passAssemblyLength'] = np.where(merged_df['commentsAssemblyLength'] =='', True, False)
-
-    logging.debug("Checking Z score and set pass to false if threshold is exceeded")
-    merged_df['commentsZscore'] = merged_df['commentsZscore'].mask(merged_df['Z score'] > float(max_stdevs), f'Z score is greater than {max_stdevs}')
-    merged_df['passZscore'] = np.where(merged_df['commentsZscore'] =='', True, False)
 
     logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
     logging.debug(";.join joins all of the commens into a single string sep by a ;. Any comments that are na are dropped.")
@@ -189,7 +183,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                                           'workflowVersion':'SPNtypeID Version',
                                           'Stdev':'Stdev (bp)',
                                           'passAssemblyLength':'Pass Assembly Length',
-                                          'passZscore':'Pass Z score',
                                           'PassNA':'Pass NA'})
 
     logging.debug("Get indicies of columns with missing data and add warning")
@@ -217,10 +210,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'NTC PASS/FAIL',
                         'Run',
                         'Ratio of Actual:Expected Genome length',
-                        'Z score',
                         'Pass Contigs',
-                        'Pass Assembly Length',
-                        'Pass Z score']].isna().any(axis=1)].index.tolist()
+                        'Pass Assembly Length']].isna().any(axis=1)].index.tolist()
     merged_df.loc[ind,'Pass NA'] = "WARNING MISSING DATA"
 
     logging.debug("Put columns in specific order")
@@ -253,7 +244,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Z score',
                         'Pass Contigs',
                         'Pass Assembly Length',
-                        'Pass Z score',
                         'Pass NA']]
 
     logging.info("Writing results to csv file")
@@ -270,7 +260,7 @@ def main(args=None):
                     args.workflowVersion,
                     args.workflowRunName,
                     args.min_assembly_length,
-                    args.max_stdevs)
+                    args.max_assembly_length)
 
 if __name__ == "__main__":
     sys.exit(main())
