@@ -136,14 +136,14 @@
                     "default": 300
                 },
                 "minassemblylength": {
-                    "type": "integer",
-                    "description": "Set the minimum number of base pairs allowed in an assembly.",
-                    "default": 1000000
-                },
-                "maxstdevs": {
                     "type": "string",
-                    "description": "Set the maximum number of standard deviations from expected genome length allowed.",
-                    "default": "2.58"
+                    "description": "Set the minimum number of base pairs allowed in an assembly.",
+                    "default": "1251533.7628"
+                },
+                "maxassemblylength": {
+                    "type": "string",
+                    "description": "Set the maximum number of base pairs allowed in an assembly.",
+                    "default": "2979640.15705"
                 }
             }
         },
