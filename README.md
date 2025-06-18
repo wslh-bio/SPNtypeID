@@ -65,8 +65,8 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
 | run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
 | maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
-| minassemblylength | Set the minimum number of base pairs allowed in an assembly (default: 1000000) |
-| maxstdevs | Set the maximum number of standard deviations from expected genome length allowed (default: 2.58) |
+| minassemblylength | Set the minimum number of base pairs allowed in an assembly (default: 1251533) |
+| maxassemblylength | Set the maximum number of base pairs allowed in an assembly (default: 2979640) |
 
 ### Workflow outline
 
@@ -79,13 +79,13 @@ Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.g
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
 
 #### Genome assembly quality assessment
-Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast). By default, genome assemblies <1,000,000 bp fail QC, and genome assemblies >300 contigs are flagged with a warning.
+Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bioinf.spbau.ru/quast). By default, genome assemblies >300 contigs are flagged with a warning.
 
 #### Genome coverage quality assessment
 Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/). By default, samples with genome coverage <40% fail QC.
 
 #### Genome length assessment
-The genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. By default, samples >2.58 standard deviations from the expected genome length fail QC.
+Genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. By default, samples >2.58 standard deviations (p-value > 0.01) from the expected genome length fail QC. This corresponds to a minimum of 1251533 bp and a maximum of 2979640 bp. These values were determined assuming an expected *S. pneumoniae* genome length of 2115586.96 bp and a standard deviation of 334904.34 bp. These numbers were calculated from the genome lengths of 9266 publicly available *S. pneumoniae* genomes found [here](/assets/databases/NCBI_Assembly_stats_20240124.txt). This data set was derived from the same data set used in the CDC pipeline [PHoeNIx](https://github.com/CDCgov/phoenix).
 
 #### Contamination detection
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/). By default, samples with >1% of reads from other organisms, <60% of reads from *S. pneumoniae*, and/or <80% of reads from *Streptococcus* fail QC.
@@ -98,7 +98,7 @@ Example of pipeline output:
 ```
 outdir
 ├── assembly_stats_summary
-│   └── assembly_stats_results_summary.tsv
+│   └── assembly_stats_results_summary.tsv
 ├── bbduk
 │   ├── *_1.fastq.gz
 │   ├── *_2.fastq.gz
@@ -106,54 +106,54 @@ outdir
 │   ├── *.bbduk.log
 │   └── *.trim.txt
 ├── bbduk_summary
-│   └── bbduk_results.tsv
+│   └── bbduk_results.tsv
 ├── bioawk
-│   └── *.qual.tsv
+│   └── *.qual.tsv
 ├── calculate_assembly_stats
-│   └── *_Assembly_ratio_*.txt
+│   └── *_Assembly_ratio_*.txt
 ├── coverage_stats
-│   └── coverage_stats.tsv
+│   └── coverage_stats.tsv
 ├── fastqc
-│   ├── *_1_fastqc.html
-│   ├── *_1_fastqc.zip
-│   ├── *_2_fastqc.html
-│   └── *_2_fastqc.zip
+│   ├── *_1_fastqc.html
+│   ├── *_1_fastqc.zip
+│   ├── *_2_fastqc.html
+│   └── *_2_fastqc.zip
 ├── fastqc_summary
-│   └── fastqc_summary.tsv
+│   └── fastqc_summary.tsv
 ├── kraken_ntc
-│   └── *.kraken.txt
+│   └── *.kraken.txt
 ├── kraken_sample
-│   └── *.kraken.txt
+│   └── *.kraken.txt
 ├── kraken_summary
-│   └── kraken_results.tsv
+│   └── kraken_results.tsv
 ├── percent_strep_summary
-│   └── percent_strep_results.tsv
+│   └── percent_strep_results.tsv
 ├── pipeline_info
-│   ├── execution_report_*.html
-│   ├── execution_timeline_*.html
-│   ├── execution_trace_*.txt
-│   ├── pipeline_dag_*.html
-│   ├── samplesheet.valid.csv
-│   └── software_versions.yml
+│   ├── execution_report_*.html
+│   ├── execution_timeline_*.html
+│   ├── execution_trace_*.txt
+│   ├── pipeline_dag_*.html
+│   ├── samplesheet.valid.csv
+│   └── software_versions.yml
 ├── quality_stats
-│   └── quality_stats.tsv
+│   └── quality_stats.tsv
 ├── quast
-│   ├── *.quast.report.tsv
-│   └── *.transposed.quast.report.tsv
+│   ├── *.quast.report.tsv
+│   └── *.transposed.quast.report.tsv
 ├── quast_summary
-│   └── quast_results.tsv
+│   └── quast_results.tsv
 ├── rejected_samples
 ├── results
-│   └── *_spntypeid_report.csv
+│   └── *_spntypeid_report.csv
 ├── samtools
-│   ├── *.bam
-│   ├── *.depth.tsv
-│   └── *.stats.txt
+│   ├── *.bam
+│   ├── *.depth.tsv
+│   └── *.stats.txt
 ├── seroba
-│   ├── seroba.log
-│   └── *.pred.csv
+│   ├── seroba.log
+│   └── *.pred.csv
 ├── seroba_summary
-│   └── seroba_results.tsv
+│   └── seroba_results.tsv
 └── shovill
     ├── *.contigs.fa
     ├── *.sam
@@ -165,7 +165,7 @@ outdir
 ```
 **Notable result files:**  
 **spntypeid_report.csv** - Summary table of each step in SPNtypeID  
-**multiqc_report.html** - HTML report generated by MultiQC
+**multiqc_report.html** - HTML report generated by MultiQC  
 **Empty_samples.csv** - Lists any samples that are empty and were removed from the pipeline. If no samples were empty, file will be absent from output directory. 
 
 ## Credits
