@@ -136,14 +136,14 @@
                     "default": 300
                 },
                 "minassemblylength": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Set the minimum number of base pairs allowed in an assembly.",
-                    "default": "1251533.7628"
+                    "default": 1251533
                 },
                 "maxassemblylength": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Set the maximum number of base pairs allowed in an assembly.",
-                    "default": "2979640.15705"
+                    "default": 2979640
                 }
             }
         },
