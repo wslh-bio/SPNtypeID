@@ -2,7 +2,7 @@ process SEROBA {
     tag "$meta.id"
     label 'process_medium'
 
-    container "sangerbentleygroup/seroba@sha256:885beab80a454d2722fa9f85efeb3f18b930770d1be07f53548dad5708d0c542"
+    container "quay.io/wslh-bioinformatics/seroba@sha256:f805eb8da9e75273589c51a57229d00cbf06ae566ddebd2432f48eee4bcf2614"
 
     input:
     tuple val(meta), path(reads)
