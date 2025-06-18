@@ -83,8 +83,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     merged_df = merged_df.assign(commentsAssemblyLength='')
 
     logging.debug("Checking assembly length and setting pass to false if below threshold")
-    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < float(min_assembly_length), f'Assembly length is less than {min_assembly_length}.')
-    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] > float(max_assembly_length), f'Assembly length is greater than {max_assembly_length}.')
+    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), f'Assembly length is less than {min_assembly_length} bp.')
+    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] > int(max_assembly_length), f'Assembly length is greater than {max_assembly_length} bp.')
     merged_df['passAssemblyLength'] = np.where(merged_df['commentsAssemblyLength'] =='', True, False)
 
     logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
