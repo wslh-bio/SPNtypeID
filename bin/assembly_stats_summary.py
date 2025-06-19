@@ -25,10 +25,10 @@ def summarize_assembly_file(file):
     df = df.assign(Sample=sample_id)
 
     logging.debug("Rename columns")
-    df = df.rename(columns={'Actual_length':'Actual length','Ratio Actual:Expected':'Ratio of Actual:Expected Genome length','Z_score':'Z score'})
+    df = df.rename(columns={'Actual_length':'Actual length','Ratio Actual:Expected':'Ratio of Actual:Expected Genome Length','Z_score':'z-score'})
 
     logging.debug("Re-order data frame")
-    df = df[['Sample','Actual length','Ratio of Actual:Expected Genome length','Z score']]
+    df = df[['Sample','Actual length','Ratio of Actual:Expected Genome Length','z-score']]
 
     return df
 
