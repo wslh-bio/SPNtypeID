@@ -209,7 +209,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Total NTC SPN Reads',
                         'NTC PASS/FAIL',
                         'Run',
-                        'Ratio of Actual:Expected Genome length',
+                        'Ratio of Actual:Expected Genome Length',
                         'Pass Contigs',
                         'Pass Assembly Length']].isna().any(axis=1)].index.tolist()
     merged_df.loc[ind,'Pass NA'] = "WARNING MISSING DATA"
@@ -225,8 +225,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Contigs (#)',
                         'N50',
                         'Assembly Length (bp)',
-                        'Ratio of Actual:Expected Genome length',
-                        'Z score',
+                        'Ratio of Actual:Expected Genome Length',
+                        'z-score',
                         'Pass Contigs',
                         'Pass Assembly Length',
                         'Median Coverage',
