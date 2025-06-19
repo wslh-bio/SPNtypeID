@@ -210,7 +210,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="PkgLt4SOAebxEJz2yjH2-23" value="&lt;div&gt;&lt;font color=&quot;#FFFFFF&quot;&gt;Summarize QUAST&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#FFFFFF&quot;&gt;(Pandas)&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=22;fillColor=#322A3B;strokeColor=#000000;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;strokeWidth=2;" parent="1" vertex="1">
+        <mxCell id="PkgLt4SOAebxEJz2yjH2-23" value="&lt;div&gt;&lt;font color=&quot;#FFFFFF&quot;&gt;Summarize QUAST&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#FFFFFF&quot;&gt;(Python)&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=22;fillColor=#322A3B;strokeColor=#000000;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;strokeWidth=2;" parent="1" vertex="1">
           <mxGeometry x="44" y="810" width="200" height="100" as="geometry" />
         </mxCell>
         <mxCell id="PkgLt4SOAebxEJz2yjH2-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;" parent="1" source="PkgLt4SOAebxEJz2yjH2-21" target="PkgLt4SOAebxEJz2yjH2-22" edge="1">
