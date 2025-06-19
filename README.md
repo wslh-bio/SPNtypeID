@@ -73,7 +73,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 <img src ='/assets/SPNtypeID.jpg'>
 
 #### Read trimming and quality assessment
-Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads.
+Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads. By default, samples with average read quality <30 fail QC.
 
 #### Genome assembly
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
@@ -85,7 +85,7 @@ Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bi
 Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/). By default, samples with genome coverage <40% fail QC.
 
 #### Genome length assessment
-Genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. By default, samples >2.58 standard deviations (p-value > 0.01) from the expected genome length fail QC. This corresponds to a minimum of 1251533 bp and a maximum of 2979640 bp. These values were determined assuming an expected *S. pneumoniae* genome length of 2115586.96 bp and a standard deviation of 334904.34 bp. These numbers were calculated from the genome lengths of 9266 publicly available *S. pneumoniae* genomes found [here](/assets/databases/NCBI_Assembly_stats_20240124.txt). This data set was derived from the same data set used in the CDC pipeline [PHoeNIx](https://github.com/CDCgov/phoenix).
+Genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. By default, samples >2.58 standard deviations (p-value > 0.01) from the expected genome length fail QC. This corresponds to a minimum of 1251533 bp and a maximum of 2979640 bp. These values were determined assuming an expected genome length of 2115586.96 bp and a standard deviation of 334904.34 bp. These statistics (which can be found [here](/assets/databases/NCBI_Assembly_stats_20240124.txt) were obtained from the [PHoeNIx](https://github.com/CDCgov/phoenix) pipeline, which calculated them from 9266 publicly available *S. pneumoniae* genomes.
 
 #### Contamination detection
 Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/). By default, samples with >1% of reads from other organisms, <60% of reads from *S. pneumoniae*, and/or <80% of reads from *Streptococcus* fail QC.

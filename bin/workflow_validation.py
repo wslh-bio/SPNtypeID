@@ -73,14 +73,14 @@ if "Contigs (#)" in validation.columns:
             validation = validation.drop(sample,axis=0,level='Sample')
 
 logging.debug("If ratio differs by +/- than 1.1 then remove from dataframe. This number will change based on results from test validation data")
-if "Ratio of Actual:Expected Genome length" in validation.columns:
-    for sample in validation["Ratio of Actual:Expected Genome length"].index.get_level_values('Sample').unique():
+if "Ratio of Actual:Expected Genome Length" in validation.columns:
+    for sample in validation["Ratio of Actual:Expected Genome Length"].index.get_level_values('Sample').unique():
         if sample == "SPN_Sample_01":
-            validation = bondary(args.sample_1_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
+            validation = bondary(args.sample_1_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
         elif sample == "SPN_Sample_02":
-            validation = bondary(args.sample_2_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
+            validation = bondary(args.sample_2_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
         elif sample == "SPN_Sample_03":
-            validation = bondary(args.sample_3_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome length", validation)
+            validation = bondary(args.sample_3_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
 
 logging.debug("If no difference validation is successful")
 if validation.empty:
