@@ -1,17 +1,17 @@
 {
     "manifest" : [
-        "quay.io/wslh-bioinformatics/fastqc@sha256:6e4ace04f051e6138447ca64f5c6f44889157cc641fe8e0a40947a3949d47ab8",
-        "quay.io/wslh-bioinformatics/pandas@sha256:bf3cb8e5f695cc7c4cf8cc5ab7e7924d1fc4c40dfbe7cb907110e93a7bf6f101",
-        "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458",
-        "quay.io/wslh-bioinformatics/python@sha256:25b8870fe464a57948723fdc7e8887c003472e2b403997a8da8fdfd1d09b87b1",
-        "quay.io/wslh-bioinformatics/quast@sha256:84753d0c00487d7f5e99265f4912efeb0823c9b86731e89cadd6384f913c1c05",
-        "quay.io/wslh-bioinformatics/bioawk@sha256:9e45d66b690722172f1c0e3396cc93373ade3bbe75c60cae338a0eb3ac2f44c9",
-        "quay.io/wslh-bioinformatics/kraken@sha256:96ba57017a2b5495d553b177ed47a3c85b5bf79392e4e8335e7cd79cdd57917c",
-        "quay.io/wslh-bioinformatics/multiqc@sha256:23c5f869c8f162754dd6d4fa18e8fb7d9d592bb0e6c4de2d1f4cd0c033bd0011",
-        "quay.io/wslh-bioinformatics/shovill@sha256:3884a28889cc8c935bbd9da067d3dcf72d6972a6b5ab0ed1199874aef9c25fd3",
-        "quay.io/wslh-bioinformatics/multiqc@sha256:b2d4f806a0c464df6861244e91fce73bec2d730d3cf538650750aab27adf66c7",
-        "quay.io/wslh-bioinformatics/bbtools@sha256:10c3b2d53da7cf6021dfdc684a0119530c4a1aacd9d1a8a2954af2b33440e59e",
-        "quay.io/wslh-bioinformatics/seroba@sha256:f805eb8da9e75273589c51a57229d00cbf06ae566ddebd2432f48eee4bcf2614",
-        "quay.io/wslh-bioinformatics/samtools@sha256:0533035cad43e38d833181e9b4e8aadea08c9da4a6015b08d8b34f55e78a81c1"
+        "quay.io/wslh-bioinformatics/fastqc:0.11.8-wslh-signed"
+        "quay.io/wslh-bioinformatics/pandas:1.5.0-wslh-signed"
+        "quay.io/wslh-bioinformatics/pandas:1.3.2-wslh-signed"
+        "quay.io/wslh-bioinformatics/python:3.8.3"
+        "quay.io/wslh-bioinformatics/quast:5.0.2-wslh-signed"
+        "quay.io/wslh-bioinformatics/bioawk:1.0-wslh-signed"
+        "quay.io/wslh-bioinformatics/kraken:1.0.0-wslh-signed"
+        "quay.io/wslh-bioinformatics/multiqc:1.23--pyhdfd78af_0"
+        "quay.io/wslh-bioinformatics/multiqc:1.11-wslh-signed"
+        "quay.io/wslh-bioinformatics/shovill:1.1.0-wslh-signed"
+        "quay.io/wslh-bioinformatics/bbtools:38.76-wslh-signed"
+        "quay.io/wslh-bioinformatics/seroba:2.0.4"
+        "quay.io/wslh-bioinformatics/samtools:1.10-wslh-signed"
     ]
 }
