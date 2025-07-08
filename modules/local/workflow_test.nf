@@ -8,6 +8,12 @@ process WORKFLOW_TEST {
     input:
     path(valid_data)
     path(test_data)
+    val (sample_1_z_avg)
+    val (sample_1_ratio_avg)
+    val (sample_2_z_avg)
+    val (sample_2_ratio_avg)
+    val (sample_3_z_avg)
+    val (sample_3_ratio_avg)
 
     output:
     path "validation.log"
@@ -17,6 +23,6 @@ process WORKFLOW_TEST {
 
     script:
     """
-    workflow_validation.py $valid_data $test_data | tee validation.log
+    workflow_validation.py $valid_data $test_data --sample_1_z_avg $sample_1_z_avg --sample_1_ratio_avg $sample_1_ratio_avg --sample_2_z_avg $sample_2_z_avg --sample_2_ratio_avg $sample_2_ratio_avg --sample_3_z_avg $sample_3_z_avg --sample_3_ratio_avg $sample_3_ratio_avg | tee validation.log
     """
 }
