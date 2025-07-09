@@ -28,6 +28,7 @@ parser.add_argument('--sample_3_ratio_avg',
                     help='Ratio average for sample 3')
 args = parser.parse_args()
 
+
 def boundary(average, df, sample, number, validation):
     logging.debug("Setting up min and max boundaries for samples")
     max = float(average) + float(number)
