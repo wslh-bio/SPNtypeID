@@ -355,14 +355,8 @@ workflow SPNTYPEID {
     //
     ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
     WORKFLOW_TEST (
-        ch_valid_dataset,
-        RESULTS.out.result_csv,
-        params.sample_1_z_avg,
-        params.sample_1_ratio_avg,
-        params.sample_2_z_avg,
-        params.sample_2_ratio_avg,
-        params.sample_3_z_avg,
-        params.sample_3_ratio_avg
+        ch_valid_dataset.collect(),
+        RESULTS.out.result_csv
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
