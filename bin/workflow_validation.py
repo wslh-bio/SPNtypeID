@@ -28,7 +28,8 @@ parser.add_argument('--sample_3_ratio_avg',
                     help='Ratio average for sample 3')
 args = parser.parse_args()
 
-def bondary(average, df, sample, number, validation):
+
+def boundary(average, df, sample, number, validation):
     logging.debug("Setting up min and max boundaries for samples")
     max = float(average) + float(number)
     min = float(average) - float(number)
@@ -76,11 +77,11 @@ logging.debug("If ratio differs by +/- than 1.1 then remove from dataframe. This
 if "Ratio of Actual:Expected Genome Length" in validation.columns:
     for sample in validation["Ratio of Actual:Expected Genome Length"].index.get_level_values('Sample').unique():
         if sample == "SPN_Sample_01":
-            validation = bondary(args.sample_1_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
+            validation = boundary(args.sample_1_ratio_avg, test_data, sample, "0.0025",  validation)
         elif sample == "SPN_Sample_02":
-            validation = bondary(args.sample_2_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
+            validation = boundary(args.sample_2_ratio_avg, test_data, sample, "0.0025",  validation)
         elif sample == "SPN_Sample_03":
-            validation = bondary(args.sample_3_ratio_avg, test_data, sample, "0.0025", "Ratio of Actual:Expected Genome Length", validation)
+            validation = boundary(args.sample_3_ratio_avg, test_data, sample, "0.0025",  validation)
 
 logging.debug("If no difference validation is successful")
 if validation.empty:
