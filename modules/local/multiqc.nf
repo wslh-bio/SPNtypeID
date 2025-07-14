@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_single'
 
-    container "quay.io/wslh-bioinformatics/multiqc@sha256:23c5f869c8f162754dd6d4fa18e8fb7d9d592bb0e6c4de2d1f4cd0c033bd0011"
+    container "wslh-bioinformatics/multiqc@sha256:23c5f869c8f162754dd6d4fa18e8fb7d9d592bb0e6c4de2d1f4cd0c033bd0011"
 
     input:
     path  multiqc_files, stageAs: "?/*"

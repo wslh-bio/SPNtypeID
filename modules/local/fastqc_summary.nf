@@ -1,7 +1,7 @@
 process FASTQC_SUMMARY {
     label 'process_single'
 
-    container "quay.io/wslh-bioinformatics/fastqc@sha256:6e4ace04f051e6138447ca64f5c6f44889157cc641fe8e0a40947a3949d47ab8"
+    container "wslh-bioinformatics/fastqc@sha256:6e4ace04f051e6138447ca64f5c6f44889157cc641fe8e0a40947a3949d47ab8"
 
     input:
     path('*')

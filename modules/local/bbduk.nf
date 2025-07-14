@@ -2,7 +2,7 @@ process BBDUK {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/wslh-bioinformatics/bbtools@sha256:10c3b2d53da7cf6021dfdc684a0119530c4a1aacd9d1a8a2954af2b33440e59e"
+    container "wslh-bioinformatics/bbtools@sha256:10c3b2d53da7cf6021dfdc684a0119530c4a1aacd9d1a8a2954af2b33440e59e"
 
     input:
     tuple val(meta), path(reads)

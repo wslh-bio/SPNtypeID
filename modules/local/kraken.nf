@@ -2,7 +2,7 @@ process KRAKEN {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/wslh-bioinformatics/kraken@sha256:96ba57017a2b5495d553b177ed47a3c85b5bf79392e4e8335e7cd79cdd57917c"
+    container "wslh-bioinformatics/kraken@sha256:96ba57017a2b5495d553b177ed47a3c85b5bf79392e4e8335e7cd79cdd57917c"
 
     input:
     tuple val(meta), path(reads)

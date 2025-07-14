@@ -2,7 +2,7 @@ process SAMTOOLS {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/wslh-bioinformatics/samtools@sha256:0533035cad43e38d833181e9b4e8aadea08c9da4a6015b08d8b34f55e78a81c1"
+    container "wslh-bioinformatics/samtools@sha256:0533035cad43e38d833181e9b4e8aadea08c9da4a6015b08d8b34f55e78a81c1"
 
     input:
     tuple val(meta), path(sam_files)
