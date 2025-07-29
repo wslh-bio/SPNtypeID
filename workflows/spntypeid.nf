@@ -63,7 +63,7 @@ include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
 include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
-include { RESULTS                       } from '../modules/local/results'
+include { CREATE_REPORT                 } from '../modules/local/create_report'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
@@ -330,9 +330,9 @@ workflow SPNTYPEID {
     )
 
     //
-    // MODULE: RESULTS
+    // MODULE: CREATE_REPORT
     //
-    RESULTS (
+    CREATE_REPORT (
         ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
         BBDUK_SUMMARY.out.bbduk_tsv,
         QUALITY_STATS.out.quality_tsv,
