@@ -113,6 +113,8 @@ outdir
 │   └── *_Assembly_ratio_*.txt
 ├── coverage_stats
 │   └── coverage_stats.tsv
+├── results
+│   └── *_spntypeid_report.csv
 ├── fastqc
 │   ├── *_1_fastqc.html
 │   ├── *_1_fastqc.zip
@@ -143,8 +145,6 @@ outdir
 ├── quast_summary
 │   └── quast_results.tsv
 ├── rejected_samples
-├── results
-│   └── *_spntypeid_report.csv
 ├── samtools
 │   ├── *.bam
 │   ├── *.depth.tsv
