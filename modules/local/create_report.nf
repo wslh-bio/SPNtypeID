@@ -1,4 +1,4 @@
-process RESULTS {
+process CREATE_REPORT {
     label 'process_single'
 
     container "quay.io/wslh-bioinformatics/pandas@sha256:bf3cb8e5f695cc7c4cf8cc5ab7e7924d1fc4c40dfbe7cb907110e93a7bf6f101"
@@ -28,7 +28,7 @@ process RESULTS {
 
     script:
     """
-    results.py \
+    create_report.py \
         --kraken_ntc_data ${kntc} \
         --kraken_version ${kv} \
         --ntc_read_limit ${ntc_read_limit} \
