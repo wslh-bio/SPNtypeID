@@ -84,7 +84,7 @@ if "Ratio of Actual:Expected Genome Length" in validation.columns:
             validation = boundary(args.sample_3_ratio_avg, test_data, sample, "0.0025",  validation)
 
 logging.debug("If no difference validation is successful")
-if validation.empty:
+if validation is None:
     logging.info("Validation check Successful!")
     sys.exit(0)
 else:
