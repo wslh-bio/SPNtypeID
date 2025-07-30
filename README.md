@@ -113,7 +113,7 @@ outdir
 │   └── *_Assembly_ratio_*.txt
 ├── coverage_stats
 │   └── coverage_stats.tsv
-├── results
+├── create_report
 │   └── *_spntypeid_report.csv
 ├── fastqc
 │   ├── *_1_fastqc.html
