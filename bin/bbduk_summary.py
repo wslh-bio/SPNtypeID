@@ -3,7 +3,7 @@ import os
 import glob
 import logging
 
-from pandas import DataFrame
+import pandas as pd
 
 logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
@@ -37,7 +37,7 @@ logging.info("Summarizing bbduk output files.")
 results = map(summarize_bbduk,files)
 
 logging.debug("Convert results to data frame and write to tsv")
-df = DataFrame(results,columns=['Sample','Total Reads','Reads Removed'])
+df = pd.DataFrame(results,columns=['Sample','Total Reads','Reads Removed'])
 
 logging.debug("Writing results to tsv file")
 df.to_csv(f'bbduk_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
