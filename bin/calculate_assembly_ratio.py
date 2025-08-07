@@ -50,7 +50,7 @@ def extract_sample_name(quast_report):
 
     return sample_name
 
-def process_database_paths(path_database, sample_name, stdev, z_score, assembly_length, expected_length):
+def process_database_paths(path_database, sample_name, z_score, assembly_length):
 
     logging.debug("Processing database dates and paths.")
 
@@ -85,7 +85,7 @@ def process_database_paths(path_database, sample_name, stdev, z_score, assembly_
 
         sys.exit(1)
 
-def check_quast_stats(quast_report, NCBI_ratio_date, sample_name, stdev, z_score, assembly_length, expected_length):
+def check_quast_stats(quast_report, NCBI_ratio_date, sample_name, z_score, assembly_length):
 
     logging.debug("Checking quast results.")
     if quast_report:
@@ -118,7 +118,7 @@ def calculate_z_score(assembly_length, stdev, expected_length):
 
     return z_score, expected_length
 
-def calculate_ratio(sample_name, NCBI_ratio_date, expected_length, assembly_length, stdev):
+def calculate_ratio(sample_name, NCBI_ratio_date, expected_length, assembly_length):
 
     if expected_length == "NA" or not expected_length:
 
@@ -167,16 +167,16 @@ def main(args=None):
     sample_name = extract_sample_name(args.quast_report)
 
     #Getting database names and dates
-    NCBI_ratio_file, NCBI_ratio_date = process_database_paths(args.path_database, sample_name, stdev, z_score, assembly_length, expected_length)
+    NCBI_ratio_file, NCBI_ratio_date = process_database_paths(args.path_database, sample_name, z_score, assembly_length)
 
     #Grabbing assembly length and gc percentage from quast file
-    assembly_length = check_quast_stats(args.quast_report, NCBI_ratio_file, sample_name, stdev, z_score, assembly_length, expected_length)
+    assembly_length = check_quast_stats(args.quast_report, NCBI_ratio_file, sample_name, z_score, assembly_length)
 
     #Grabbing stats 
     z_score, expected_length = calculate_z_score(assembly_length, stdev, expected_length)
 
     #Calculating ratio 
-    ratio_a_e = calculate_ratio(sample_name, NCBI_ratio_file, expected_length, assembly_length, stdev)
+    ratio_a_e = calculate_ratio(sample_name, NCBI_ratio_file, expected_length, assembly_length)
 
     #Writing final output
     write_output(sample_name, NCBI_ratio_date, z_score, assembly_length, ratio_a_e)
