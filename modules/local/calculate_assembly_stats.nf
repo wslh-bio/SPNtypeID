@@ -18,8 +18,8 @@ process CALCULATE_ASSEMBLY_STATS {
     script: // This script is bundled with the pipeline, in wslh-bio/dryad/bin/
     """
     calculate_assembly_ratio.py \
-        -q $quast_report_tsv \
-        -d $NCBI_assembly_stats_file
+        -q ${quast_report_tsv} \
+        -d ${NCBI_assembly_stats_file}
 
     """
 }
