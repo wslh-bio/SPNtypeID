@@ -13,7 +13,7 @@ logging.debug("Function for summarizing SeroBA output")
 def summarize_seroba(file):
     logging.debug("Read in data frame from file")
     df = pd.read_csv(file, sep=',')
-    logging.debug("Get relevant columns form df")
+    logging.debug("Get relevant columns from df")
     df = df.loc[:,['Sample','Serotype','Contamination_Status']]
     logging.debug("Replace missing data in Contamination_Status column")
     df['Contamination_Status'].mask(df['Contamination_Status'].isna(), 'Poor sample quality prevented SeroBA from detecting contamination', inplace=True)
