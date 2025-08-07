@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
-import glob, csv
+import glob
+import csv
 import argparse
 import logging
 
