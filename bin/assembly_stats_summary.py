@@ -4,7 +4,6 @@ import glob
 import logging
 
 import pandas as pd
-from pandas import DataFrame
 
 logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
