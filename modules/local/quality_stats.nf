@@ -1,10 +1,11 @@
 process QUALITY_STATS {
     label 'process_single'
 
-    container "quay.io/wslh-bioinformatics/pandas@sha256:9ba0a1f5518652ae26501ea464f466dcbb69e43d85250241b308b96406cac458"
+    container "quay.io/wslh-bioinformatics/pandas@sha256:bf3cb8e5f695cc7c4cf8cc5ab7e7924d1fc4c40dfbe7cb907110e93a7bf6f101"
 
     input:
     path("data*/*")
+    val minavgreadq
 
     output:
     path('quality_stats.tsv')   , emit: quality_tsv
@@ -15,41 +16,6 @@ process QUALITY_STATS {
 
     script:
     """
-    #!/usr/bin/python3.7
-    import glob
-    import os
-    from numpy import median
-    from numpy import average
-
-    # function for summarizing samtools depth files
-    def summarize_qual(file):
-        # get sample id from file name and set up data list
-        sid = os.path.basename(file).split('.')[0]
-        data = []
-        # open bioawk depth file and get read quality
-        with open(file,'r') as inFile:
-            for line in inFile:
-                data.append(int(float(line.strip().split()[0])))
-        # get median and read quality
-        med = int(float(median(data)))
-        avg = int(float(average(data)))
-        # return sample id, median and average depth, and check for coverage fail
-        if avg >= int(${params.minavgreadq}):
-            result = f"{sid}\\t{med}\\t{avg}\\tTRUE\\t\\n"
-        if avg < int(${params.minavgreadq}):
-            result = f"{sid}\\t{med}\\t{avg}\\tFALSE\\tAverage read quality < ${params.minavgreadq}\\n"
-        return result
-
-    # get all bioawk quality files
-    files = glob.glob("data*/*.qual.tsv")
-
-    # summarize read quality
-    results = map(summarize_qual,files)
-
-    # write results to file
-    with open('quality_stats.tsv', 'w') as outFile:
-        outFile.write("Sample\\tMedian Read Quality\\tAverage Read Quality\\tPass Average Read Quality\\tComments\\n")
-        for result in results:
-            outFile.write(result)
+    quality_stats.py ${minavgreadq}
     """
 }

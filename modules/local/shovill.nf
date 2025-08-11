@@ -1,7 +1,6 @@
 process SHOVILL {
     tag "$meta.id"
-    label 'process_medium'
-    label 'error_ignore'
+    label 'process_single'
 
     container "quay.io/wslh-bioinformatics/shovill@sha256:3884a28889cc8c935bbd9da067d3dcf72d6972a6b5ab0ed1199874aef9c25fd3"
 
@@ -11,10 +10,10 @@ process SHOVILL {
     output:
     tuple val(meta), path("${meta.id}.contigs.fa")                              , emit: contigs
     tuple val(meta), path("${meta.id}.sam")                                     , emit: sam_files
-    tuple val(meta), path("shovill_output/shovill.corrections")                 , emit: corrections
-    tuple val(meta), path("shovill_output/shovill.log")                         , emit: log
-    tuple val(meta), path("shovill_output/{skesa,spades,megahit,velvet}.fasta") , emit: raw_contigs
-    tuple val(meta), path("shovill_output/contigs.{fastg,gfa,LastGraph}")       , optional:true, emit: gfa
+    tuple val(meta), path("*_shovill_output/shovill.corrections")                 , emit: corrections
+    tuple val(meta), path("*_shovill_output/shovill.log")                         , emit: log
+    tuple val(meta), path("*_shovill_output/{skesa,spades,megahit,velvet}.fasta") , emit: raw_contigs
+    tuple val(meta), path("*_shovill_output/contigs.{fastg,gfa,LastGraph}")       , optional:true, emit: gfa
     path "versions.yml"                                                         , emit: versions
 
     when:
@@ -31,10 +30,10 @@ process SHOVILL {
         $args \\
         --cpus $task.cpus \\
         --ram $memory \\
-        --outdir ./shovill_output \\
+        --outdir ./${prefix}_shovill_output \\
         --force
 
-    mv shovill_output/contigs.fa ${prefix}.contigs.fa
+    mv ${prefix}_shovill_output/contigs.fa ${prefix}.contigs.fa
     bwa index ${prefix}.contigs.fa
     bwa mem ${prefix}.contigs.fa ${reads[0]} ${reads[1]} > ${prefix}.sam
 
