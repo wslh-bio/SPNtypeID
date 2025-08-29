@@ -45,9 +45,9 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-
 include { BBDUK                         } from '../modules/local/bbduk'
 include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
+include { CHECK_EMPTY_NTC               } from '../modules/local/check_empty_ntc'
 include { FASTQC                        } from '../modules/local/fastqc'
 include { FASTQC_SUMMARY                } from '../modules/local/fastqc_summary'
 include { SHOVILL                       } from '../modules/local/shovill'
@@ -111,7 +111,7 @@ workflow SPNTYPEID {
             [meta, file, file[0].countFastq(), file[1].countFastq()]}
         .branch{ meta, file, count1, count2 ->
             pass: count1 > 0 && count2 > 0
-            fail: count1 == 0 || count2 == 0
+            fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
         }
         .set{ ch_paired_end }
 
@@ -161,6 +161,10 @@ workflow SPNTYPEID {
             sample: true
         }
         .set{ ch_input_reads }
+
+    CHECK_EMPTY_NTC (
+        ch_failed.collect()
+    )
 
     //
     // MODULE: BBDUK
