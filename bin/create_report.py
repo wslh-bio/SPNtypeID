@@ -48,6 +48,9 @@ def parse_args(args=None):
     parser.add_argument('--max_assembly_length',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+    parser.add_argument('--empty_ntc_file',
+        type=str, 
+        help='This is determined in the spnetypeid script.')
     return parser.parse_args(args)
 
 def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length):
@@ -260,7 +263,9 @@ def main(args=None):
                     args.workflowVersion,
                     args.workflowRunName,
                     args.min_assembly_length,
-                    args.max_assembly_length)
+                    args.max_assembly_length,
+                    args.empty_ntc_file
+                    )
 
 if __name__ == "__main__":
     sys.exit(main())
