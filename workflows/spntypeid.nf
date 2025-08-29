@@ -351,7 +351,8 @@ workflow SPNTYPEID {
         params.run_name_regex,
         params.split_regex,
         params.minassemblylength,
-        params.maxassemblylength
+        params.maxassemblylength,
+        CHECK_EMPTY_NTC.out.empty_ntcs
     )
 
     //
