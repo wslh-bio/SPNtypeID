@@ -13,7 +13,7 @@ process CREATE_REPORT {
     path kv,            name: "kraken_version.yml"
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
-    path en,            name: "Empty_ntcs.csv"
+    path en,            name: "Empty_ntcs.tsv"
     val ntc_read_limit
     val ntc_spn_read_limit
     val run_name_regex

@@ -7,7 +7,7 @@ process CHECK_EMPTY_NTC {
     val empty
 
     output:
-    path("Empty_ntcs.csv"), emit: ntc_samples
+    path("Empty_ntcs.tsv"), emit: ntc_samples
 
     when:
     task.ext.when == null || task.ext.when

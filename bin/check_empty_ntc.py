@@ -49,7 +49,7 @@ def main(args=None):
     logging.info("Creating file denoting if empty NTC samples were discovered.")
 
     if len(empty_ntcs) > 0:
-        with open("Empty_ntcs.csv", "w") as outfile:
+        with open("Empty_ntcs.tsv", "w") as outfile:
             for sample in empty_ntcs:
                 outfile.write(sample + "\n")
     else:
