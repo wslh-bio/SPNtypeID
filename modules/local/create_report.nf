@@ -39,7 +39,7 @@ process CREATE_REPORT {
         --min_assembly_length ${min_assembly_length} \
         --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName}
+        --workflowRunName ${workflow.runName} \
         --empty_ntc_file ${en}
     """
 }
