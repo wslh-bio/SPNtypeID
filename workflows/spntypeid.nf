@@ -346,13 +346,13 @@ workflow SPNTYPEID {
         KRAKEN_SAMPLE.out.versions.first(),
         PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
         SEROBA_SUMMARY.out.seroba_tsv,
+        CHECK_EMPTY_NTC.out.ntc_samples,
         params.ntc_read_limit,
         params.ntc_spn_read_limit,
         params.run_name_regex,
         params.split_regex,
         params.minassemblylength,
-        params.maxassemblylength,
-        CHECK_EMPTY_NTC.out.empty_ntcs
+        params.maxassemblylength
     )
 
     //
