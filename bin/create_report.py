@@ -53,7 +53,8 @@ def parse_args(args=None):
         help='This is determined in the spnetypeid script.')
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length):
+def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length, empty_ntcs):
+
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
         for l in krakenFile.readlines():
@@ -64,11 +65,16 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     files = glob.glob('*.tsv')
     dfs = []
     for file in files:
-        df = pd.read_csv(file, header=0, delimiter='\t')
-        dfs.append(df)
+        if file == "Empty_ntcs.tsv":
+            pass
+        else:
+            df = pd.read_csv(file, header=0, delimiter='\t')
+            dfs.append(df)
 
     logging.debug("Merge data frames")
-    merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='left'), dfs)
+    merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='outer'), dfs)
+
+    merged_df.to_csv('merged_debug.csv', index=False, sep=',', encoding='utf-8')
 
     logging.debug("Convert sample names to string")
     merged_df['Sample'] = merged_df['Sample'].astype(str)
@@ -129,17 +135,29 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                 if row[4] == "1300":
                     spn_reads += int(row[1])
 
+        ntc_total_reads.append(f"{id}: {total_reads}")
+        ntc_SPN_reads.append(f"{id}: {spn_reads}")
+
+        empty = pd.read_csv('Empty_ntcs.tsv', header=0, delimiter='\t')
+        sample_col = empty["Sample"]
+        sample_count = empty['Sample'].count()
+
+        for sample in sample_col:
+            if sample not in ntc_total_reads:
+                ntc_total_reads.append(f"{sample}: 0")
+                total_reads += 0
+            if sample not in ntc_SPN_reads:
+                ntc_SPN_reads.append(f"{sample}: 0")
+                spn_reads += 0
+
         logging.debug("Mark sample as failed if # of total and strep pneumo reads exceeds thresholds")
         if total_reads >= int(ntc_read_limit):
             ntc_result = "FAIL"
         if spn_reads >= int(ntc_spn_read_limit):
             ntc_result = "FAIL"
 
-        ntc_total_reads.append(f"{id}: {total_reads}")
-        ntc_SPN_reads.append(f"{id}: {spn_reads}")
-
     logging.debug("Account for no NTC in data set")
-    if len(kraken_ntc_results) == 0:
+    if len(kraken_ntc_results) == 0 and sample_count == 0:
         merged_df = merged_df.assign(ntc_reads="No NTC in data set")
         merged_df = merged_df.assign(ntc_spn="No NTC in data set")
         merged_df = merged_df.assign(ntc_result="FAIL")
@@ -153,7 +171,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
     runIDs = []
-
 
     logging.debug("Pull run name from sample name using regex")
     for name in sample_names:
@@ -256,6 +273,7 @@ def main(args=None):
     args = parse_args(args)
 
     logging.info("Begin compiling all results for final output file.")
+
     process_results(args.ntc_read_limit, 
                     args.ntc_spn_read_limit, 
                     args.run_name_regex, 
