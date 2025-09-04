@@ -24,6 +24,7 @@ def fix_formatting(empty_samples):
     string = ''.join(empty_samples)
     redo_list = string.strip("[]")
     list = redo_list.split(",")
+
     return list
 
 def process_empty(filtered_samples):
@@ -50,10 +51,11 @@ def main(args=None):
 
     if len(empty_ntcs) > 0:
         with open("Empty_ntcs.tsv", "w") as outfile:
+            outfile.write("Sample" + "\n")
             for sample in empty_ntcs:
                 outfile.write(sample + "\n")
     else:
-        outfile.write("No empty NTC samples were identified for the final report.\n")
+        outfile.write("Sample" + "\n" +"No empty NTC samples were identified for the final report.")
 
 if __name__ == "__main__":
     sys.exit(main())
