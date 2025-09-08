@@ -163,7 +163,7 @@ workflow SPNTYPEID {
         .set{ ch_input_reads }
 
     CHECK_EMPTY_NTC (
-        ch_failed.collect()
+        ch_failed.collect().ifEmpty([])
     )
 
     //
@@ -333,6 +333,8 @@ workflow SPNTYPEID {
         CALCULATE_ASSEMBLY_STATS.out.assembly_ratio.collect()
     )
 
+
+
     //
     // MODULE: CREATE_REPORT
     //
@@ -342,7 +344,7 @@ workflow SPNTYPEID {
         QUALITY_STATS.out.quality_tsv,
         COVERAGE_STATS.out.coverage_tsv,
         QUAST_SUMMARY.out.quast_tsv,
-        KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
+        KRAKEN_NTC.out.kraken_results.collect().ifEmpty("$projectDir/assets/empty_file.txt"),
         KRAKEN_SAMPLE.out.versions.first(),
         PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
         SEROBA_SUMMARY.out.seroba_tsv,
