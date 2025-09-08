@@ -55,7 +55,8 @@ def main(args=None):
             for sample in empty_ntcs:
                 outfile.write(sample + "\n")
     else:
-        outfile.write("Sample" + "\n" +"No empty NTC samples were identified for the final report.")
+        with open("Empty_ntcs.tsv", "w") as outfile:
+            outfile.write("Sample" + "\n" +"No empty NTC samples were identified for the final report.")
 
 if __name__ == "__main__":
     sys.exit(main())
