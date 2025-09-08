@@ -16,7 +16,7 @@ logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s
 
 def parse_args(args=None):
     Description='A script to summarize stats'
-    Epilog='Use with results.py <>'
+    Epilog='Use with create_report.py <>'
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
     parser.add_argument('-kntc', '--kraken_ntc_data',
         type=str, 
@@ -118,6 +118,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     ntc_total_reads = []
     ntc_SPN_reads = []
 
+    sample_count = 0
+
     logging.debug("Read in kraken NTC files and get # of total reads and strep pneumo reads")
     for file in kraken_ntc_results:
         id = file.split("/")[1].split(".kraken.txt")[0]
@@ -138,7 +140,7 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         ntc_total_reads.append(f"{id}: {total_reads}")
         ntc_SPN_reads.append(f"{id}: {spn_reads}")
 
-        empty = pd.read_csv('Empty_ntcs.tsv', header=0, delimiter='\t')
+        empty = pd.read_csv(empty_ntcs, header=0, delimiter='\t')
         sample_col = empty["Sample"]
         sample_count = empty['Sample'].count()
 
