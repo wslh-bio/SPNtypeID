@@ -9,7 +9,7 @@ process CREATE_REPORT {
     path qs,            name: "quality_stats.tsv"
     path cs,            name: "coverage_stats.tsv"
     path qr,            name: "quast_results.tsv"
-    path kntc,          name: "kraken_ntc_data/*"
+    path kntc
     path kv,            name: "kraken_version.yml"
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
