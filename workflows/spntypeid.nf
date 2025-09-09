@@ -64,6 +64,7 @@ include { SEROBA                        } from '../modules/local/seroba'
 include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
 include { CREATE_REPORT                 } from '../modules/local/create_report'
+include { CREATE_REPORT_NO_NTC          } from '../modules/local/create_report_no_ntc'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
@@ -163,7 +164,7 @@ workflow SPNTYPEID {
         .set{ ch_input_reads }
 
     CHECK_EMPTY_NTC (
-        ch_failed.collect().ifEmpty([])
+        ch_failed.collect()
     )
 
     //
@@ -280,10 +281,18 @@ workflow SPNTYPEID {
 
     //
     // MODULE: KRAKEN_NTC
-    //
+    // 
     KRAKEN_NTC (
         ch_input_reads.ntc
     )
+
+    KRAKEN_NTC
+        .out
+        .kraken_results
+        .collect()
+        .ifEmpty("No NTC")
+        .set { ch_kraken_ntc_results }
+
 
     //
     // MODULE: SEROBA
@@ -333,29 +342,51 @@ workflow SPNTYPEID {
         CALCULATE_ASSEMBLY_STATS.out.assembly_ratio.collect()
     )
 
-
+    ch_kraken_ntc_results.view()
 
     //
     // MODULE: CREATE_REPORT
     //
-    CREATE_REPORT (
-        ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
-        BBDUK_SUMMARY.out.bbduk_tsv,
-        QUALITY_STATS.out.quality_tsv,
-        COVERAGE_STATS.out.coverage_tsv,
-        QUAST_SUMMARY.out.quast_tsv,
-        KRAKEN_NTC.out.kraken_results.collect().ifEmpty("$projectDir/assets/empty_file.txt"),
-        KRAKEN_SAMPLE.out.versions.first(),
-        PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
-        SEROBA_SUMMARY.out.seroba_tsv,
-        CHECK_EMPTY_NTC.out.ntc_samples,
-        params.ntc_read_limit,
-        params.ntc_spn_read_limit,
-        params.run_name_regex,
-        params.split_regex,
-        params.minassemblylength,
-        params.maxassemblylength
-    )
+    if (ch_kraken_ntc_results == "No NTC") {
+        CREATE_REPORT_NO_NTC (
+            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
+            BBDUK_SUMMARY.out.bbduk_tsv,
+            QUALITY_STATS.out.quality_tsv,
+            COVERAGE_STATS.out.coverage_tsv,
+            QUAST_SUMMARY.out.quast_tsv,
+            KRAKEN_SAMPLE.out.versions.first(),
+            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
+            SEROBA_SUMMARY.out.seroba_tsv,
+            CHECK_EMPTY_NTC.out.ntc_samples,
+            params.ntc_read_limit,
+            params.ntc_spn_read_limit,
+            params.run_name_regex,
+            params.split_regex,
+            params.minassemblylength,
+            params.maxassemblylength
+        )
+        .set{ ch_report }
+    } else {
+        CREATE_REPORT (
+            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
+            BBDUK_SUMMARY.out.bbduk_tsv,
+            QUALITY_STATS.out.quality_tsv,
+            COVERAGE_STATS.out.coverage_tsv,
+            QUAST_SUMMARY.out.quast_tsv,
+            KRAKEN_NTC.out.kraken_results.collect(),
+            KRAKEN_SAMPLE.out.versions.first(),
+            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
+            SEROBA_SUMMARY.out.seroba_tsv,
+            CHECK_EMPTY_NTC.out.ntc_samples,
+            params.ntc_read_limit,
+            params.ntc_spn_read_limit,
+            params.run_name_regex,
+            params.split_regex,
+            params.minassemblylength,
+            params.maxassemblylength
+        )
+        .set{ ch_report }
+    }
 
     //
     // MODULE: WORKFLOW_TEST
@@ -363,7 +394,7 @@ workflow SPNTYPEID {
     ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
     WORKFLOW_TEST (
         ch_valid_dataset.collect(),
-        CREATE_REPORT.out.result_csv
+        ch_report.out.result_csv
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
