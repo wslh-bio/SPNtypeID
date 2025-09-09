@@ -118,8 +118,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     ntc_total_reads = []
     ntc_SPN_reads = []
 
-    sample_count = 0
-
     logging.debug("Read in kraken NTC files and get # of total reads and strep pneumo reads")
     for file in kraken_ntc_results:
         id = file.split("/")[1].split(".kraken.txt")[0]
