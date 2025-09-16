@@ -48,8 +48,8 @@ def parse_args(args=None):
     parser.add_argument('--max_assembly_length',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('--empty_ntc_file',
-        type=str, 
+    parser.add_argument('--empty_ntc_list',
+        nargs="*",
         help='This is determined in the spnetypeid script.')
     return parser.parse_args(args)
 
@@ -65,11 +65,8 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
     files = glob.glob('*.tsv')
     dfs = []
     for file in files:
-        if file == "Empty_ntcs.tsv":
-            pass
-        else:
-            df = pd.read_csv(file, header=0, delimiter='\t')
-            dfs.append(df)
+        df = pd.read_csv(file, header=0, delimiter='\t')
+        dfs.append(df)
 
     logging.debug("Merge data frames")
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='outer'), dfs)
@@ -138,17 +135,19 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         ntc_total_reads.append(f"{id}: {total_reads}")
         ntc_SPN_reads.append(f"{id}: {spn_reads}")
 
-        empty = pd.read_csv(empty_ntcs, header=0, delimiter='\t')
-        sample_col = empty["Sample"]
-        sample_count = empty['Sample'].count()
+        string = ''.join(empty_ntcs)
+        redo_list = string.strip("[]")
+        list = redo_list.split(",")
+        sample_count = len(list)
 
-        for sample in sample_col:
-            if sample not in ntc_total_reads:
-                ntc_total_reads.append(f"{sample}: 0")
-                total_reads += 0
-            if sample not in ntc_SPN_reads:
-                ntc_SPN_reads.append(f"{sample}: 0")
-                spn_reads += 0
+        for sample in list:
+            if sample != "Empty":
+                if sample not in ntc_total_reads:
+                    ntc_total_reads.append(f"{sample}: 0")
+                    total_reads += 0
+                if sample not in ntc_SPN_reads:
+                    ntc_SPN_reads.append(f"{sample}: 0")
+                    spn_reads += 0
 
         logging.debug("Mark sample as failed if # of total and strep pneumo reads exceeds thresholds")
         if total_reads >= int(ntc_read_limit):
@@ -282,7 +281,7 @@ def main(args=None):
                     args.workflowRunName,
                     args.min_assembly_length,
                     args.max_assembly_length,
-                    args.empty_ntc_file
+                    args.empty_ntc_list
                     )
 
 if __name__ == "__main__":
