@@ -9,12 +9,9 @@ process CREATE_REPORT_NO_NTC {
     path qs,            name: "quality_stats.tsv"
     path cs,            name: "coverage_stats.tsv"
     path qr,            name: "quast_results.tsv"
-    path kv,            name: "kraken_vCREATE_REPORT_NO_NTCersion.yml"
+    path kv,            name: "kraken_version.yml"
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
-    path en,            name: "Empty_ntcs.tsv"
-    val ntc_read_limit
-    val ntc_spn_read_limit
     val run_name_regex
     val split_regex
     val min_assembly_length
@@ -30,14 +27,11 @@ process CREATE_REPORT_NO_NTC {
     """
     create_report_no_ntc.py \
         --kraken_version ${kv} \
-        --ntc_read_limit ${ntc_read_limit} \
-        --ntc_spn_read_limit ${ntc_spn_read_limit} \
         --run_name_regex ${run_name_regex} \
         --split_regex ${split_regex} \
         --min_assembly_length ${min_assembly_length} \
         --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName} \
-        --empty_ntc_file ${en}
+        --workflowRunName ${workflow.runName}
     """
 }

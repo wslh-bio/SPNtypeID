@@ -45,28 +45,17 @@ def parse_args(args=None):
     parser.add_argument('--max_assembly_length',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('--empty_ntc_file',
-        type=str, 
-        help='This is determined in the spnetypeid script.')
+
     return parser.parse_args(args)
 
-def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length, empty_ntcs):
-
-    logging.debug("Open Kraken version file to get Kraken version")
-    with open('kraken_version.yml', 'r') as krakenFile:
-        for l in krakenFile.readlines():
-            if "kraken DB:" in l.strip():
-                krakenDBVersion = l.strip().split(':')[1].strip()
+def process_results(run_name_regex, split_regex, WFVersion, WFRunName,min_assembly_length,max_assembly_length):
 
     logging.debug("Get all tsv files and read them in as data frames")
     files = glob.glob('*.tsv')
     dfs = []
     for file in files:
-        if file == "Empty_ntcs.tsv":
-            pass
-        else:
-            df = pd.read_csv(file, header=0, delimiter='\t')
-            dfs.append(df)
+        df = pd.read_csv(file, header=0, delimiter='\t')
+        dfs.append(df)
 
     logging.debug("Merge data frames")
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='outer'), dfs)
@@ -100,9 +89,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
 
     logging.debug("Drop columns that were merged")
     merged_df = merged_df.drop(comment_cols,axis=1)
-
-    logging.debug("Add kraken DB column")
-    merged_df = merged_df.assign(krakenDB=krakenDBVersion)
 
     logging.debug("Add Workflow version column")
     merged_df = merged_df.assign(workflowVersion=WFVersion)
@@ -142,7 +128,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                                           'ntc_reads':'Total NTC Reads',
                                           'ntc_spn':'Total NTC SPN Reads',
                                           'ntc_result':'NTC PASS/FAIL',
-                                          'krakenDB':'Kraken Database Version',
                                           'workflowVersion':'SPNtypeID Version',
                                           'Stdev':'Stdev (bp)',
                                           'passAssemblyLength':'Pass Assembly Length',
@@ -166,7 +151,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Percent SecondGenus',
                         'Pass Kraken',
                         'Serotype',
-                        'Kraken Database Version',
                         'SPNtypeID Version',
                         'Total NTC Reads',
                         'Total NTC SPN Reads',
@@ -203,7 +187,6 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
                         'Serotype',
                         'Pass NA',
                         'Comments',
-                        'Kraken Database Version',
                         'SPNtypeID Version',
                         'Total NTC Reads',
                         'Total NTC SPN Reads',
@@ -217,15 +200,13 @@ def main(args=None):
 
     logging.info("Begin compiling all results for final output file.")
 
-    process_results(args.ntc_read_limit, 
-                    args.ntc_spn_read_limit, 
+    process_results(
                     args.run_name_regex, 
                     args.split_regex, 
                     args.workflowVersion,
                     args.workflowRunName,
                     args.min_assembly_length,
-                    args.max_assembly_length,
-                    args.empty_ntc_file
+                    args.max_assembly_length
                     )
 
 if __name__ == "__main__":
