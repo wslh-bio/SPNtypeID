@@ -13,7 +13,7 @@ process CREATE_REPORT {
     path kv,            name: "kraken_version.yml"
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
-    path en,            name: "Empty_ntcs.tsv"
+    val en
     val ntc_read_limit
     val ntc_spn_read_limit
     val run_name_regex
@@ -40,6 +40,6 @@ process CREATE_REPORT {
         --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
         --workflowRunName ${workflow.runName} \
-        --empty_ntc_file ${en}
+        --empty_ntc_list ${en}
     """
 }
