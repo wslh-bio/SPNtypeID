@@ -358,7 +358,7 @@ workflow SPNTYPEID {
     //
     // MODULE: CREATE_REPORT
     //
-    if (params.ntc_present) {
+    if (params.ntc_regex != null) {
         CREATE_REPORT (
             ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
             BBDUK_SUMMARY.out.bbduk_tsv,
@@ -378,7 +378,7 @@ workflow SPNTYPEID {
             params.maxassemblylength
             )
     }
-    if (!params.ntc_present) {
+    if (params.ntc_regex == null) {
         CREATE_REPORT_NO_NTC (
             ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
             BBDUK_SUMMARY.out.bbduk_tsv,
@@ -398,11 +398,13 @@ workflow SPNTYPEID {
     //
     // MODULE: WORKFLOW_TEST
     //
-    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
-    WORKFLOW_TEST (
-        ch_valid_dataset.collect(),
-        CREATE_REPORT.out.result_csv
-    )
+    if (params.ntc_regex) {
+        ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
+        WORKFLOW_TEST (
+            ch_valid_dataset.collect(),
+            CREATE_REPORT.out.result_csv
+        )
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
