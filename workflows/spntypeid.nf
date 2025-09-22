@@ -155,6 +155,7 @@ workflow SPNTYPEID {
             newLine: true
         )
 
+
     ch_filtered
         .branch {
             ntc: !!(it[0]['id'] =~ params.ntc_regex)
@@ -162,32 +163,34 @@ workflow SPNTYPEID {
         }
         .set{ ch_input_reads }
 
-    ch_single_end.fail
-        .map { meta, file, count1, count2 ->
-        [meta.id]
-        }
-        .set{ ch_single_ntc_check }
-
-    ch_paired_end.fail
-        .map { meta, file, count1, count2 ->
+    if (params.ntc_regex != null) {
+        ch_single_end.fail
+            .map { meta, file, count1, count2 ->
             [meta.id]
             }
-        .set{ ch_paired_ntc_check }
+            .set{ ch_single_ntc_check }
 
-    ch_paired_ntc_check
-        .mix( ch_single_ntc_check )
-        .set{ ch_ntc_check }
+        ch_paired_end.fail
+            .map { meta, file, count1, count2 ->
+                [meta.id]
+                }
+            .set{ ch_paired_ntc_check }
 
-    ch_ntc_check
-        .branch {
-            ntc: !!(it =~ params.ntc_regex)
-            sample: true
-        }
-        .set { ch_ntc_check }
+        ch_paired_ntc_check
+            .mix( ch_single_ntc_check )
+            .set{ ch_ntc_check }
 
-    ch_ntc_check.ntc
-        .collect()
-        .ifEmpty("Empty")
+        ch_ntc_check
+            .branch {
+                ntc: !!(it =~ params.ntc_regex)
+                sample: true
+            }
+            .set { ch_ntc_check }
+
+        ch_ntc_check.ntc
+            .collect()
+            .ifEmpty("Empty")
+    }
 
     //
     // MODULE: BBDUK
@@ -300,12 +303,14 @@ workflow SPNTYPEID {
         KRAKEN_SAMPLE.out.kraken_results.collect()
     )
 
-    //
-    // MODULE: KRAKEN_NTC
-    // 
-    KRAKEN_NTC (
-        ch_input_reads.ntc
-    )
+    if (params.ntc_regex != null) {
+        //
+        // MODULE: KRAKEN_NTC
+        // 
+        KRAKEN_NTC (
+            ch_input_reads.ntc
+        )
+    }
 
     //
     // MODULE: SEROBA
@@ -376,8 +381,9 @@ workflow SPNTYPEID {
             params.split_regex,
             params.minassemblylength,
             params.maxassemblylength
-            )
+        )
     }
+
     if (params.ntc_regex == null) {
         CREATE_REPORT_NO_NTC (
             ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
