@@ -303,6 +303,7 @@ workflow SPNTYPEID {
         KRAKEN_SAMPLE.out.kraken_results.collect()
     )
 
+
     if (params.ntc_regex != null) {
         //
         // MODULE: KRAKEN_NTC
@@ -311,6 +312,7 @@ workflow SPNTYPEID {
             ch_input_reads.ntc
         )
     }
+
 
     //
     // MODULE: SEROBA
@@ -434,7 +436,11 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_trim.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_SAMPLE.out.kraken_results.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+
+    if (params.ntc_regex != null) {    
+        ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+    }
+
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.result.collect().ifEmpty([]))
 
     MULTIQC (
