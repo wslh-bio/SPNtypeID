@@ -25,12 +25,12 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 ### Using the workflow
 The pipeline is designed to start from raw, paired-end Illumina reads. Start the pipeline using:
 ```
-nextflow SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] -profile [docker,singularity,aws]
+nextflow SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 or from github using:
 ```
-nextflow wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] -profile [docker,singularity,aws]
+nextflow wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 You can also test the pipeline with example data using `-profile test` or `-profile test_full`:
@@ -61,7 +61,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
-| ntc_regex | Regex pattern for identifying NTC files (default: 'NTC') |
+| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC (default: null) |
 | split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
 | run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
 | maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
@@ -179,7 +179,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 If you use SPNtypeID for your analysis, please cite it using the following:
 
-`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.7.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
+`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.7.1) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
 
 An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
