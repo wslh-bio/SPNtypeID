@@ -155,7 +155,6 @@ workflow SPNTYPEID {
             newLine: true
         )
 
-
     ch_filtered
         .branch {
             ntc: !!(it[0]['id'] =~ params.ntc_regex)
@@ -313,7 +312,6 @@ workflow SPNTYPEID {
         )
     }
 
-
     //
     // MODULE: SEROBA
     //
@@ -437,7 +435,7 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_SAMPLE.out.kraken_results.collect().ifEmpty([]))
 
-    if (params.ntc_regex != null) {    
+    if (params.ntc_regex != null) {
         ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
     }
 
