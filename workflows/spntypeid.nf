@@ -189,6 +189,7 @@ workflow SPNTYPEID {
         ch_ntc_check.ntc
             .collect()
             .ifEmpty("Empty")
+            .set { ch_empty_ntc }
     }
 
     //
@@ -302,7 +303,6 @@ workflow SPNTYPEID {
         KRAKEN_SAMPLE.out.kraken_results.collect()
     )
 
-
     if (params.ntc_regex != null) {
         //
         // MODULE: KRAKEN_NTC
@@ -374,7 +374,7 @@ workflow SPNTYPEID {
             KRAKEN_SAMPLE.out.versions.first(),
             PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
             SEROBA_SUMMARY.out.seroba_tsv,
-            ch_ntc_check.ntc.collect(),
+            ch_empty_ntc,
             params.ntc_read_limit,
             params.ntc_spn_read_limit,
             params.run_name_regex,
@@ -404,7 +404,7 @@ workflow SPNTYPEID {
     //
     // MODULE: WORKFLOW_TEST
     //
-    if (params.ntc_regex) {
+    if (params.ntc_regex != null) {
         ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
         WORKFLOW_TEST (
             ch_valid_dataset.collect(),
