@@ -61,7 +61,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
-| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC (default: null) |
+| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
 | split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
 | run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
 | maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
