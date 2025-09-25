@@ -25,17 +25,17 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 ### Using the workflow
 The pipeline is designed to start from raw, paired-end Illumina reads. Start the pipeline using:
 ```
-nextflow SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
+nextflow run SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 or from github using:
 ```
-nextflow wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
+nextflow run wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 You can also test the pipeline with example data using `-profile test` or `-profile test_full`:
 ```
-nextflow SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
+nextflow run SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
 ```
 
 ### Input
