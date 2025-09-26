@@ -6,5 +6,9 @@
   "outdir": {
      "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
      "optional": false
-}   
+  },
+  "ntc_regex": {
+     "description": "The naming pattern for no template controls (NTCs) in dataset i.e. NTC or ntc. The default is set to null, meaning no NTCs are present in dataset.",
+     "optional": true
+  }
 }
