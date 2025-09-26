@@ -45,7 +45,6 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-
 include { BBDUK                         } from '../modules/local/bbduk'
 include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
 include { FASTQC                        } from '../modules/local/fastqc'
@@ -64,6 +63,7 @@ include { SEROBA                        } from '../modules/local/seroba'
 include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
 include { CREATE_REPORT                 } from '../modules/local/create_report'
+include { CREATE_REPORT_NO_NTC          } from '../modules/local/create_report_no_ntc'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
@@ -111,7 +111,7 @@ workflow SPNTYPEID {
             [meta, file, file[0].countFastq(), file[1].countFastq()]}
         .branch{ meta, file, count1, count2 ->
             pass: count1 > 0 && count2 > 0
-            fail: count1 == 0 || count2 == 0
+            fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
         }
         .set{ ch_paired_end }
 
@@ -161,6 +161,36 @@ workflow SPNTYPEID {
             sample: true
         }
         .set{ ch_input_reads }
+
+    if (params.ntc_regex != null) {
+        ch_single_end.fail
+            .map { meta, file, count1, count2 ->
+            [meta.id]
+            }
+            .set{ ch_single_ntc_check }
+
+        ch_paired_end.fail
+            .map { meta, file, count1, count2 ->
+                [meta.id]
+                }
+            .set{ ch_paired_ntc_check }
+
+        ch_paired_ntc_check
+            .mix( ch_single_ntc_check )
+            .set{ ch_ntc_check }
+
+        ch_ntc_check
+            .branch {
+                ntc: !!(it =~ params.ntc_regex)
+                sample: true
+            }
+            .set { ch_ntc_check }
+
+        ch_ntc_check.ntc
+            .collect()
+            .ifEmpty("Empty")
+            .set { ch_empty_ntc }
+    }
 
     //
     // MODULE: BBDUK
@@ -237,7 +267,6 @@ workflow SPNTYPEID {
         .collect()
         .set { ch_quast_summary }
 
-
     QUAST_SUMMARY (
         ch_quast_summary,
         params.maxcontigs
@@ -274,12 +303,14 @@ workflow SPNTYPEID {
         KRAKEN_SAMPLE.out.kraken_results.collect()
     )
 
-    //
-    // MODULE: KRAKEN_NTC
-    //
-    KRAKEN_NTC (
-        ch_input_reads.ntc
-    )
+    if (params.ntc_regex != null) {
+        //
+        // MODULE: KRAKEN_NTC
+        // 
+        KRAKEN_NTC (
+            ch_input_reads.ntc
+        )
+    }
 
     //
     // MODULE: SEROBA
@@ -332,39 +363,61 @@ workflow SPNTYPEID {
     //
     // MODULE: CREATE_REPORT
     //
-    CREATE_REPORT (
-        ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
-        BBDUK_SUMMARY.out.bbduk_tsv,
-        QUALITY_STATS.out.quality_tsv,
-        COVERAGE_STATS.out.coverage_tsv,
-        QUAST_SUMMARY.out.quast_tsv,
-        KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]),
-        KRAKEN_SAMPLE.out.versions.first(),
-        PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
-        SEROBA_SUMMARY.out.seroba_tsv,
-        params.ntc_read_limit,
-        params.ntc_spn_read_limit,
-        params.run_name_regex,
-        params.split_regex,
-        params.minassemblylength,
-        params.maxassemblylength
-    )
+    if (params.ntc_regex != null) {
+        CREATE_REPORT (
+            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
+            BBDUK_SUMMARY.out.bbduk_tsv,
+            QUALITY_STATS.out.quality_tsv,
+            COVERAGE_STATS.out.coverage_tsv,
+            QUAST_SUMMARY.out.quast_tsv,
+            KRAKEN_NTC.out.kraken_results.collect(),
+            KRAKEN_SAMPLE.out.versions.first(),
+            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
+            SEROBA_SUMMARY.out.seroba_tsv,
+            ch_empty_ntc,
+            params.ntc_read_limit,
+            params.ntc_spn_read_limit,
+            params.run_name_regex,
+            params.split_regex,
+            params.minassemblylength,
+            params.maxassemblylength
+        )
+    }
+
+    if (params.ntc_regex == null) {
+        CREATE_REPORT_NO_NTC (
+            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
+            BBDUK_SUMMARY.out.bbduk_tsv,
+            QUALITY_STATS.out.quality_tsv,
+            COVERAGE_STATS.out.coverage_tsv,
+            QUAST_SUMMARY.out.quast_tsv,
+            KRAKEN_SAMPLE.out.versions.first(),
+            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
+            SEROBA_SUMMARY.out.seroba_tsv,
+            params.run_name_regex,
+            params.split_regex,
+            params.minassemblylength,
+            params.maxassemblylength
+        )
+    }
 
     //
     // MODULE: WORKFLOW_TEST
     //
-    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
-    WORKFLOW_TEST (
-        ch_valid_dataset.collect(),
-        CREATE_REPORT.out.result_csv
-    )
+    if (params.ntc_regex != null) {
+        ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
+        WORKFLOW_TEST (
+            ch_valid_dataset.collect(),
+            CREATE_REPORT.out.result_csv
+        )
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
     //
-    // MODULE: MultiQC
+    //MODULE: MultiQC
     //
     workflow_summary    = WorkflowSpntypeid.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
@@ -381,7 +434,11 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_trim.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_SAMPLE.out.kraken_results.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+
+    if (params.ntc_regex != null) {
+        ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+    }
+
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.result.collect().ifEmpty([]))
 
     MULTIQC (

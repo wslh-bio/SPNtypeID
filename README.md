@@ -25,18 +25,20 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 ### Using the workflow
 The pipeline is designed to start from raw, paired-end Illumina reads. Start the pipeline using:
 ```
-nextflow SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] -profile [docker,singularity,aws]
+nextflow run SPNtypeID/main.nf --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 or from github using:
 ```
-nextflow wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] -profile [docker,singularity,aws]
+nextflow run wslh-bio/SPNtypeID -r [version] --input [path-to-samplesheet] --outdir [path-to-outdir] --ntc_regex NTC -profile [docker,singularity,aws]
 ```
 
 You can also test the pipeline with example data using `-profile test` or `-profile test_full`:
 ```
-nextflow SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
+nextflow run SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
 ```
+As of version 1.8.0, the workflow validation step is not functional and the pipeline will fail if run with `-profile docker,test_full`. 
+
 
 ### Input
 SPNTypeID's inputs are paired Illumina FASTQ files for each sample and a comma separated sample sheet containing the sample name, the path to the forward reads file, and the path to the reverse reads file for each sample. A sample sheet can be created using the [fastq_dir_to_samplesheet.py](https://github.com/wslh-bio/SPNtypeID/blob/main/bin/fastq_dir_to_samplesheet.py) script or by hand.  An example of the sample sheet's format can be seen in the table below and found [here](https://raw.githubusercontent.com/wslh-bio/SPNtypeID/main/samplesheets/workflow_test.csv).
@@ -61,7 +63,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
-| ntc_regex | Regex pattern for identifying NTC files (default: 'NTC') |
+| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
 | split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
 | run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
 | maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
@@ -179,7 +181,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 If you use SPNtypeID for your analysis, please cite it using the following:
 
-`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.7.1) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
+`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.8.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
 
 An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
