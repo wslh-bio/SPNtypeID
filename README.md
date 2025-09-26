@@ -37,6 +37,8 @@ You can also test the pipeline with example data using `-profile test` or `-prof
 ```
 nextflow run SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
 ```
+As of version 1.8.0, the workflow validation step is not functional and the pipeline will fail if run with `-profile docker,test_full`. 
+
 
 ### Input
 SPNTypeID's inputs are paired Illumina FASTQ files for each sample and a comma separated sample sheet containing the sample name, the path to the forward reads file, and the path to the reverse reads file for each sample. A sample sheet can be created using the [fastq_dir_to_samplesheet.py](https://github.com/wslh-bio/SPNtypeID/blob/main/bin/fastq_dir_to_samplesheet.py) script or by hand.  An example of the sample sheet's format can be seen in the table below and found [here](https://raw.githubusercontent.com/wslh-bio/SPNtypeID/main/samplesheets/workflow_test.csv).
@@ -179,7 +181,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 If you use SPNtypeID for your analysis, please cite it using the following:
 
-`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.7.1) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
+`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.8.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
 
 An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
