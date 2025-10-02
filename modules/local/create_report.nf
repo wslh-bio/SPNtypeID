@@ -14,12 +14,9 @@ process CREATE_REPORT {
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
     val en
-    val ntc_read_limit
-    val ntc_spn_read_limit
     val run_name_regex
     val split_regex
-    val min_assembly_length
-    val max_assembly_length
+    val runname
 
     output:
     path('*_spntypeid_report.csv')   , emit: result_csv
@@ -32,14 +29,10 @@ process CREATE_REPORT {
     create_report.py \
         --kraken_ntc_data ${kntc} \
         --kraken_version ${kv} \
-        --ntc_read_limit ${ntc_read_limit} \
-        --ntc_spn_read_limit ${ntc_spn_read_limit} \
         --run_name_regex ${run_name_regex} \
         --split_regex ${split_regex} \
-        --min_assembly_length ${min_assembly_length} \
-        --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName} \
+        --workflowRunName ${runname} \
         --empty_ntc_list ${en}
     """
 }
