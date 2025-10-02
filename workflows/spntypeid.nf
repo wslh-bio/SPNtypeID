@@ -375,12 +375,9 @@ workflow SPNTYPEID {
             PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
             SEROBA_SUMMARY.out.seroba_tsv,
             ch_empty_ntc,
-            params.ntc_read_limit,
-            params.ntc_spn_read_limit,
             params.run_name_regex,
             params.split_regex,
-            params.minassemblylength,
-            params.maxassemblylength
+            params.runname
         )
     }
 
@@ -396,8 +393,7 @@ workflow SPNTYPEID {
             SEROBA_SUMMARY.out.seroba_tsv,
             params.run_name_regex,
             params.split_regex,
-            params.minassemblylength,
-            params.maxassemblylength
+            params.runname
         )
     }
 
