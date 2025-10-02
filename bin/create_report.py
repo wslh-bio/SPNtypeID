@@ -19,7 +19,7 @@ def parse_args(args=None):
     Epilog='Use with create_report.py <>'
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
     parser.add_argument('-kntc', '--kraken_ntc_data',
-        type=str, 
+        nargs='*', 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('-kv', '--kraken_version',
         type=str, 
@@ -155,17 +155,10 @@ def process_results(ntc_read_limit, ntc_spn_read_limit, run_name_regex, split_re
         if spn_reads >= int(ntc_spn_read_limit):
             ntc_result = "FAIL"
 
-    logging.debug("Account for no NTC in data set")
-    if len(kraken_ntc_results) == 0 and sample_count == 0:
-        merged_df = merged_df.assign(ntc_reads="No NTC in data set")
-        merged_df = merged_df.assign(ntc_spn="No NTC in data set")
-        merged_df = merged_df.assign(ntc_result="FAIL")
-
-    else:
-        logging.debug("Otherwise add NTC totals to data frame")
-        merged_df = merged_df.assign(ntc_reads=", ".join(ntc_total_reads))
-        merged_df = merged_df.assign(ntc_spn=", ".join(ntc_SPN_reads))
-        merged_df = merged_df.assign(ntc_result=ntc_result)
+    logging.debug("Otherwise add NTC totals to data frame")
+    merged_df = merged_df.assign(ntc_reads=", ".join(ntc_total_reads))
+    merged_df = merged_df.assign(ntc_spn=", ".join(ntc_SPN_reads))
+    merged_df = merged_df.assign(ntc_result=ntc_result)
 
     sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
