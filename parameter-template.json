@@ -6,4 +6,14 @@
   "outdir": {
      "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
      "optional": false
-}   
+  },
+  "runname": {
+     "description": "A name for the run. This will be used to name the output files.",
+     "optional": false
+  },
+  "ntc_regex" : {
+     "description": "A regular expression to identify negative control samples in the input CSV file.",
+     "optional": true,
+     "default": "NTC"
+  },
+}
