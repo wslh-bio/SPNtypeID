@@ -68,10 +68,6 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
     logging.debug("Creating passAssemblyLength column")
     merged_df = merged_df.assign(commentsAssemblyLength='')
 
-    logging.debug("Checking assembly length and setting pass to false if below threshold")
-    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] < int(min_assembly_length), f'Assembly length is less than {min_assembly_length} bp.')
-    merged_df['commentsAssemblyLength'] = merged_df['commentsAssemblyLength'].mask(merged_df['Assembly Length (bp)'] > int(max_assembly_length), f'Assembly length is greater than {max_assembly_length} bp.')
-
     logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
     logging.debug(";.join joins all of the commens into a single string sep by a ;. Any comments that are na are dropped.")
     logging.debug("Converted the series to a string to apply the strip mentod to remove any leading or trailing ';'.")
@@ -86,6 +82,7 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
     logging.debug("Add Workflow version column")
     merged_df = merged_df.assign(workflowVersion=WFVersion)
 
+    logging.debug("Add NTC columns with fill in values")
     merged_df = merged_df.assign(ntc_total_reads = "999999")
     merged_df = merged_df.assign(ntc_SPN_reads = "999999")
 
@@ -115,15 +112,19 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
     merged_df = merged_df.assign(max_ntc_reads="999999")
     merged_df = merged_df.assign(max_ntc_spn_reads="999999")
 
+    logging.debug("Use the workflow run name from params for the run column")
+    merged_df['Run'] = f"{WFRunName}"
+
     logging.debug("Rename columns to nicer names")
     merged_df = merged_df.rename(columns={'Contigs':'Contigs (#)',
                                           'Combined':'Comments',
+                                          'krakenDB':'Kraken Database Version',
                                           'workflowVersion':'SPNtypeID Version',
                                           'Stdev':'Stdev (bp)',
                                           'ntc_all_reads':'All NTC reads',
                                           'ntc_all_spn_reads':'All NTC SPN reads',
-                                          'max_ntc_reads':'max NTC read',
-                                          'max_ntc_spn_reads':'max NTC SPN read'
+                                          'max_ntc_reads':'Max NTC read',
+                                          'max_ntc_spn_reads':'Max NTC SPN read'
                                           })
 
     logging.debug("Put columns in specific order")
@@ -148,8 +149,8 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
                         'Kraken Database Version',
                         'All NTC reads',
                         'All NTC SPN reads',
-                        'max NTC read',
-                        'max NTC SPN read',
+                        'Max NTC read',
+                        'Max NTC SPN read',
                         'SPNtypeID Version',
                         'Comments']]
 
@@ -165,9 +166,7 @@ def main(args=None):
                     args.run_name_regex, 
                     args.split_regex, 
                     args.workflowVersion,
-                    args.workflowRunName,
-                    args.min_assembly_length,
-                    args.max_assembly_length
+                    args.workflowRunName
                     )
 
 if __name__ == "__main__":
