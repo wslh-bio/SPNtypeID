@@ -163,6 +163,7 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName, empty_ntc
     merged_df = merged_df.assign(Sample=sampleIDs)
     merged_df = merged_df.assign(Run=runIDs)
 
+    logging.debug("Use the workflow run name from params for the run column")
     merged_df['Run'] = f"{WFRunName}"
 
     logging.debug("Rename columns to nicer names")
