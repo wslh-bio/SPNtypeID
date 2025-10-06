@@ -10,5 +10,10 @@
   "runname": {
      "description": "A name for the run. This will be used to name the output files.",
      "optional": false
+  },
+  "ntc_regex" :{
+      "description": "This is used to identify negative control samples when they are named with a different prefix. The default is 'NTC', but if no NTC is present, please use null.",
+      "optional": true,
+      "default": "NTC"
   }
 }
