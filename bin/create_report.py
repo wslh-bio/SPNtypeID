@@ -174,8 +174,8 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName, empty_ntc
                                           'Stdev':'Stdev (bp)',
                                           'ntc_all_reads':'All NTC reads',
                                           'ntc_all_spn_reads':'All NTC SPN reads',
-                                          'max_ntc_reads':'max NTC read',
-                                          'max_ntc_spn_reads':'max NTC SPN read'
+                                          'max_ntc_reads':'Max NTC read',
+                                          'max_ntc_spn_reads':'Max NTC SPN read'
                                           })
 
     merged_df[merged_df[['Sample',
@@ -194,8 +194,8 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName, empty_ntc
                         'Serotype',
                         'All NTC reads',
                         'All NTC SPN reads',
-                        'max NTC read',
-                        'max NTC SPN read',
+                        'Max NTC read',
+                        'Max NTC SPN read',
                         'Run',
                         'Ratio of Actual:Expected Genome Length',
                         'Kraken Database Version',
@@ -224,8 +224,8 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName, empty_ntc
                         'Kraken Database Version',
                         'All NTC reads',
                         'All NTC SPN reads',
-                        'max NTC read',
-                        'max NTC SPN read',
+                        'Max NTC read',
+                        'Max NTC SPN read',
                         'SPNtypeID Version',
                         'Comments']]
 
