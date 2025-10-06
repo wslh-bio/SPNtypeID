@@ -14,8 +14,8 @@ process CREATE_REPORT_NO_NTC {
     path sr,            name: "seroba_results.tsv"
     val run_name_regex
     val split_regex
-    val min_assembly_length
-    val max_assembly_length
+    val runname
+
 
     output:
     path('*_spntypeid_report.csv')   , emit: result_csv
@@ -29,9 +29,7 @@ process CREATE_REPORT_NO_NTC {
         --kraken_version ${kv} \
         --run_name_regex ${run_name_regex} \
         --split_regex ${split_regex} \
-        --min_assembly_length ${min_assembly_length} \
-        --max_assembly_length ${max_assembly_length} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${workflow.runName}
+        --workflowRunName ${runname}
     """
 }
