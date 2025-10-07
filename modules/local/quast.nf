@@ -2,7 +2,7 @@ process QUAST {
     tag "$meta.id"
     label 'process_medium'
 
-    container "quay.io/wslh-bioinformatics/quast@sha256:84753d0c00487d7f5e99265f4912efeb0823c9b86731e89cadd6384f913c1c05"
+    container "wslh-bioinformatics/quast@sha256:84753d0c00487d7f5e99265f4912efeb0823c9b86731e89cadd6384f913c1c05"
 
     input:
     tuple val(meta), path(contigs)

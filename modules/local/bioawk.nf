@@ -2,7 +2,7 @@ process BIOAWK {
     tag "$meta.id"
     label 'process_single'
 
-    container "quay.io/wslh-bioinformatics/bioawk@sha256:9e45d66b690722172f1c0e3396cc93373ade3bbe75c60cae338a0eb3ac2f44c9"
+    container "wslh-bioinformatics/bioawk@sha256:9e45d66b690722172f1c0e3396cc93373ade3bbe75c60cae338a0eb3ac2f44c9"
 
     input:
     tuple val(meta), path(reads)
