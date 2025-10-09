@@ -24,19 +24,13 @@ def parse_args(args=None):
     parser.add_argument('--workflowVersion',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('--run_name_regex',
-        type=str, 
-        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-    parser.add_argument('--split_regex',
-        type=str, 
-        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
     parser.add_argument('--workflowRunName',
         type=str, 
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
 
     return parser.parse_args(args)
 
-def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
+def process_results(WFVersion, WFRunName):
 
     logging.debug("Open Kraken version file to get Kraken version")
     with open('kraken_version.yml', 'r') as krakenFile:
@@ -86,23 +80,8 @@ def process_results(run_name_regex, split_regex, WFVersion, WFRunName):
     merged_df = merged_df.assign(ntc_total_reads = "999999")
     merged_df = merged_df.assign(ntc_SPN_reads = "999999")
 
-    sample_names = merged_df['Sample'].tolist()
     sampleIDs = []
     runIDs = []
-
-    logging.debug("Pull run name from sample name using regex")
-    for name in sample_names:
-        regex = f"r'{run_name_regex}'"
-        if re.search(regex,name):
-            runID = re.search(regex, name)
-            runIDs.append(runID.group(0))
-            sampleID = name.split('-')[0]
-            sampleIDs.append(sampleID)
-        else:
-            regex = f"r'{split_regex}'"
-            runIDs.append('NA')
-            sampleID = re.split(regex, name)[0]
-            sampleIDs.append(sampleID)
 
     logging.debug("Re-assign sample column and create run column")
     merged_df = merged_df.assign(Sample=sampleIDs)
@@ -163,8 +142,6 @@ def main(args=None):
     logging.info("Begin compiling all results for final output file.")
 
     process_results(
-                    args.run_name_regex, 
-                    args.split_regex, 
                     args.workflowVersion,
                     args.workflowRunName
                     )
