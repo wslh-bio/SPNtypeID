@@ -14,8 +14,6 @@ process CREATE_REPORT {
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
     val en
-    val run_name_regex
-    val split_regex
     val runname
 
     output:
@@ -29,8 +27,6 @@ process CREATE_REPORT {
     create_report.py \
         --kraken_ntc_data ${kntc} \
         --kraken_version ${kv} \
-        --run_name_regex ${run_name_regex} \
-        --split_regex ${split_regex} \
         --workflowVersion ${workflow.manifest.version} \
         --workflowRunName ${runname} \
         --empty_ntc_list ${en}

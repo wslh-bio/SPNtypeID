@@ -12,8 +12,6 @@ process CREATE_REPORT_NO_NTC {
     path kv,            name: "kraken_version.yml"
     path psr,           name: "percent_strep_results.tsv"
     path sr,            name: "seroba_results.tsv"
-    val run_name_regex
-    val split_regex
     val runname
 
 
@@ -27,8 +25,6 @@ process CREATE_REPORT_NO_NTC {
     """
     create_report_no_ntc.py \
         --kraken_version ${kv} \
-        --run_name_regex ${run_name_regex} \
-        --split_regex ${split_regex} \
         --workflowVersion ${workflow.manifest.version} \
         --workflowRunName ${runname}
     """
