@@ -216,6 +216,7 @@ def reorder_columns(merged_df):
     return merged_df
 
 def write_output(WFRunName, merged_df):
+
     logging.info("Writing results to csv file")
     merged_df.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
 
@@ -255,28 +256,20 @@ def main():
     logging.info("Begin compiling all results for final output file.")
     merged_df, kraken_ntc_files, kraken_version = create_dataframe(args.result_files)
 
-    logging.info("Kraken db")
     krakenDBVersion = grab_kraken_version(kraken_version)
 
-    logging.info("Merge comments")
     merged_df = merge_comments(merged_df)
 
-    logging.info("Assign versions")
     merged_df = assign_versions(merged_df, krakenDBVersion, args.workflowVersion)
 
-    logging.info("Kraken ntc process")
     merged_df = kraken_ntc_processing_and_empty_check(kraken_ntc_files, args.empty_ntc_list, merged_df)
 
-    logging.info("Assign run name")
     merged_df = assign_run_name(merged_df, args.workflowRunName)
 
-    logging.info("Rename columns")
     merged_df = rename_columns(merged_df)
 
-    logging.info("Reorder columns")
     merged_df = reorder_columns(merged_df)
 
-    logging.info("Write output")
     write_output(args.workflowRunName, merged_df)
 
 if __name__ == "__main__":
