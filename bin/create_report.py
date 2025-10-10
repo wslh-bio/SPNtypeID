@@ -11,7 +11,7 @@ import pandas as pd
 
 from functools import reduce
 
-logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
+logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
 def create_dataframe(result_files):
 
