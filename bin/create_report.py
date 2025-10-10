@@ -14,34 +14,31 @@ from functools import reduce
 logging.basicConfig(level = logging.DEBUG, format = '%(levelname)s : %(message)s')
 
 def create_dataframe(result_files):
+
     logging.debug("Get all tsv files and read them in as data frames")
 
     do_not_merge_list = ["kraken.txt", "yml"]
-
-    logging.debug("Remove files that should not be merged")
-    for file in result_files:
-        for ending in do_not_merge_list:
-
-            if ending in file and ending == "kraken.txt":
-                kraken_ntc_files = kraken_ntc_files.append(file)
-                logging.debug(f"Excluding {file} from merging because it ends with {ending}")
-                result_files.remove(file)
-
-            if ending in file and ending == "yml":
-                kraken_version = file
-                logging.debug(f"Excluding {file} from merging because it ends with {ending}")
-                result_files.remove(file)
-
-    logging.debug(f"Files to be merged: {result_files}")
-    files = glob.glob(result_files)
+    kraken_ntc_files = []
+    kraken_version = []
 
     logging.debug("Setting up df for all result files")
     dfs = []
 
-    logging.debug("Added files to df")
-    for file in files:
-        df = pd.read_csv(file, header=0, delimiter='\t')
-        dfs.append(df)
+    logging.debug(f"Initial result files: {result_files}")
+    logging.debug("Remove files that should not be merged and set them up as ad")
+    for file in result_files:
+
+        logging.debug(f"Checking file: {file}")
+        if any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("kraken.txt"):
+            kraken_ntc_files.append(file)
+
+        elif any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("yml"):
+            kraken_version = file
+
+        else:
+            logging.debug(f"File to be merged: {file}")
+            df = pd.read_csv(file, header=0, delimiter='\t')
+            dfs.append(df)
 
     logging.debug("Merge data frames based on sample")
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='outer'), dfs)
@@ -93,11 +90,11 @@ def assign_versions(merged_df, krakenDBVersion, WFVersion):
 
     return merged_df
 
-def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs):
+def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs, merged_df):
 
     logging.debug("Get Kraken NTC results")
     if kraken_ntc_files != []:
-        kraken_ntc_results = glob.glob(kraken_ntc_files)
+        kraken_ntc_results = glob.glob("*kraken.txt")
 
         logging.debug("Add NTC column and calculate Kraken NTC read totals")
         ntc_total_reads = []
@@ -107,7 +104,7 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs):
 
         logging.debug("Read in kraken NTC files and get # of total reads and strep pneumo reads")
         for file in kraken_ntc_results:
-            id = file.split("/")[1].split(".kraken.txt")[0]
+            id = file.split(".kraken.txt")[0]
             spn_reads = 0
             total_reads = 0
 
@@ -143,7 +140,7 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs):
                     ntc_SPN_reads.append(f"{sample}: 0")
                     spn_reads += 0
 
-        logging.debug("Assigning ")
+        logging.debug("Assigning max reads for ntcs")
         merged_df = merged_df.assign(max_ntc_reads=max_ntc_reads)
         merged_df = merged_df.assign(max_ntc_spn_reads=max_ntc_spn_reads)
 
@@ -163,24 +160,14 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs):
         merged_df = merged_df.assign(max_ntc_reads="999999")
         merged_df = merged_df.assign(max_ntc_spn_reads="999999")
 
-    return ntc_total_reads, ntc_SPN_reads, max_ntc_reads, max_ntc_spn_reads
-
-def add_empty_ntcs(empty_ntcs, ntc_total_reads, ntc_SPN_reads):
-
-
-
-
-
-
-    sampleIDs = []
-
-    logging.debug("Re-assign sample column")
-    merged_df = merged_df.assign(Sample=sampleIDs)
+    return merged_df
 
 def assign_run_name(merged_df, WFRunName):
 
     logging.debug("Use the workflow run name from params for the run column")
     merged_df['Run'] = f"{WFRunName}"
+
+    return merged_df
 
 def rename_columns(merged_df):
     logging.debug("Rename columns to nicer names")
@@ -195,8 +182,12 @@ def rename_columns(merged_df):
                                           'max_ntc_spn_reads':'Max NTC SPN read'
                                           })
 
+    return merged_df
+
 def reorder_columns(merged_df):
     logging.debug("Put columns in specific order")
+
+    # merged_df.to_csv('intermediate_report.csv', index=False, sep=',', encoding='utf-8')
     merged_df = merged_df[['Sample',
                         'Run',
                         'Total Reads',
@@ -222,12 +213,14 @@ def reorder_columns(merged_df):
                         'All NTC SPN reads',
                         'SPNtypeID Version',
                         'Comments']]
+    
+    return merged_df
 
 def write_output(WFRunName, merged_df):
     logging.info("Writing results to csv file")
     merged_df.to_csv(f'{WFRunName}_spntypeid_report.csv', index=False, sep=',', encoding='utf-8')
 
-class CompiledResults:
+class CompiledResults(argparse.ArgumentParser):
 
     def error(self, message):
         self.print_help()
@@ -241,7 +234,7 @@ def main():
         epilog='Use with create_report.py --result_files <CH_RESULTS> --workflowRunName <RUN_NAME> --empty_ntc_list <EMPTY_NTC_LIST>'
         )
     parser.add_argument('--result_files',
-        type="+", 
+        nargs="+", 
         help='Compiled results from SPNtypeID'
         )
     parser.add_argument('--workflowVersion',
@@ -262,10 +255,30 @@ def main():
 
     logging.info("Begin compiling all results for final output file.")
     merged_df, kraken_ntc_files, kraken_version = create_dataframe(args.result_files)
+
+    logging.info("Kraken db")
     krakenDBVersion = grab_kraken_version(kraken_version)
+
+    logging.info("Merge comments")
     merged_df = merge_comments(merged_df)
+
+    logging.info("Assign versions")
     merged_df = assign_versions(merged_df, krakenDBVersion, args.workflowVersion)
-    kraken_ntc_processing_and_empty_check(kraken_ntc_files, args.empty_ntc_list)
-    
-# if __name__ == "__main__":
-#     something
+
+    logging.info("Kraken ntc process")
+    merged_df = kraken_ntc_processing_and_empty_check(kraken_ntc_files, args.empty_ntc_list, merged_df)
+
+    logging.info("Assign run name")
+    merged_df = assign_run_name(merged_df, args.workflowRunName)
+
+    logging.info("Rename columns")
+    merged_df = rename_columns(merged_df)
+
+    logging.info("Reorder columns")
+    merged_df = reorder_columns(merged_df)
+
+    logging.info("Write output")
+    write_output(args.workflowRunName, merged_df)
+
+if __name__ == "__main__":
+    sys.exit(main())
