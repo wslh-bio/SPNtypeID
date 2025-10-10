@@ -190,6 +190,8 @@ workflow SPNTYPEID {
             .collect()
             .ifEmpty("Empty")
             .set { ch_empty_ntc }
+    } else  {
+        ch_empty_ntc = Channel.value("Empty")
     }
 
     //
@@ -369,7 +371,14 @@ workflow SPNTYPEID {
     ch_compiled_results = ch_compiled_results.mix(QUALITY_STATS.out.quality_tsv)
     ch_compiled_results = ch_compiled_results.mix(COVERAGE_STATS.out.coverage_tsv)
     ch_compiled_results = ch_compiled_results.mix(QUAST_SUMMARY.out.quast_tsv)
-    ch_compiled_results = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+
+    if (params.ntc_regex != null) {
+        ch_kraken_ntc = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+    } else {
+        ch_kraken_ntc = Channel.empty()
+    }
+
+    ch_compiled_results = ch_compiled_results.mix(ch_kraken_ntc)
     ch_compiled_results = ch_compiled_results.mix(KRAKEN_SAMPLE.out.versions.first())
     ch_compiled_results = ch_compiled_results.mix(PERCENT_STREP_SUMMARY.out.percent_strep_tsv)
     ch_compiled_results = ch_compiled_results.mix(SEROBA_SUMMARY.out.seroba_tsv)
