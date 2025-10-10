@@ -366,19 +366,17 @@ workflow SPNTYPEID {
     // MODULE: CREATE_REPORT
     //
     ch_compiled_results = Channel.empty()
-    ch_compiled_results = ch_compiled_results.mix(ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv)
-    ch_compiled_results = ch_compiled_results.mix(BBDUK_SUMMARY.out.bbduk_tsv)
-    ch_compiled_results = ch_compiled_results.mix(QUALITY_STATS.out.quality_tsv)
-    ch_compiled_results = ch_compiled_results.mix(COVERAGE_STATS.out.coverage_tsv)
-    ch_compiled_results = ch_compiled_results.mix(QUAST_SUMMARY.out.quast_tsv)
-
     if (params.ntc_regex != null) {
         ch_kraken_ntc = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
     } else {
         ch_kraken_ntc = Channel.empty()
     }
-
     ch_compiled_results = ch_compiled_results.mix(ch_kraken_ntc)
+    ch_compiled_results = ch_compiled_results.mix(ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv)
+    ch_compiled_results = ch_compiled_results.mix(BBDUK_SUMMARY.out.bbduk_tsv)
+    ch_compiled_results = ch_compiled_results.mix(QUALITY_STATS.out.quality_tsv)
+    ch_compiled_results = ch_compiled_results.mix(COVERAGE_STATS.out.coverage_tsv)
+    ch_compiled_results = ch_compiled_results.mix(QUAST_SUMMARY.out.quast_tsv)
     ch_compiled_results = ch_compiled_results.mix(KRAKEN_SAMPLE.out.versions.first())
     ch_compiled_results = ch_compiled_results.mix(PERCENT_STREP_SUMMARY.out.percent_strep_tsv)
     ch_compiled_results = ch_compiled_results.mix(SEROBA_SUMMARY.out.seroba_tsv)
