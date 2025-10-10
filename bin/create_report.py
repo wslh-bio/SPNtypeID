@@ -17,27 +17,31 @@ def create_dataframe(result_files):
     logging.debug("Get all tsv files and read them in as data frames")
 
     do_not_merge_list = ["kraken.txt", "yml"]
-    kraken_ntc_files = []
-    kraken_version = []
+
+    logging.debug("Remove files that should not be merged")
+    for file in result_files:
+        for ending in do_not_merge_list:
+
+            if ending in file and ending == "kraken.txt":
+                kraken_ntc_files = kraken_ntc_files.append(file)
+                logging.debug(f"Excluding {file} from merging because it ends with {ending}")
+                result_files.remove(file)
+
+            if ending in file and ending == "yml":
+                kraken_version = file
+                logging.debug(f"Excluding {file} from merging because it ends with {ending}")
+                result_files.remove(file)
+
+    logging.debug(f"Files to be merged: {result_files}")
+    files = glob.glob(result_files)
 
     logging.debug("Setting up df for all result files")
     dfs = []
 
-    logging.debug(f"Initial result files: {result_files}")
-    logging.debug("Remove files that should not be merged and set them up as ad")
-    for file in result_files:
-
-        logging.debug(f"Checking file: {file}")
-        if any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("kraken.txt"):
-            kraken_ntc_files.append(file)
-
-        elif any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("yml"):
-            kraken_version = file
-
-        else:
-            logging.debug(f"File to be merged: {file}")
-            df = pd.read_csv(file, header=0, delimiter='\t')
-            dfs.append(df)
+    logging.debug("Added files to df")
+    for file in files:
+        df = pd.read_csv(file, header=0, delimiter='\t')
+        dfs.append(df)
 
     logging.debug("Merge data frames based on sample")
     merged_df = reduce(lambda  left,right: pd.merge(left,right,on=['Sample'],how='outer'), dfs)
