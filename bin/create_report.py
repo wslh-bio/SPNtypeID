@@ -187,7 +187,6 @@ def rename_columns(merged_df):
 def reorder_columns(merged_df):
     logging.debug("Put columns in specific order")
 
-    # merged_df.to_csv('intermediate_report.csv', index=False, sep=',', encoding='utf-8')
     merged_df = merged_df[['Sample',
                         'Run',
                         'Total Reads',
