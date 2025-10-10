@@ -62,8 +62,8 @@ include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
 include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
-include { CREATE_REPORT                 } from '../modules/local/create_report'
-include { CREATE_REPORT_NO_NTC          } from '../modules/local/create_report_no_ntc'
+include { CREATE_REPORT as WITH_NTC     } from '../modules/local/create_report'
+include { CREATE_REPORT as NO_NTC       } from '../modules/local/create_report'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
@@ -363,36 +363,29 @@ workflow SPNTYPEID {
     //
     // MODULE: CREATE_REPORT
     //
+    ch_compiled_results = Channel.empty()
+    ch_compiled_results = ch_compiled_results.mix(ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv)
+    ch_compiled_results = ch_compiled_results.mix(BBDUK_SUMMARY.out.bbduk_tsv)
+    ch_compiled_results = ch_compiled_results.mix(QUALITY_STATS.out.quality_tsv)
+    ch_compiled_results = ch_compiled_results.mix(COVERAGE_STATS.out.coverage_tsv)
+    ch_compiled_results = ch_compiled_results.mix(QUAST_SUMMARY.out.quast_tsv)
+    ch_compiled_results = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+    ch_compiled_results = ch_compiled_results.mix(KRAKEN_SAMPLE.out.versions.first())
+    ch_compiled_results = ch_compiled_results.mix(PERCENT_STREP_SUMMARY.out.percent_strep_tsv)
+    ch_compiled_results = ch_compiled_results.mix(SEROBA_SUMMARY.out.seroba_tsv)
+
     if (params.ntc_regex != null) {
-        CREATE_REPORT (
-            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
-            BBDUK_SUMMARY.out.bbduk_tsv,
-            QUALITY_STATS.out.quality_tsv,
-            COVERAGE_STATS.out.coverage_tsv,
-            QUAST_SUMMARY.out.quast_tsv,
-            KRAKEN_NTC.out.kraken_results.collect(),
-            KRAKEN_SAMPLE.out.versions.first(),
-            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
-            SEROBA_SUMMARY.out.seroba_tsv,
+        WITH_NTC (
+            ch_compiled_results.collect(),
             ch_empty_ntc,
-            params.run_name_regex,
-            params.split_regex,
             params.runname
         )
     }
 
     if (params.ntc_regex == null) {
-        CREATE_REPORT_NO_NTC (
-            ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv,
-            BBDUK_SUMMARY.out.bbduk_tsv,
-            QUALITY_STATS.out.quality_tsv,
-            COVERAGE_STATS.out.coverage_tsv,
-            QUAST_SUMMARY.out.quast_tsv,
-            KRAKEN_SAMPLE.out.versions.first(),
-            PERCENT_STREP_SUMMARY.out.percent_strep_tsv,
-            SEROBA_SUMMARY.out.seroba_tsv,
-            params.run_name_regex,
-            params.split_regex,
+        NO_NTC (
+            ch_compiled_results.collect(),
+            ch_empty_ntc,
             params.runname
         )
     }
@@ -404,7 +397,7 @@ workflow SPNTYPEID {
         ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
         WORKFLOW_TEST (
             ch_valid_dataset.collect(),
-            CREATE_REPORT.out.result_csv
+            WITH_NTC.out.result_csv
         )
     }
 
