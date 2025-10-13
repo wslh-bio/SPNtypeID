@@ -62,8 +62,8 @@ include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
 include { SEROBA                        } from '../modules/local/seroba'
 include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
-include { CREATE_REPORT as WITH_NTC     } from '../modules/local/create_report'
-include { CREATE_REPORT as NO_NTC       } from '../modules/local/create_report'
+include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report'
+include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report'
 include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
@@ -382,7 +382,7 @@ workflow SPNTYPEID {
     ch_compiled_results = ch_compiled_results.mix(SEROBA_SUMMARY.out.seroba_tsv)
 
     if (params.ntc_regex != null) {
-        WITH_NTC (
+        REPORT_WITH_NTC (
             ch_compiled_results.collect(),
             ch_empty_ntc,
             params.runname
@@ -390,7 +390,7 @@ workflow SPNTYPEID {
     }
 
     if (params.ntc_regex == null) {
-        NO_NTC (
+        REPORT_NO_NTC (
             ch_compiled_results.collect(),
             ch_empty_ntc,
             params.runname
