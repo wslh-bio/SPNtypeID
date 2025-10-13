@@ -228,7 +228,7 @@ class CompiledResults(argparse.ArgumentParser):
 
         sys.exit(1)
 
-def main():
+if __name__ == "__main__":
     parser = CompiledResults(prog = 'Compiles all SPNTypeID results',
         description='A script to summarize stats',
         epilog='Use with create_report.py --result_files <CH_RESULTS> --workflowRunName <RUN_NAME> --empty_ntc_list <EMPTY_NTC_LIST>'
@@ -271,6 +271,3 @@ def main():
     merged_df = reorder_columns(merged_df)
 
     write_output(args.workflowRunName, merged_df)
-
-if __name__ == "__main__":
-    sys.exit(main())
