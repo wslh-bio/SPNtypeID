@@ -64,7 +64,7 @@ include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
 include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report'
 include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report'
-include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
+//include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
 include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
@@ -364,7 +364,7 @@ workflow SPNTYPEID {
     //
     // MODULE: WORKFLOW_TEST
     //
-   //if (params.ntc_regex != null) {
+    //if (params.ntc_regex != null) {
     //    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
     //    WORKFLOW_TEST (
     //        ch_valid_dataset.collect(),
