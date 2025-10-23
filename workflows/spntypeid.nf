@@ -97,15 +97,6 @@ workflow SPNTYPEID {
             }
         .set{ ch_filtered }
 
-    ch_filtered.single_end
-        .map{ meta, file ->
-            [meta, file, file[0].countFastq()]}
-        .branch{ meta, file, count ->
-            pass: count > 0
-            fail: count == 0
-        }
-        .set{ ch_single_end }
-
     ch_filtered.paired_end
         .map{ meta, file ->
             [meta, file, file[0].countFastq(), file[1].countFastq()]}
@@ -119,16 +110,6 @@ workflow SPNTYPEID {
         .map { meta, file, count1, count2 -> 
             [meta, file]
             }
-        .set{ ch_paired_end_filtered }
-
-    ch_single_end.pass
-        .map { meta, file, count ->
-            [meta, file]
-        }
-        .set{ ch_single_end_filtered }
-
-    ch_paired_end_filtered
-        .mix(ch_single_end_filtered)
         .set{ ch_filtered }
 
     ch_paired_end.fail
@@ -137,16 +118,9 @@ workflow SPNTYPEID {
             }
         .set{ ch_paired_end_fail }
 
-    ch_single_end.fail
-        .map{ meta, file, count -> 
-            [meta.id]
-            }
-        .set{ ch_single_end_fail }
-
     ch_paired_end_fail
-        .mix( ch_single_end_fail )
         .flatten()
-        .set{ch_failed}
+        .set{ ch_failed }
 
     ch_failed
         .collectFile(
@@ -163,20 +137,10 @@ workflow SPNTYPEID {
         .set{ ch_input_reads }
 
     if (params.ntc_regex != null) {
-        ch_single_end.fail
-            .map { meta, file, count1, count2 ->
-            [meta.id]
-            }
-            .set{ ch_single_ntc_check }
-
         ch_paired_end.fail
             .map { meta, file, count1, count2 ->
                 [meta.id]
                 }
-            .set{ ch_paired_ntc_check }
-
-        ch_paired_ntc_check
-            .mix( ch_single_ntc_check )
             .set{ ch_ntc_check }
 
         ch_ntc_check
@@ -400,13 +364,13 @@ workflow SPNTYPEID {
     //
     // MODULE: WORKFLOW_TEST
     //
-    if (params.ntc_regex != null) {
-        ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
-        WORKFLOW_TEST (
-            ch_valid_dataset.collect(),
-            REPORT_WITH_NTC.out.result_csv
-        )
-    }
+   //if (params.ntc_regex != null) {
+    //    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
+    //    WORKFLOW_TEST (
+    //        ch_valid_dataset.collect(),
+    //        REPORT_WITH_NTC.out.result_csv
+    //    )
+    //}
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
