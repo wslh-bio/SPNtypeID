@@ -51,6 +51,16 @@
             "description": "Options to configure how the workflow runs.",
             "default": "",
             "properties": {
+                "runname": {
+                    "type": "string",
+                    "description": "Set the run name.",
+                    "fa_icon": "fas fa-cog"
+                },
+                "ncbi_assembly_stats": {
+                    "type": "string",
+                    "description": "Path to assembly stats from NCBI.",
+                    "fa_icon": "fas fa-cog"
+                },
                 "trimdirection": {
                     "type": "string",
                     "default": "lr",
@@ -94,56 +104,26 @@
                     "description": "Set the maximum percentage of reads allowed from other organisms.",
                     "default": "1.0"
                 },
-                "workflow_test": {
-                    "type": "boolean",
-                    "hidden": true,
-                    "default": false,
-                    "description": "Run the workflow test"
-                },
                 "contaminants": {
                     "type": "string",
                     "description": "Path to fasta file of contaminants for removal, defaults to BBDuk's adapters fasta.",
                     "fa_icon": "fas fa-cog"
-                },
-                "ntc_spn_read_limit": {
-                    "type": "integer",
-                    "description": "Set the maximum number of strep pneumoniae reads allowed in the no template control",
-                    "default": 500
-                },
-                "ntc_read_limit": {
-                    "type": "integer",
-                    "description": "Set the maximum number of total reads allowed in the no template control.",
-                    "default": 10000
-                },
-                "ntc_regex": {
-                    "type": "string",
-                    "description": "Regex pattern for identifying NTC files.",
-                    "default": "NTC"
-                },
-                "split_regex": {
-                    "type": "string",
-                    "description": "Regex pattern to split sample ID from rest of file name for fastq files with no run name.",
-                    "default": "_S\\d+"
-                },
-                "run_name_regex": {
-                    "type": "string",
-                    "description": "Regex pattern for run names found in fastq file.",
-                    "default": "WI-\\D\\d{4}-\\d{6}[A-Za-z]*"
                 },
                 "maxcontigs": {
                     "type": "integer",
                     "description": "Set the maximum number of contigs allowed in an assembly.",
                     "default": 300
                 },
-                "minassemblylength": {
-                    "type": "integer",
-                    "description": "Set the minimum number of base pairs allowed in an assembly.",
-                    "default": 1251533
+                "ntc_regex": {
+                    "type": "string",
+                    "description": "Regex pattern for identifying NTC files.",
+                    "default": "NTC"
                 },
-                "maxassemblylength": {
-                    "type": "integer",
-                    "description": "Set the maximum number of base pairs allowed in an assembly.",
-                    "default": 2979640
+                "workflow_test": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "default": false,
+                    "description": "Run the workflow test"
                 }
             }
         },
