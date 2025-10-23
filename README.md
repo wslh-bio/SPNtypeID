@@ -53,21 +53,17 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | Parameter  | Parameter description and default |
 | ------------- | ------------- |
 | contaminants  | Path to fasta of contaminants for removal, defaults to BBDuk's adapters fasta |
+| maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
 | maxpctother  | Sets the maximum percentage of reads from other organisms (default: 1.0) |
 | minavgreadq | Sets the minimum average read quality score (default: 30) |
 | mincoverage | Sets the minimum coverage (default: 40) |
 | minlength | Minimum read length for trimming (default: 10) |
 | minpctspn | Sets the minimum percentage of reads that must be S. pneumoniae (default: 60.0) |
 | minpctstrep | Sets the minimum percentage of reads that must be Streptococcus (default: 80.0) |
-| ntc_read_limit | Sets the maximum number of reads allowed in the no template control (default: 10000) |
-| ntc_spn_read_limit | Sets the BBDuk trimming quality score value (default: 500) |
+| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 | workflow_test | Run the workflow test (default: false) |
-| ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
-| split_regex | Regex pattern to split sample ID from rest of file name for fastq files with no run name (default: '_S\\\d+') |
-| run_name_regex | Regex pattern for run names found in fastq file (default: 'WI-\\\D\\\d{4}-\\\d{6}[A-Za-z]*') |
-| maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
 
 ### Workflow outline
 
