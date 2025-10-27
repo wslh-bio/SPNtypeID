@@ -38,8 +38,6 @@ You can also test the pipeline with example data using `-profile test` or `-prof
 ```
 nextflow run SPNtypeID/main.nf --outdir [path-to-outdir] -profile test[_full],[docker,singularity]
 ```
-**As of version 1.8.0, the workflow validation step is not functional and the pipeline will fail if run with `-profile docker,test_full`.**
-
 
 ### Input
 SPNTypeID's inputs are paired Illumina FASTQ files for each sample and a comma separated sample sheet containing the sample name, the path to the forward reads file, and the path to the reverse reads file for each sample. A sample sheet can be created using the [fastq_dir_to_samplesheet.py](https://github.com/wslh-bio/SPNtypeID/blob/main/bin/fastq_dir_to_samplesheet.py) script or by hand.  An example of the sample sheet's format can be seen in the table below and found [here](https://raw.githubusercontent.com/wslh-bio/SPNtypeID/main/samplesheets/workflow_test.csv).
@@ -63,14 +61,13 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
-| workflow_test | Run the workflow test (default: false) |
 
 ### Workflow outline
 
 <img src ='/assets/SPNtypeID.png'>
 
 #### Read trimming and quality assessment
-Read trimming and cleaning is performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to trim reads of low quality bases and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads.
+Read reapir, trimming, and cleaning are performed using [BBtools v38.76](https://jgi.doe.gov/data-and-tools/bbtools/) to repair fastqs with mismatched read numbers, trim reads of low quality bases, and remove PhiX contamination. Then [FastQC v0.11.8](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is used assess the quality of the raw and cleaned reads. [Bioawk v1.0](https://github.com/lh3/bioawk) is used to calculate the mean and median quality of the cleaned reads.
 
 #### Genome assembly
 Assembly of the cleaned and trimmed reads is performed using [Shovill v1.1.0](https://github.com/tseemann/shovill).
@@ -97,10 +94,14 @@ outdir
 ├── assembly_stats_summary
 │   └── assembly_stats_results_summary.tsv
 ├── bbduk
-│   ├── *_1.fastq.gz
-│   ├── *_2.fastq.gz
 │   ├── *.adapter.stats.txt
 │   ├── *.bbduk.log
+│   ├── *_repaired_1.fastq.gz
+│   ├── *_repaired_2.fastq.gz
+│   ├── *.repair.log
+│   ├── *_singletons.fastq.gz
+│   ├── *_trimmed_1.fastq.gz
+│   ├── *_trimmed_2.fastq.gz
 │   └── *.trim.txt
 ├── bbduk_summary
 │   └── bbduk_results.tsv
@@ -110,8 +111,6 @@ outdir
 │   └── *_Assembly_ratio_20240124.tsv
 ├── coverage_stats
 │   └── coverage_stats.tsv
-├── create_report
-│   └── *_spntypeid_report.csv
 ├── fastqc
 │   ├── *_fastqc.html
 │   └── *_fastqc.zip
@@ -139,6 +138,8 @@ outdir
 │   └── quast_results.tsv
 ├── rejected_samples
 │   └── Empty_samples.csv ***
+├── report_*_ntc
+│   └── *_spntypeid_report.csv
 ├── samtools
 │   ├── *.bam
 │   ├── *.depth.tsv
@@ -191,8 +192,6 @@ outdir
 |Max NTC read| Highest amount of reads found in all no template controls. If '999999' in column, no NTC was provided |
 |Max NTC SPN read| Highest amount of S. pneumoniae reads found in all no template controls. If '999999' in column, no NTC was provided |
 |SPNtypeID Version| Version of the SPNTypeID pipeline used for analysis |
-|Comments| Any notable comments from all steps throughout the pipeline |
-
 
 ## Credits
 SPNTypeID was written by [Dr. Kelsey Florek](https://github.com/k-florek), [Dr. Abigail C. Shockey](https://github.com/AbigailShockey), and [Eva Gunawan, MS](https://github.com/evagunawan).
