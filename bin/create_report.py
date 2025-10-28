@@ -58,28 +58,6 @@ def grab_kraken_version(kraken_version):
 
     return krakenDBVersion
 
-def merge_comments(merged_df):
-    logging.debug("Make list of comment columns that will be merged")
-    comment_cols = ['Quality Stats Comments',
-                    'QUAST Summary Comments',
-                    'Coverage Stats Comments',
-                    'Percent Strep Comments',
-                    'SeroBA Comments',
-                    'commentsAssemblyLength']
-
-    logging.debug("Creating AssemblyLength column")
-    merged_df = merged_df.assign(commentsAssemblyLength='')
-
-    logging.debug("Merge comment columns using the pd.series apply function. Pairing apply with axis=1, applies the function to each row.")
-    logging.debug(";.join joins all of the commens into a single string sep by a ;. Any comments that are na are dropped.")
-    logging.debug("Converted the series to a string to apply the strip mentod to remove any leading or trailing ';'.")
-    merged_df['Comments'] = merged_df.apply(lambda x: ';'.join(x[comment_cols].dropna().astype(str)).strip(';'),axis=1)
-
-    logging.debug("Drop columns that were merged")
-    merged_df = merged_df.drop(comment_cols,axis=1)
-
-    return merged_df
-
 def assign_versions(merged_df, krakenDBVersion, WFVersion):
 
     logging.debug("Add kraken DB column")
@@ -172,7 +150,6 @@ def assign_run_name(merged_df, WFRunName):
 def rename_columns(merged_df):
     logging.debug("Rename columns to nicer names")
     merged_df = merged_df.rename(columns={'Contigs':'Contigs (#)',
-                                          'Combined':'Comments',
                                           'krakenDB':'Kraken Database Version',
                                           'workflowVersion':'SPNtypeID Version',
                                           'Stdev':'Stdev (bp)',
@@ -210,8 +187,7 @@ def reorder_columns(merged_df):
                         'Max NTC SPN read',
                         'All NTC reads',
                         'All NTC SPN reads',
-                        'SPNtypeID Version',
-                        'Comments']]
+                        'SPNtypeID Version']]
     
     return merged_df
 
@@ -257,8 +233,6 @@ if __name__ == "__main__":
     merged_df, kraken_ntc_files, kraken_version = create_dataframe(args.result_files)
 
     krakenDBVersion = grab_kraken_version(kraken_version)
-
-    merged_df = merge_comments(merged_df)
 
     merged_df = assign_versions(merged_df, krakenDBVersion, args.workflowVersion)
 
