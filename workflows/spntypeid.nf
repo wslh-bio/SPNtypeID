@@ -157,9 +157,7 @@ workflow SPNTYPEID {
             .collect()
             .ifEmpty("Empty")
             .set { ch_empty_ntc }
-    } else  {
-        ch_empty_ntc = Channel.value("Empty")
-    }
+        }
 
     //
     // MODULE: BBDUK
