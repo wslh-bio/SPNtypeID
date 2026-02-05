@@ -33,7 +33,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK                          } from '../subworkflows/local/input_check'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,30 +45,31 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { BBDUK                         } from '../modules/local/bbduk'
-include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
-include { FASTQC                        } from '../modules/local/fastqc'
-include { FASTQC_SUMMARY                } from '../modules/local/fastqc_summary'
-include { SHOVILL                       } from '../modules/local/shovill'
-include { SAMTOOLS                      } from '../modules/local/samtools'
-include { COVERAGE_STATS                } from '../modules/local/coverage_stats'
-include { QUAST                         } from '../modules/local/quast'
-include { QUAST_SUMMARY                 } from '../modules/local/quast_summary'
-include { BIOAWK                        } from '../modules/local/bioawk'
-include { QUALITY_STATS                 } from '../modules/local/quality_stats'
-include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
-include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
-include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
-include { SEROBA                        } from '../modules/local/seroba'
-include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
-include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
+include { REJECTED_SAMPLES                     } from '../modules/local/rejected_samples'
+include { BBDUK                                } from '../modules/local/bbduk'
+include { BBDUK_SUMMARY                        } from '../modules/local/bbduk_summary'
+include { FASTQC                               } from '../modules/local/fastqc'
+include { FASTQC_SUMMARY                       } from '../modules/local/fastqc_summary'
+include { SHOVILL                              } from '../modules/local/shovill'
+include { SAMTOOLS                             } from '../modules/local/samtools'
+include { COVERAGE_STATS                       } from '../modules/local/coverage_stats'
+include { QUAST                                } from '../modules/local/quast'
+include { QUAST_SUMMARY                        } from '../modules/local/quast_summary'
+include { BIOAWK                               } from '../modules/local/bioawk'
+include { QUALITY_STATS                        } from '../modules/local/quality_stats'
+include { KRAKEN as KRAKEN_SAMPLE              } from '../modules/local/kraken'
+include { KRAKEN as KRAKEN_NTC                 } from '../modules/local/kraken'
+include { KRAKEN_SUMMARY                       } from '../modules/local/kraken_summary'
+include { SEROBA                               } from '../modules/local/seroba'
+include { SEROBA_SUMMARY                       } from '../modules/local/seroba_summary'
+include { PERCENT_STREP_SUMMARY                } from '../modules/local/percent_strep_summary'
 include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report'
 include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report'
 //include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
-include { MULTIQC                       } from '../modules/local/multiqc'
-include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
-include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
-include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { MULTIQC                              } from '../modules/local/multiqc'
+include { CALCULATE_ASSEMBLY_STATS             } from '../modules/local/calculate_assembly_stats'
+include { ASSEMBLY_STATS_SUMMARY               } from '../modules/local/assembly_stats_summary.nf'
+include { CUSTOM_DUMPSOFTWAREVERSIONS          } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,7 +111,7 @@ workflow SPNTYPEID {
         .map { meta, file, count1, count2 -> 
             [meta, file]
             }
-        .set{ ch_filtered }
+        .set{ ch_fully_filtered }
 
     ch_paired_end.fail
         .map { meta, file, count1, count2 ->
@@ -123,13 +124,15 @@ workflow SPNTYPEID {
         .set{ ch_failed }
 
     ch_failed
-        .collectFile(
-            storeDir: "${params.outdir}/rejected_samples",
-            name: 'Empty_samples.csv',
-            newLine: true
-        )
+        .ifEmpty { Channel.value('NO_EMPTY_SAMPLES') }
+        .set{ ch_rejected_file }
 
-    ch_filtered
+    REJECTED_SAMPLES (
+        ch_rejected_file,
+        "SPNTypeID"
+    )
+
+    ch_fully_filtered
         .branch {
             ntc: !!(it[0]['id'] =~ params.ntc_regex)
             sample: true
