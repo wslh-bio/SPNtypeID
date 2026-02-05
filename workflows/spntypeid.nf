@@ -104,7 +104,7 @@ workflow SPNTYPEID {
         .branch{ meta, file, count1, count2 ->
             pass: count1 > 0 && count2 > 0
             fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
-        }
+            }
         .set{ ch_paired_end }
 
     ch_paired_end.pass
@@ -125,6 +125,10 @@ workflow SPNTYPEID {
 
     ch_failed
         .ifEmpty { Channel.value('NO_EMPTY_SAMPLES') }
+        .collectFile(
+                name: 'empty_samples.csv',
+                newLine: true
+            )
         .set{ ch_rejected_file }
 
     REJECTED_SAMPLES (
@@ -150,14 +154,16 @@ workflow SPNTYPEID {
             .branch {
                 ntc: !!(it =~ params.ntc_regex)
                 sample: true
-            }
+                }
             .set { ch_ntc_check }
 
         ch_ntc_check.ntc
             .collect()
             .ifEmpty("Empty")
             .set { ch_empty_ntc }
-        }
+        } else  {
+        ch_empty_ntc = Channel.value("Empty")
+    }
 
     //
     // MODULE: BBDUK
