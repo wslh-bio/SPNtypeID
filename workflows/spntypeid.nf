@@ -124,7 +124,7 @@ workflow SPNTYPEID {
         .set{ ch_failed }
 
     ch_failed
-        .ifEmpty('NO_EMPTY_SAMPLES')
+        .ifEmpty{'NO_EMPTY_SAMPLES'}
         .collectFile(
                 name: 'empty_samples.csv',
                 newLine: true
