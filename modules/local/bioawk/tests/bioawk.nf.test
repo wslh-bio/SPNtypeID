@@ -1,0 +1,58 @@
+nextflow_process {
+
+    name "Test Process BIOAWK"
+    script "modules/local/bioawk/bioawk.nf"
+    process "BIOAWK"
+
+    test("Checking that outputs exist") {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then { 
+            assertAll {
+                { assert process.success }
+                { assert process.out.qual_results.size()==1 }
+                { assert process.out.versions.size()==1 }
+
+            }
+        }
+    }
+
+
+    test("Checking that snapshot of the process is the same.") {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            { assert snapshot(
+                // Get just the file names
+                getAllFilesFromChannel(process.out).collect { f -> file(f).name },
+                // Get the full paths
+                getAllFilesFromChannel(process.out)
+            ).match() }
+
+        }
+
+    }
+
+}
