@@ -73,12 +73,12 @@ nextflow_process {
         }
         then {
         // Instead of a specific filename, match any file matching a pattern
-        { assert snapshot(
-            // Get just the file names
-            getAllFilesFromChannel(process.out).collect { f -> file(f).name },
-            // Get the full paths
-            getAllFilesFromChannel(process.out)
-        ).match() }
+            { assert snapshot(
+                // Get just the file names
+                getAllFilesFromChannel(process.out).collect { f -> file(f).name },
+                // Get the full paths
+                getAllFilesFromChannel(process.out)
+            ).match() }
         }
     }
 
