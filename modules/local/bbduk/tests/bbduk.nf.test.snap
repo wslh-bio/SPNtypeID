@@ -1,0 +1,76 @@
+{
+    "Checking that snapshot of the process is the same.": {
+        "content": [
+            [
+                
+            ],
+            [
+                
+            ]
+        ],
+        "timestamp": "2026-03-02T11:27:35.22224396",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Checking that outputs exist": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "2": [
+                    
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    
+                ],
+                "7": [
+                    
+                ],
+                "bbduk_adapters": [
+                    
+                ],
+                "bbduk_trim": [
+                    
+                ],
+                "log": [
+                    
+                ],
+                "reads": [
+                    
+                ],
+                "repaired_log": [
+                    
+                ],
+                "repaired_reads": [
+                    
+                ],
+                "singletons": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "timestamp": "2026-02-26T14:25:01.130152271",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

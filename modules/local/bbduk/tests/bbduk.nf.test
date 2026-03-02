@@ -1,0 +1,87 @@
+nextflow_process {
+
+    name "Test Process BBDUK"
+    script "../bbduk.nf"
+    process "BBDUK"
+    // config "nf-test.config"
+
+    test("Checking that outputs exist") {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.reads.size() == 1 },
+                { assert process.out.log.size() == 1 },
+                { assert process.out.bbduk_trim.size() == 1 },
+                { assert process.out.bbduk_adapters.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+
+                // { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test('Checking that optional output exists') {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                """
+            }
+        }
+        then {
+            assertAll (
+                { assert process.out.repaired_reads.size() == 1 },
+                { assert process.out.singletons.size() == 1 },
+                { assert process.out.repaired_log.size() == 1 }
+
+            )
+        }
+    }
+
+    test('Checking that snapshot of the process is the same.') {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                """
+            }
+        }
+        then {
+        // Instead of a specific filename, match any file matching a pattern
+        { assert snapshot(
+            // Get just the file names
+            getAllFilesFromChannel(process.out).collect { f -> file(f).name },
+            // Get the full paths
+            getAllFilesFromChannel(process.out)
+        ).match() }
+        }
+    }
+
+}
