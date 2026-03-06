@@ -1,0 +1,91 @@
+nextflow_process {
+
+    name "Test Process FASTQC"
+    script "modules/local/fastqc/fastqc.nf"
+    process "FASTQC"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.html[0][1].size() == 2 },
+                { assert process.out.zip[0][1].size() == 2 },
+                { assert process.out.versions.size() == 1 }
+            )
+        }
+
+    }
+
+
+    test("Checking outputs names") {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+
+                { assert process.out.html[0][1][0] ==~ ".*/test_1_fastqc.html"  },
+                { assert process.out.html[0][1][1] ==~ ".*/test_2_fastqc.html"  },
+                { assert process.out.zip[0][1][0] ==~ ".*/test_1_fastqc.zip"  },
+                { assert process.out.zip[0][1][1] ==~ ".*/test_2_fastqc.zip"  }
+
+            )
+        }
+
+    }
+
+    test('Checking snapshot contents ') {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(
+                    file(
+                        process.out.html[0][1][0]),
+                        process.out.html[0][1][1],
+                        process.out.versions[0]
+                    ).match() 
+                }
+            )
+            
+        }
+    }
+
+}

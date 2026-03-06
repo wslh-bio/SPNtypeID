@@ -1,0 +1,14 @@
+{
+    "Checking snapshot contents ": {
+        "content": [
+            "test_1_fastqc.html:md5,59f045418704746c29155a29a764d521",
+            "test_2_fastqc.html:md5,2cf2e924f6694a302ddca5127349e854",
+            "versions.yml:md5,f8c08de9801b5e597694fc72223acaca"
+        ],
+        "timestamp": "2026-03-05T15:44:39.556715344",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
