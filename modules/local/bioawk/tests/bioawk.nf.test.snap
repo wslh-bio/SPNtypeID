@@ -1,37 +1,22 @@
 {
-    "Checking that snapshot of the process is the same.": {
-        "content": [
-            [
-                
-            ],
-            [
-                
-            ]
-        ],
-        "timestamp": "2026-03-02T14:10:37.72153176",
-        "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
-        }
-    },
-    "Should run without failures": {
+    "Checking file contents to ensure proper processing.": {
         "content": [
             {
                 "0": [
-                    "/dev-wslh-sequencing-analyses/work/c3/893782bb4757fff82b16fabc047d83/test.qual.tsv"
+                    "test.qual.tsv:md5,3ed6afe20f4ca924be874fe162e21105"
                 ],
                 "1": [
-                    "/dev-wslh-sequencing-analyses/work/c3/893782bb4757fff82b16fabc047d83/versions.yml"
+                    "versions.yml:md5,5179458ed5410c503748beb1d879c437"
                 ],
                 "qual_results": [
-                    "/dev-wslh-sequencing-analyses/work/c3/893782bb4757fff82b16fabc047d83/test.qual.tsv"
+                    "test.qual.tsv:md5,3ed6afe20f4ca924be874fe162e21105"
                 ],
                 "versions": [
-                    "/dev-wslh-sequencing-analyses/work/c3/893782bb4757fff82b16fabc047d83/versions.yml"
+                    "versions.yml:md5,5179458ed5410c503748beb1d879c437"
                 ]
             }
         ],
-        "timestamp": "2026-03-02T13:52:51.126547185",
+        "timestamp": "2026-03-05T12:48:00.950373908",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
