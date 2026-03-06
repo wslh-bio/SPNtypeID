@@ -3,11 +3,13 @@ nextflow_process {
     name "Test Process BBDUK"
     script "../bbduk.nf"
     process "BBDUK"
-    // config "nf-test.config"
 
-    test("Checking that outputs exist") {
+    test("Checking that mandatory output channels have appropriate amount of values") {
 
         when {
+            params {
+                outdir = "$outputDir"
+            }
             process {
                 """
                 input[0] = [ 
@@ -33,9 +35,13 @@ nextflow_process {
 
     }
 
-    test('Checking that optional output exists') {
+    test('Checking that optional output channels have appropriate amount of values') {
 
         when {
+            params {
+                outdir = "$outputDir"
+            }
+
             process {
                 """
                 input[0] = [ 
@@ -49,6 +55,7 @@ nextflow_process {
         }
         then {
             assertAll (
+
                 { assert process.out.repaired_reads.size() == 1 },
                 { assert process.out.singletons.size() == 1 },
                 { assert process.out.repaired_log.size() == 1 }
@@ -57,9 +64,12 @@ nextflow_process {
         }
     }
 
-    test('Checking that snapshot of the process is the same.') {
+    test('Checking mandatory file contents to ensure proper processing.') {
 
         when {
+            params {
+                outdir = "$outputDir"
+            }
             process {
                 """
                 input[0] = [ 
@@ -72,13 +82,13 @@ nextflow_process {
             }
         }
         then {
-        // Instead of a specific filename, match any file matching a pattern
-            { assert snapshot(
-                // Get just the file names
-                getAllFilesFromChannel(process.out).collect { f -> file(f).name },
-                // Get the full paths
-                getAllFilesFromChannel(process.out)
-            ).match() }
+            assertAll(
+                { assert file(process.out.reads[0][1][0]).name ==~ "test_trimmed_1.fastq.gz" },
+                { assert file(process.out.reads[0][1][1]).name ==~ "test_trimmed_2.fastq.gz" },
+                { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired") },
+                { assert path(process.out.bbduk_adapters.get(0)).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
+                { assert snapshot(path(process.out.versions[0]).md5).match() }
+            )
         }
     }
 
