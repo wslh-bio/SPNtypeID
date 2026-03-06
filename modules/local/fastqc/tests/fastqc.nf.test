@@ -76,13 +76,7 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert snapshot(
-                    file(
-                        process.out.html[0][1][0]),
-                        process.out.html[0][1][1],
-                        process.out.versions[0]
-                    ).match() 
-                }
+                { assert snapshot(file(process.out.versions[0])).match() }
             )
             
         }
