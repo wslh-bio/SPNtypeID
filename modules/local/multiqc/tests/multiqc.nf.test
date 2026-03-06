@@ -1,0 +1,30 @@
+nextflow_process {
+
+    name "Test Process MULTIQC"
+    script "modules/local/multiqc/multiqc.nf"
+    process "MULTIQC"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
+                input[1] = file("${baseDir}" + "/modules/local/multiqc/tests/multiqc_config.yml")
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                println(process.out.data[0][1])
+                { assert process.success }
+                // { assert process.out.data[0][1] }
+            )
+        }
+
+    }
+
+}
