@@ -4,9 +4,12 @@ nextflow_process {
     script "modules/local/multiqc/multiqc.nf"
     process "MULTIQC"
 
-    test("Checking that output channels have appropriate amount of values") {
+    test("Test 1: Checking that mandatory output channels have appropriate amount of values") {
 
         when {
+            params {
+                outdir = "$outputDir"
+            }
             process {
                 """
                 input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
@@ -18,13 +21,83 @@ nextflow_process {
         }
 
         then {
+            // Setting up data dirs
+            def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
+            def data_files = file("$output_dir_data").list().sort()
+
             assertAll(
-                println(process.out.data[0][1])
-                { assert process.success }
-                // { assert process.out.data[0][1] }
+                { assert process.success },
+                { assert process.out.report.size() == 1 },
+                //Checking that the folder exists
+                { assert process.out.data.size() == 1 },
+                //Checking that the folder exists
+                { assert process.out.versions.size() == 1 },
+                { assert data_files.size() == 13 }
+
+            )  
+        }
+
+    }
+
+    test("Test 2: Checking that optional output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
+                input[1] = file("${baseDir}" + "/modules/local/multiqc/tests/multiqc_config.yml")
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            // Setting up plot dirs
+            def output_dir_plots = "$params.outdir/multiqc/multiqc_plots"
+            def plots_files = file("$output_dir_plots").list().sort()
+            def pdf = file("$output_dir_plots/pdf").list().sort()
+            def png = file("$output_dir_plots/png").list().sort()
+            def svg = file("$output_dir_plots/svg").list().sort() 
+
+            assertAll(
+                { assert process.out.plots.size() == 1 },
+                { assert plots_files.size() == 3},
+                { assert pdf.size() == 9 },
+                { assert png.size() == 9 },
+                { assert svg.size() == 9 }
             )
         }
 
     }
+
+    test("Test 3: Checking mandatory output files have appropriate content.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
+                input[1] = file("${baseDir}" + "/modules/local/multiqc/tests/multiqc_config.yml")
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
+            assertAll(
+                { assert path("$output_dir_data/multiqc_fastqc.txt").md5 == "5aea96690ed1e619f2d4e2677d2711db" },
+                { assert path("$output_dir_data/multiqc_general_stats.txt").md5 == "c874f4c4757ec5f75fb1205367086320" }            )
+        }
+
+    }
+
 
 }
