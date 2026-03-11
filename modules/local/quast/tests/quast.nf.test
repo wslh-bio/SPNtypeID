@@ -1,0 +1,55 @@
+nextflow_process {
+
+    name "Test Process QUAST"
+    script "modules/local/quast/quast.nf"
+    process "QUAST"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/quast/tests/SPN_Sample_01.contigs.fa') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success },
+                { assert process.out.transposed_report.size() == 1 },
+                { assert process.out.result.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+
+
+            )
+
+        }
+
+    }
+
+    test("Checking file contents to ensure proper processing.") {
+        when {
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/quast/tests/SPN_Sample_01.contigs.fa') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert snapshot(process.out.transposed_report[2],process.out.result[0]).match() }
+            )
+
+        }
+
+    }
+
+}
