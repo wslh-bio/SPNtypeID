@@ -94,7 +94,8 @@ nextflow_process {
             def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
             assertAll(
                 { assert path("$output_dir_data/multiqc_fastqc.txt").md5 == "5aea96690ed1e619f2d4e2677d2711db" },
-                { assert path("$output_dir_data/multiqc_general_stats.txt").md5 == "c874f4c4757ec5f75fb1205367086320" }            )
+                { assert path("$output_dir_data/multiqc_general_stats.txt").md5 == "c874f4c4757ec5f75fb1205367086320" }            
+            )
         }
 
     }
