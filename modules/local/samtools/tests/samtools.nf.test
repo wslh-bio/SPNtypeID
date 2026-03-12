@@ -13,8 +13,8 @@ nextflow_process {
             process {
                 """
                 input[0] = [ 
-                [id:'SPN_Sample_01', single_end:false ],
-                [ file("${baseDir}" + '/modules/local/samtools/tests/SPN_Sample_01.sam') ]
+                [id:'SAMPLE1_PE', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
                 ]
                 """
             }
@@ -40,8 +40,8 @@ nextflow_process {
             process {
                 """
                 input[0] = [ 
-                [id:'SPN_Sample_01', single_end:false ],
-                [ file("${baseDir}" + '/modules/local/samtools/tests/SPN_Sample_01.sam') ]
+                [id:'SAMPLE1_PE', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
                 ]
                 """
             }
