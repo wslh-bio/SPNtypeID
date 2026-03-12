@@ -1,0 +1,60 @@
+nextflow_process {
+
+    name "Test Process SAMTOOLS"
+    script "modules/local/samtools/samtools.nf"
+    process "SAMTOOLS"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/samtools/tests/SPN_Sample_01.sam') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success },
+                { assert process.out.cov_files.size() == 1 },
+                { assert process.out.stats_multiqc.size() == 1 },
+                { assert process.out.sorted_bam.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+            )
+        }
+    }
+
+    test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/samtools/tests/SPN_Sample_01.sam') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            { assert snapshot(
+                path(process.out.sorted_bam[0]).md5,
+                path(process.out.cov_files[0]).md5,
+                path(process.out.stats_multiqc[0]).md5 
+                )
+            }
+        }
+    }
+    
+}
