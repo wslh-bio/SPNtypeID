@@ -1,0 +1,77 @@
+nextflow_process {
+
+    name "Test Process SEROBA"
+    script "modules/local/seroba/seroba.nf"
+    process "SEROBA"
+
+    test("Checking that mandatory output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.seroba_results.size() == 1 },
+                { assert process.out.log.size() == 1 },
+                { assert process.out.versions.size() == 1} 
+            ) 
+        }
+    }
+
+    test("Checking that optional output channel has appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+ 
+        then {
+            assert process.out.seroba_detailed_results.size() == 0
+        }
+    }
+
+    test("Checking mandatory output files have appropriate content") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+ 
+        then {
+            assert snapshot(path(process.out.seroba_results[0]).md5).match()
+        }
+    }
+}
