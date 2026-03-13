@@ -1,0 +1,12 @@
+{
+    "Checking that optional output channels have appropriate amount of values": {
+        "content": [
+            "aa657c335ef793da97b3d627140e7fb2"
+        ],
+        "timestamp": "2026-03-13T15:57:56.711745938",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
