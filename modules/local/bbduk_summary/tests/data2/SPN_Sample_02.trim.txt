@@ -1,0 +1,5 @@
+Input:                  	765652 reads 		185458021 bases.
+QTrimmed:               	37 reads (0.00%) 	1546 bases (0.00%)
+Trimmed by overlap:     	2120 reads (0.28%) 	74706 bases (0.04%)
+Total Removed:          	530 reads (0.07%) 	181606 bases (0.10%)
+Result:                 	765122 reads (99.93%) 	185276415 bases (99.90%)
