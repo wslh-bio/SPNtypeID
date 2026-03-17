@@ -1,0 +1,56 @@
+nextflow_process {
+
+    name "Test Process CALCULATE_ASSEMBLY_STATS"
+    script "modules/local/calculate_assembly_stats/calculate_assembly_stats.nf"
+    process "CALCULATE_ASSEMBLY_STATS"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.assembly_ratio.size() == 1 }
+            )
+        }
+
+    }
+
+   test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [ 
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            assert snapshot(path(process.out.assembly_ratio[0]).md5).match() 
+        }
+
+    }
+
+}
