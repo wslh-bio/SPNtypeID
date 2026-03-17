@@ -44,7 +44,6 @@ nextflow_process {
 
         then {
             assert snapshot(path(process.out.bbduk_tsv[0]).md5).match()
-
         }
 
     }
