@@ -40,12 +40,7 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(
-                    path(process.out.assembly_stats_tsv[0]).md5
-                    ).match()
-                }
-            )
+            assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match()
         }
 
     }
