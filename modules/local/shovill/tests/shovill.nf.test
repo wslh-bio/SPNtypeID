@@ -78,14 +78,14 @@ nextflow_process {
 
         then {
             def output_dir_shovill = "$outputDir/shovill/test_shovill_output"
-            // assertAll(
-            //     { assert path(process.out.versions[0]).md5 == "aa657c335ef793da97b3d627140e7fb2" },
-            //     { assert path("$output_dir_shovill/contigs.gfa").md5 == "e18c12c87b06456f7ec65ed70d9e8139" },
-            //     { assert path("$output_dir_shovill/shovill.corrections").md5 == "f039fd39b7bed592d6963037578500dc" },
-            //     { assert path("$output_dir_shovill/spades.fasta").md5 == "ccbdc9769e97cc91b4fb2c728c402725" } 
-            // )
             assertAll(
-                { assert snapshot(path(process.out.versions[0]).md5,path("$output_dir_shovill/contigs.gfa").md5,path("$output_dir_shovill/contigs.gfa").md5,path("$output_dir_shovill/spades.fasta").md5).match() }
+                { assert snapshot(
+                    path(process.out.versions[0]).md5,
+                    path("$output_dir_shovill/contigs.gfa").md5,
+                    path("$output_dir_shovill/contigs.gfa").md5,
+                    path("$output_dir_shovill/spades.fasta").md5
+                    ).match() 
+                }
             )
         }
 
