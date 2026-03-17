@@ -1,0 +1,12 @@
+{
+    "Checking that output channel has appropriate contents": {
+        "content": [
+            "b0d8bc3f0cf3f31daa27e8e1cfe5749a"
+        ],
+        "timestamp": "2026-03-17T14:48:26.352692938",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
