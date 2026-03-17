@@ -1,9 +1,12 @@
 {
-    "Checking that optional output channels have appropriate amount of values": {
+    "Checking that versions channel has appropriate amount of values": {
         "content": [
-            "aa657c335ef793da97b3d627140e7fb2"
+            "aa657c335ef793da97b3d627140e7fb2",
+            "e18c12c87b06456f7ec65ed70d9e8139",
+            "e18c12c87b06456f7ec65ed70d9e8139",
+            "ccbdc9769e97cc91b4fb2c728c402725"
         ],
-        "timestamp": "2026-03-13T15:57:56.711745938",
+        "timestamp": "2026-03-17T09:50:08.68336618",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
