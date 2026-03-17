@@ -1,0 +1,52 @@
+nextflow_process {
+
+    name "Test Process BBDUK_SUMMARY"
+    script "modules/local/bbduk_summary/bbduk_summary.nf"
+    process "BBDUK_SUMMARY"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                // define inputs of the process here. Example:
+                input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bbduk_tsv.size() == 1 }
+            )
+
+        }
+
+    }
+
+    test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                // define inputs of the process here. Example:
+                input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
+                """
+            }
+        }
+
+        then {
+            assert snapshot(path(process.out.bbduk_tsv[0]).md5).match()
+
+        }
+
+    }
+
+}
