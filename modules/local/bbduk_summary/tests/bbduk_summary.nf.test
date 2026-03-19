@@ -12,7 +12,6 @@ nextflow_process {
             }
             process {
                 """
-                // define inputs of the process here. Example:
                 input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
                 """
             }
