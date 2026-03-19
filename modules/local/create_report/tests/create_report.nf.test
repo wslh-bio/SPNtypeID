@@ -1,0 +1,78 @@
+nextflow_process {
+
+    name "Test Process CREATE_REPORT"
+    script "modules/local/create_report/create_report.nf"
+    process "CREATE_REPORT"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = "Test"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success } ,
+                { assert process.out.result_csv.size() == 1 }
+            )
+        }
+
+    }
+
+    test("Checking file contents to ensure proper processing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.result_csv[0]).md5).match() },
+                { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv" }
+            )
+        }
+
+    }
+
+}
+
