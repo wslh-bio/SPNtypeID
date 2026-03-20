@@ -1,0 +1,61 @@
+nextflow_process {
+
+    name "Test Process KRAKEN_SUMMARY"
+    script "modules/local/kraken_summary/kraken_summary.nf"
+    process "KRAKEN_SUMMARY"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.kraken_tsv.size() == 1 }
+            )
+        }
+
+    }
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.kraken_tsv[0]).md5).match() },
+                { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
+            )
+        }
+
+    }
+
+}
