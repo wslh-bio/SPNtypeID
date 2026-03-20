@@ -1,0 +1,64 @@
+nextflow_process {
+
+    name "Test Process FASTQC_SUMMARY"
+    script "modules/local/fastqc_summary/fastqc_summary.nf"
+    process "FASTQC_SUMMARY"
+
+    test("Checking that output channels have appropriate amount of values.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/fastqc_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01_1_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_01_2_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_02_1_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_02_2_fastqc.zip")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.fastqc_summary.size() == 1  }
+
+            )
+        }
+
+    }
+
+    test("Checking that output channels have appropriate amount of values.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/fastqc_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01_1_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_01_2_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_02_1_fastqc.zip"),
+                file("${data_dir}" + "/SPN_Sample_02_2_fastqc.zip")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.fastqc_summary[0]).md5).match() },
+                { assert file(process.out.fastqc_summary[0]).name ==~ "fastqc_summary.tsv" }
+            )
+        }
+
+    }
+
+}
