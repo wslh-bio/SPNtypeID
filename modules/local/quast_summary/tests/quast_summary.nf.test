@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process QUAST_SUMMARY"
+    script "modules/local/quast_summary/quast_summary.nf"
+    process "QUAST_SUMMARY"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quast_summary/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "/data1/SPN_Sample_01.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data3/SPN_Sample_03.transposed.quast.report.tsv")
+                ]
+                input[1] = "300"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.quast_tsv.size() == 1 }
+            )
+        }
+
+    }
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quast_summary/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "/data1/SPN_Sample_01.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data3/SPN_Sample_03.transposed.quast.report.tsv")
+                ]
+                input[1] = "300"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.quast_tsv[0]).md5).match() },
+                { assert file(process.out.quast_tsv[0]).name ==~ "quast_results.tsv" }
+            )
+        }
+
+    }
+
+}
