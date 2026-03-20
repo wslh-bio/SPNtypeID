@@ -31,7 +31,7 @@ nextflow_process {
 
     }
 
-    test("Checking that output channels have appropriate amount of values") {
+    test("Checking file contents to ensure proper processing") {
 
         when {
             params {
