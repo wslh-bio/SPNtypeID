@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process QUALITY_STATS"
+    script "modules/local/quality_stats/quality_stats.nf"
+    process "QUALITY_STATS"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quality_stats/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "data2/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "data3/SPN_Sample_03.kraken.txt")
+                ]
+                input[1] = "30"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.quality_tsv.size() == 1 }
+            )
+        }
+
+    }
+
+   test("Checking file contents to ensure proper processing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quality_stats/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "data2/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "data3/SPN_Sample_03.kraken.txt")
+                ]
+                input[1] = "30"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.quality_tsv[0]).md5).match() },
+                { assert file(process.out.quality_tsv[0]).name ==~ "quality_stats.tsv" }
+            )
+        }
+
+    }
+
+}
