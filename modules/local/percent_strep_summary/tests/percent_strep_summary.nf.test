@@ -1,0 +1,67 @@
+nextflow_process {
+
+    name "Test Process PERCENT_STREP_SUMMARY"
+    script "modules/local/percent_strep_summary/percent_strep_summary.nf"
+    process "PERCENT_STREP_SUMMARY"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/percent_strep_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                ]
+                input[1] ="80.0"
+                input[2] ="60.0"
+                input[3] ="1.0"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.percent_strep_tsv.size() == 1 }
+            )
+        }
+
+    }
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/percent_strep_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                ]
+                input[1] ="80.0"
+                input[2] ="60.0"
+                input[3] ="1.0"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.percent_strep_tsv[0]).md5).match() },
+                { assert file(process.out.percent_strep_tsv[0]).name ==~ "percent_strep_results.tsv" }
+            )
+        }
+
+    }
+
+}
