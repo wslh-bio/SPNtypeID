@@ -1,0 +1,55 @@
+nextflow_process {
+
+    name "Test Process REJECTED_SAMPLES"
+    script "modules/local/rejected_samples/rejected_samples.nf"
+    process "REJECTED_SAMPLES"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/rejected_samples/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/empty_samples.csv")
+                input[1] = "SPNTypeID"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.rejected_samples_report.size() == 1 }
+            )
+        }
+
+    }
+
+   test("Checking file contents to ensure proper processing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/rejected_samples/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/empty_samples.csv")
+                input[1] = "SPNTypeID"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.rejected_samples_report[0]).md5).match() },
+                { assert file(process.out.rejected_samples_report[0]).name ==~ "SPNTypeID_empty_samples.csv" }
+            )
+        }
+
+    }
+
+}
