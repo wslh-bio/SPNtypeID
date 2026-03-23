@@ -1,0 +1,57 @@
+nextflow_process {
+
+    name "Test Process SAMPLESHEET_CHECK"
+    script "modules/local/samplesheet_check/samplesheet_check.nf"
+    process "SAMPLESHEET_CHECK"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/samplesheet_check/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/workflow_test.csv")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.csv.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+            )
+
+        }
+
+    }
+
+    test("Checking file contents to ensure proper processing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/samplesheet_check/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/workflow_test.csv")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert snapshot(path(process.out.csv[0]).md5).match() },
+                { assert file(process.out.csv[0]).name ==~ "samplesheet.valid.csv" },
+                { assert file(process.out.versions[0]).name ==~ "versions.yml" }
+            )
+
+        }
+
+    }
+
+}
