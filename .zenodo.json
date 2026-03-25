@@ -3,15 +3,15 @@
  "description": "SPNtypeID is a Nextflow pipeline designed for genome assembly and serotyping of Streptococcus pneumoniae from raw paired-end Illumina reads. The pipeline performs read trimming and quality assessment using BBtools and FastQC, genome assembly using Shovill, assembly quality assessment with QUAST, genome coverage calculation using BWA and Samtools, contamination detection using Kraken, and capsular serotyping using SeroBA. It includes quality control metrics such as genome length assessment with Z-score calculations based on expected S. pneumoniae genome length, and generates comprehensive summary reports for public health bioinformatics workflows.",
  "creators": [
    {
-     "name": "Florek, Kelsey",
-     "affiliation": "Wisconsin State Laboratory of Hygiene"
-   },
-   {
      "name": "Shockey, Abigail C.",
      "affiliation": "Wisconsin State Laboratory of Hygiene"
    },
    {
      "name": "Gunawan, Eva",
+     "affiliation": "Wisconsin State Laboratory of Hygiene"
+   },
+   {
+     "name": "Florek, Kelsey",
      "affiliation": "Wisconsin State Laboratory of Hygiene"
    }
  ],
@@ -23,13 +23,11 @@
    "serotyping",
    "genome-assembly",
    "public-health",
-   "microbial-genomics",
-   "seroba",
-   "shovill",
-   "kraken"
+   "microbial-genomics"
  ],
- "license": "GPL-3.0",
+ "license": "GPL-3.0-or-later",
  "upload_type": "software",
+ "access_right": "open",
  "related_identifiers": [
    {
      "identifier": "https://github.com/wslh-bio/SPNtypeID",
