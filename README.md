@@ -191,6 +191,7 @@ outdir
 |Max NTC SPN read| Highest amount of S. pneumoniae reads found in all no template controls. If '999999' in column, no NTC was provided |
 |SPNtypeID Version| Version of the SPNTypeID pipeline used for analysis |
 
+### Citations
 This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
