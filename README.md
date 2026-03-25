@@ -19,8 +19,6 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 [Serotyping](#serotyping)                                                                                                                                  
 [Output](#output-files)  
 [Results file explanation](#results-file-explanation)             
-[Credits](#credits)  
-[Contributions and Support](#contributions-and-support)  
 [Citations](#citations)  
 
 ### Using the workflow
@@ -192,21 +190,6 @@ outdir
 |Max NTC read| Highest amount of reads found in all no template controls. If '999999' in column, no NTC was provided |
 |Max NTC SPN read| Highest amount of S. pneumoniae reads found in all no template controls. If '999999' in column, no NTC was provided |
 |SPNtypeID Version| Version of the SPNTypeID pipeline used for analysis |
-
-## Credits
-SPNTypeID was written by [Dr. Kelsey Florek](https://github.com/k-florek), [Dr. Abigail C. Shockey](https://github.com/AbigailShockey), and [Eva Gunawan, MS](https://github.com/evagunawan).
-
-We thank the bioinformatics group at the Wisconsin State Laboratory of Hygiene for all of their contributions. 
-
-## Contributions and Support
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-## Citations
-If you use SPNtypeID for your analysis, please cite it using the following:
-
-`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.10.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
-
-An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
 This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
 
