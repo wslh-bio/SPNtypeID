@@ -1,0 +1,14 @@
+{
+    "-profile test_full": {
+        "content": [
+            "2fab0e5e557421b8866b03a2ee02ac9a",
+            "35da0a2d2a6ba2b8720a25ae02f1e1a7",
+            "11f297db2410d7551e7c33f886acb638"
+        ],
+        "timestamp": "2026-04-03T14:52:17.854986864",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
