@@ -1,0 +1,41 @@
+nextflow_pipeline {
+
+    name "Test Workflow main.nf"
+    script "../main.nf"
+    tag "pipeline"
+    profile "test"
+
+    test("Validation test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = "${projectDir}/samplesheets/"
+                runname = "test"
+                ntc_regex = "NTC"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(
+                        workflow.trace.succeeded().size(),
+                        path("${params.outdir}/coverage_stats/coverage_stats.tsv").md5,
+                        path("${params.outdir}/pipeline_info/software_versions.yml").md5,
+                        path("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").md5
+                    ).match()
+                },
+                { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists() },
+                { assert file("${params.outdir}/report_with_ntc/test_spntypeid_report.csv").exists() },
+                { assert file("${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv").exists() },
+                { assert file("${params.outdir}/quality_stats/quality_stats.tsv").exists() },
+                { assert file("${params.outdir}/quast_summary/quast_results.tsv").exists() },
+                { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists() }
+
+            )
+        }
+
+    }
+}
+
