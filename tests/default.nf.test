@@ -3,7 +3,7 @@ nextflow_pipeline {
     name "Test Workflow main.nf"
     script "../main.nf"
     tag "pipeline"
-    profile "test"
+    profile System.getenv("NFT_PROFILE") ?: "test"
 
     test("-profile test_full") {
 
