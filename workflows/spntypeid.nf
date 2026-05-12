@@ -57,8 +57,8 @@ include { QUAST                                } from '../modules/local/quast/qu
 include { QUAST_SUMMARY                        } from '../modules/local/quast_summary/quast_summary'
 include { BIOAWK                               } from '../modules/local/bioawk/bioawk'
 include { QUALITY_STATS                        } from '../modules/local/quality_stats/quality_stats'
-include { KRAKEN as KRAKEN_SAMPLE              } from '../modules/local/kraken/kraken'
-include { KRAKEN as KRAKEN_NTC                 } from '../modules/local/kraken/kraken'
+include { KRAKEN2 as KRAKEN_SAMPLE             } from '../modules/local/kraken2/kraken2'
+include { KRAKEN2 as KRAKEN_NTC                } from '../modules/local/kraken2/kraken2'
 include { KRAKEN_SUMMARY                       } from '../modules/local/kraken_summary/kraken_summary'
 include { SEROBA                               } from '../modules/local/seroba/seroba'
 include { SEROBA_SUMMARY                       } from '../modules/local/seroba_summary/seroba_summary'
@@ -82,7 +82,7 @@ def multiqc_report = []
 
 workflow SPNTYPEID {
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -92,7 +92,7 @@ workflow SPNTYPEID {
     )
 
     INPUT_CHECK.out.reads
-        .branch{ meta, file -> 
+        .branch{ meta, _file ->
             single_end: meta.single_end
             paired_end: !meta.single_end
             }
@@ -101,20 +101,20 @@ workflow SPNTYPEID {
     ch_filtered.paired_end
         .map{ meta, file ->
             [meta, file, file[0].countFastq(), file[1].countFastq()]}
-        .branch{ meta, file, count1, count2 ->
+        .branch{ _meta, _file, count1, count2 ->
             pass: count1 > 0 && count2 > 0
             fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
             }
         .set{ ch_paired_end }
 
     ch_paired_end.pass
-        .map { meta, file, count1, count2 -> 
+        .map { meta, file, _count1, _count2 ->
             [meta, file]
             }
         .set{ ch_fully_filtered }
 
     ch_paired_end.fail
-        .map { meta, file, count1, count2 ->
+        .map { meta, _file, _count1, _count2 ->
             [meta.id]
             }
         .set{ ch_paired_end_fail }
@@ -145,7 +145,7 @@ workflow SPNTYPEID {
 
     if (params.ntc_regex != null) {
         ch_paired_end.fail
-            .map { meta, file, count1, count2 ->
+            .map { meta, _file, _count1, _count2 ->
                 [meta.id]
                 }
             .set{ ch_ntc_check }
@@ -162,7 +162,7 @@ workflow SPNTYPEID {
             .ifEmpty("Empty")
             .set { ch_empty_ntc }
         } else  {
-        ch_empty_ntc = Channel.value("Empty")
+        ch_empty_ntc = channel.value("Empty")
     }
 
     //
@@ -234,8 +234,8 @@ workflow SPNTYPEID {
     QUAST
         .out
         .transposed_report
-        .map { meta, path -> 
-            path 
+        .map { _meta, path ->
+            path
             }
         .collect()
         .set { ch_quast_summary }
@@ -279,7 +279,7 @@ workflow SPNTYPEID {
     if (params.ntc_regex != null) {
         //
         // MODULE: KRAKEN_NTC
-        // 
+        //
         KRAKEN_NTC (
             ch_input_reads.ntc
         )
@@ -313,7 +313,7 @@ workflow SPNTYPEID {
     ch_kraken_tsv = KRAKEN_SUMMARY.out.kraken_tsv
 
     QUAST.out.transposed_report
-        .map{meta, result -> 
+        .map{meta, result ->
             [[id:meta.id], result]
             }
             .set { ch_quast }
@@ -336,11 +336,11 @@ workflow SPNTYPEID {
     //
     // MODULE: CREATE_REPORT
     //
-    ch_compiled_results = Channel.empty()
+    ch_compiled_results = channel.empty()
     if (params.ntc_regex != null) {
         ch_kraken_ntc = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
     } else {
-        ch_kraken_ntc = Channel.empty()
+        ch_kraken_ntc = channel.empty()
     }
     ch_compiled_results = ch_compiled_results.mix(ch_kraken_ntc)
     ch_compiled_results = ch_compiled_results.mix(ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv)
@@ -387,12 +387,12 @@ workflow SPNTYPEID {
     //MODULE: MultiQC
     //
     workflow_summary    = WorkflowSpntypeid.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    ch_workflow_summary = channel.value(workflow_summary)
 
     methods_description    = WorkflowSpntypeid.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
-    ch_methods_description = Channel.value(methods_description)
+    ch_methods_description = channel.value(methods_description)
 
-    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
