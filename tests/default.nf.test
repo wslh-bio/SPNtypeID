@@ -2,10 +2,8 @@ nextflow_pipeline {
 
     name "Test Workflow main.nf"
     script "../main.nf"
-    tag "pipeline"
-    profile System.getenv("NFT_PROFILE") ?: "test"
 
-    test("-profile test_full") {
+    test("Test Full") {
 
         when {
             params {
