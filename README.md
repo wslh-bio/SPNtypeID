@@ -2,9 +2,9 @@
 
 SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome assembly and serotyping of *Streptococcus pneumoniae*.
 
-![SPNtypeID](https://github.com/wslh-bio/SPNtypeID/actions/workflows/workflow_test.yml/badge.svg)
 ![GPL-3.0](https://img.shields.io/github/license/wslh-bio/SPNtypeID)
 ![Static Badge](https://img.shields.io/badge/release-v1.9.0-%2300FFFF)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17469124.svg)](https://doi.org/10.5281/zenodo.17469124)
 
 ### Table of Contents:
 [Usage](#using-the-workflow)  
@@ -19,8 +19,6 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 [Serotyping](#serotyping)                                                                                                                                  
 [Output](#output-files)  
 [Results file explanation](#results-file-explanation)             
-[Credits](#credits)  
-[Contributions and Support](#contributions-and-support)  
 [Citations](#citations)  
 
 ### Using the workflow
@@ -193,21 +191,7 @@ outdir
 |Max NTC SPN read| Highest amount of S. pneumoniae reads found in all no template controls. If '999999' in column, no NTC was provided |
 |SPNtypeID Version| Version of the SPNTypeID pipeline used for analysis |
 
-## Credits
-SPNTypeID was written by [Dr. Kelsey Florek](https://github.com/k-florek), [Dr. Abigail C. Shockey](https://github.com/AbigailShockey), and [Eva Gunawan, MS](https://github.com/evagunawan).
-
-We thank the bioinformatics group at the Wisconsin State Laboratory of Hygiene for all of their contributions. 
-
-## Contributions and Support
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-## Citations
-If you use SPNtypeID for your analysis, please cite it using the following:
-
-`K. Florek, E. Gunawan, & A.C. Shockey (2025). SPNtypeID (Version 1.10.0) [https://github.com/wslh-bio/SPNtypeID/tree/main].`
-
-An extensive list of references for the tools used by Dryad can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
+### Citations
 This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
