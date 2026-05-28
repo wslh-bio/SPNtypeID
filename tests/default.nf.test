@@ -3,7 +3,7 @@ nextflow_pipeline {
     name "Test Workflow main.nf"
     script "../main.nf"
 
-    test("Test Full") {
+    test("-profile test_full") {
 
         when {
             params {
