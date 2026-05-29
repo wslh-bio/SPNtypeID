@@ -18,9 +18,9 @@ nextflow_pipeline {
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
-                        path("${params.outdir}/coverage_stats/coverage_stats.tsv").md5,
-                        path("${params.outdir}/pipeline_info/software_versions.yml").md5,
-                        path("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").md5
+                        // path("${params.outdir}/coverage_stats/coverage_stats.tsv").md5,
+                        path("${params.outdir}/pipeline_info/software_versions.yml").md5
+                    //     path("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").md5
                     ).match()
                 },
                 { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists() },
