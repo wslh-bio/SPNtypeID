@@ -45,6 +45,8 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
+include { COUNT_FASTQ                    } from '../modules/local/count_fastq'
+include { REJECTED_SAMPLES              } from '../modules/local/rejected_samples'
 include { BBDUK                         } from '../modules/local/bbduk'
 include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
 include { FASTQC                        } from '../modules/local/fastqc'
@@ -64,7 +66,6 @@ include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
 include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
 include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report'
 include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report'
-//include { WORKFLOW_TEST                 } from '../modules/local/workflow_test'
 include { MULTIQC                       } from '../modules/local/multiqc'
 include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
 include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
@@ -90,16 +91,36 @@ workflow SPNTYPEID {
         ch_input
     )
 
+    // Checking input and setting single and paired end 
     INPUT_CHECK.out.reads
         .branch{ meta, file -> 
             single_end: meta.single_end
             paired_end: !meta.single_end
             }
-        .set{ ch_filtered }
+        .set{ ch_end }
+    
+    ch_end.paired_end
+        .branch{ meta, file ->
+            ntc: (meta.id =~ params.ntc_regex)
+            sample: true
+        }
+        .set { ch_input_reads }
 
-    ch_filtered.paired_end
-        .map{ meta, file ->
-            [meta, file, file[0].countFastq(), file[1].countFastq()]}
+    // Run Module: countFastq
+    COUNT_FASTQ(
+        ch_input_reads.sample
+    )
+    ch_csv = COUNT_FASTQ.out.csv
+                .splitCsv(header: true)
+                .join(ch_input_reads.sample)
+                .map { meta, csv, file ->
+                def count1 = csv.count1 as Integer
+                def count2 = csv.count2 as Integer
+                tuple(meta, file, count1, count2)
+                }
+
+    // Pass/fail based on read count of fastq files
+    ch_csv
         .branch{ meta, file, count1, count2 ->
             pass: count1 > 0 && count2 > 0
             fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
@@ -114,27 +135,23 @@ workflow SPNTYPEID {
 
     ch_paired_end.fail
         .map { meta, file, count1, count2 ->
-            [meta.id]
+            meta.id
             }
-        .set{ ch_paired_end_fail }
+        .set{ ch_failed}
 
-    ch_paired_end_fail
-        .flatten()
-        .set{ ch_failed }
-
+    // Collect 
     ch_failed
+        .ifEmpty('NO_EMPTY_SAMPLES')
         .collectFile(
-            storeDir: "${params.outdir}/rejected_samples",
-            name: 'Empty_samples.csv',
-            newLine: true
-        )
+                name: 'empty_samples.csv',
+                newLine: true
+            )
+        .set{ ch_rejected_file }
 
-    ch_filtered
-        .branch {
-            ntc: !!(it[0]['id'] =~ params.ntc_regex)
-            sample: true
-        }
-        .set{ ch_input_reads }
+    REJECTED_SAMPLES (
+        ch_rejected_file,
+        "SPNTypeID"
+    )
 
     if (params.ntc_regex != null) {
         ch_paired_end.fail
@@ -151,10 +168,14 @@ workflow SPNTYPEID {
             .set { ch_ntc_check }
 
         ch_ntc_check.ntc
+            .map { it[0] }
             .collect()
+            .flatten() // removing brackets from ch output
             .ifEmpty("Empty")
+            .first()
             .set { ch_empty_ntc }
-    } else  {
+    } 
+    if (params.ntc_regex == null)  {
         ch_empty_ntc = Channel.value("Empty")
     }
 
