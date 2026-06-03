@@ -18,12 +18,19 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
                 """
             }
         }
 
         then {
+            // Poll for workflow.json to be fully written
+            def int maxWait = 120  // seconds
+            def int waited = 0
+            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
+                sleep(5000)
+                waited += 5
+            }
             assertAll(
                 { assert process.success },
                 { assert process.out.reads.size() == 1 },
@@ -50,11 +57,18 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
                 """
             }
         }
         then {
+            // Poll for workflow.json to be fully written
+            def int maxWait = 120  // seconds
+            def int waited = 0
+            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
+                sleep(5000)
+                waited += 5
+            }
             assertAll (
 
                 { assert process.out.repaired_reads.size() == 1 },
@@ -78,11 +92,18 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
                 """
             }
         }
         then {
+            // Poll for workflow.json to be fully written
+            def int maxWait = 120  // seconds
+            def int waited = 0
+            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
+                sleep(5000)
+                waited += 5
+            }
             assertAll(
                 {
                     with(process.out.reads) {
