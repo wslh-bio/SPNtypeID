@@ -51,8 +51,8 @@ nextflow_process {
             assertAll(
                 {
                     with(process.out.zip) {
-                        with(get(0)) {
-                            with(get(1)) {
+                        with (get(0)) {
+                            with (get(1)) {
                                 assert get(0) ==~ ".*/test_1_fastqc.zip"
                                 assert get(1) ==~ ".*/test_2_fastqc.zip"
                             }
@@ -61,8 +61,8 @@ nextflow_process {
                 },
                 {
                     with(process.out.html) {
-                        with(get(0)) {
-                            with(get(1)) {
+                        with (get(0)) {
+                            with (get(1)) {
                                 assert get(0) ==~ ".*/test_1_fastqc.html"
                                 assert get(1) ==~ ".*/test_2_fastqc.html"
                             }
