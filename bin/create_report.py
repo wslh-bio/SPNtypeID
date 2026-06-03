@@ -17,7 +17,7 @@ def create_dataframe(result_files):
 
     logging.debug("Get all tsv files and read them in as data frames")
 
-    do_not_merge_list = ["kraken.txt", "yml"]
+    do_not_merge_list = ["kraken2.txt", "yml"]
     kraken_ntc_files = []
     kraken_version = []
 
@@ -29,7 +29,7 @@ def create_dataframe(result_files):
     for file in result_files:
 
         logging.debug(f"Checking file: {file}")
-        if any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("kraken.txt"):
+        if any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("kraken2.txt"):
             kraken_ntc_files.append(file)
 
         elif any(ending.lower() in file.lower() for ending in do_not_merge_list) and file.endswith("yml"):
@@ -38,6 +38,7 @@ def create_dataframe(result_files):
         else:
             logging.debug(f"File to be merged: {file}")
             df = pd.read_csv(file, header=0, delimiter='\t')
+            list(df.columns)
             dfs.append(df)
 
     logging.debug("Merge data frames based on sample")
@@ -72,7 +73,7 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs, merged_d
 
     logging.debug("Get Kraken NTC results")
     if kraken_ntc_files != []:
-        kraken_ntc_results = glob.glob("*kraken.txt")
+        kraken_ntc_results = glob.glob("*kraken2.txt")
 
         logging.debug("Add NTC column and calculate Kraken NTC read totals")
         ntc_total_reads = []
@@ -82,7 +83,7 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs, merged_d
 
         logging.debug("Read in kraken NTC files and get # of total reads and strep pneumo reads")
         for file in kraken_ntc_results:
-            id = file.split(".kraken.txt")[0]
+            id = file.split(".kraken2.txt")[0]
             spn_reads = 0
             total_reads = 0
 
@@ -188,7 +189,7 @@ def reorder_columns(merged_df):
                         'All NTC reads',
                         'All NTC SPN reads',
                         'SPNtypeID Version']]
-    
+
     return merged_df
 
 def write_output(WFRunName, merged_df):
@@ -210,15 +211,15 @@ if __name__ == "__main__":
         epilog='Use with create_report.py --result_files <CH_RESULTS> --workflowRunName <RUN_NAME> --empty_ntc_list <EMPTY_NTC_LIST>'
         )
     parser.add_argument('--result_files',
-        nargs="+", 
+        nargs="+",
         help='Compiled results from SPNtypeID'
         )
     parser.add_argument('--workflowVersion',
-        type=str, 
+        type=str,
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.'
         )
     parser.add_argument('--workflowRunName',
-        type=str, 
+        type=str,
         help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.'
         )
     parser.add_argument('--empty_ntc_list',
