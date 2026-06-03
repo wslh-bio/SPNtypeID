@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process CALCULATE_ASSEMBLY_STATS"
     script "modules/local/calculate_assembly_stats/calculate_assembly_stats.nf"
     process "CALCULATE_ASSEMBLY_STATS"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 
@@ -12,7 +13,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'SPN_Sample_01', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
                 ]
@@ -38,7 +39,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'SPN_Sample_01', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
                 ]
@@ -48,7 +49,7 @@ nextflow_process {
         }
 
         then {
-            assert snapshot(path(process.out.assembly_ratio[0]).md5).match() 
+            assert snapshot(path(process.out.assembly_ratio[0]).md5).match()
         }
 
     }

@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process QUAST_SUMMARY"
     script "modules/local/quast_summary/quast_summary.nf"
     process "QUAST_SUMMARY"
+    tag "module"
 
     test("Should run without failures") {
 

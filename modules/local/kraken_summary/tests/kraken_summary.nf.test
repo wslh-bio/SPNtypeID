@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process KRAKEN_SUMMARY"
     script "modules/local/kraken_summary/kraken_summary.nf"
     process "KRAKEN_SUMMARY"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 

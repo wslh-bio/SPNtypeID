@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process CREATE_REPORT"
     script "modules/local/create_report/create_report.nf"
     process "CREATE_REPORT"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 

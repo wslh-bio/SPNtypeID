@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process MULTIQC"
     script "modules/local/multiqc/multiqc.nf"
     process "MULTIQC"
+    tag "module"
 
     test("Test 1: Checking that mandatory output channels have appropriate amount of values") {
 
@@ -34,7 +35,7 @@ nextflow_process {
                 { assert process.out.versions.size() == 1 },
                 { assert data_files.size() == 13 }
 
-            )  
+            )
         }
 
     }
@@ -61,7 +62,7 @@ nextflow_process {
             def plots_files = file("$output_dir_plots").list().sort()
             def pdf = file("$output_dir_plots/pdf").list().sort()
             def png = file("$output_dir_plots/png").list().sort()
-            def svg = file("$output_dir_plots/svg").list().sort() 
+            def svg = file("$output_dir_plots/svg").list().sort()
 
             assertAll(
                 { assert process.out.plots.size() == 1 },
@@ -94,10 +95,10 @@ nextflow_process {
             def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
             assertAll(
                 { assert snapshot(
-                    path("$output_dir_data/multiqc_fastqc.txt").md5, 
+                    path("$output_dir_data/multiqc_fastqc.txt").md5,
                     path("$output_dir_data/multiqc_general_stats.txt").md5
-                    ).match() 
-                }            
+                    ).match()
+                }
             )
         }
 

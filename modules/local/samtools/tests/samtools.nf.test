@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process SAMTOOLS"
     script "modules/local/samtools/samtools.nf"
     process "SAMTOOLS"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 
@@ -12,7 +13,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'SAMPLE1_PE', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
                 ]
@@ -39,7 +40,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'SAMPLE1_PE', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
                 ]
@@ -51,10 +52,10 @@ nextflow_process {
             { assert snapshot(
                 path(process.out.sorted_bam[0]).md5,
                 path(process.out.cov_files[0]).md5,
-                path(process.out.stats_multiqc[0]).md5 
+                path(process.out.stats_multiqc[0]).md5
                 )
             }
         }
     }
-    
+
 }

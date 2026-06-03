@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process QUALITY_STATS"
     script "modules/local/quality_stats/quality_stats.nf"
     process "QUALITY_STATS"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 

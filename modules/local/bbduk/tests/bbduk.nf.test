@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process BBDUK"
     script "../bbduk.nf"
     process "BBDUK"
+    tag "module"
 
     test("Checking that mandatory output channels have appropriate amount of values") {
 

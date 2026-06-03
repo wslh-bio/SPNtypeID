@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process PERCENT_STREP_SUMMARY"
     script "modules/local/percent_strep_summary/percent_strep_summary.nf"
     process "PERCENT_STREP_SUMMARY"
+    tag "module"
 
     test("Should run without failures") {
 

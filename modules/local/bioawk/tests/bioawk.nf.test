@@ -3,13 +3,14 @@ nextflow_process {
     name "Test Process BIOAWK"
     script "modules/local/bioawk/bioawk.nf"
     process "BIOAWK"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 
         when {
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
@@ -18,7 +19,7 @@ nextflow_process {
             }
         }
 
-        then { 
+        then {
             assertAll {
                 { assert process.success }
                 { assert process.out.qual_results.size()==1 }
@@ -34,7 +35,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]

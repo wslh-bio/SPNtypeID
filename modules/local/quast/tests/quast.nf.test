@@ -3,13 +3,14 @@ nextflow_process {
     name "Test Process QUAST"
     script "modules/local/quast/quast.nf"
     process "QUAST"
+    tag "module"
 
     test("Checking that output channels have appropriate amount of values") {
 
         when {
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/quast/tests/SPN_Sample_01.contigs.fa') ]
                 ]
@@ -35,7 +36,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/modules/local/quast/tests/SPN_Sample_01.contigs.fa') ]
                 ]

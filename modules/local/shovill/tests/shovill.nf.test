@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process SHOVILL"
     script "modules/local/shovill/shovill.nf"
     process "SHOVILL"
+    tag "module"
 
     test("Checking that mandatory output channels have appropriate amount of values") {
 
@@ -12,7 +13,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
@@ -44,7 +45,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
@@ -67,7 +68,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = [ 
+                input[0] = [
                 [id:'test', single_end:false ],
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
@@ -84,7 +85,7 @@ nextflow_process {
                     path("$output_dir_shovill/contigs.gfa").md5,
                     path("$output_dir_shovill/contigs.gfa").md5,
                     path("$output_dir_shovill/spades.fasta").md5
-                    ).match() 
+                    ).match()
                 }
             )
         }
