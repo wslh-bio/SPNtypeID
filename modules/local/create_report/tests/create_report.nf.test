@@ -15,7 +15,7 @@ nextflow_process {
                 def data_dir = "${baseDir}/modules/local/create_report/tests/data"
                 """
                 input[0] = [
-                file("${data_dir}" + "/NTC01.kraken.txt", checkIfExists: true),
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
                 file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
                 file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
                 file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
@@ -50,7 +50,7 @@ nextflow_process {
                 def data_dir = "${baseDir}/modules/local/create_report/tests/data"
                 """
                 input[0] = [
-                file("${data_dir}" + "/NTC01.kraken.txt", checkIfExists: true),
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
                 file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
                 file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
                 file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
@@ -72,8 +72,89 @@ nextflow_process {
                 { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv" }
             )
         }
-
     }
 
+    test("Checking no input channels produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = null
+                input[1] = ["NTC01"]
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking no ntc produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = null
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking no runname produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
 
