@@ -62,4 +62,24 @@ nextflow_process {
 
     }
 
+        test("Checking no input channels produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/fastqc_summary/tests/data"
+                """
+                input[0] = null
+                ]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
 }
