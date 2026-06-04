@@ -46,4 +46,25 @@ nextflow_process {
 
     }
 
+    test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert !process.success }
+            )
+        }
+
+    }
+
 }
