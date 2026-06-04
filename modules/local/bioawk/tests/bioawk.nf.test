@@ -30,7 +30,7 @@ nextflow_process {
     }
 
 
-    test("Checking snapshot ") {
+    test("Checking snapshot") {
 
         when {
             process {
@@ -47,7 +47,20 @@ nextflow_process {
         then {
             { assert snapshot(process.out).match() }
         }
-
     }
 
+    test("Checking that no input channel produces failure") {
+
+        when {
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            { assert !process.success }
+        }
+    }
 }

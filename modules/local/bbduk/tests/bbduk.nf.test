@@ -100,5 +100,45 @@ nextflow_process {
             )
         }
     }
+    test("Checking that no input channel produces failure") {
 
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking that no adapter channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] =  [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
