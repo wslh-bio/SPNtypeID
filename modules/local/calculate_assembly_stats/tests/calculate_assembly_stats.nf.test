@@ -67,4 +67,23 @@ nextflow_process {
             { assert !process.success }
         }
     }
+
+    test("Checking that no database channel produces failure") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = null
+                """
+            }
+        }
+
+        then {
+            { assert !process.success }
+        }
+    }
 }
