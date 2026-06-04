@@ -73,7 +73,7 @@ nextflow_process {
         }
     }
 
-    test('Checking snapshot contents ') {
+    test('Checking snapshot contents') {
 
         when {
             process {
@@ -91,6 +91,21 @@ nextflow_process {
             assertAll(
                 { assert snapshot(file(process.out.versions[0])).match() }
             )
+        }
+    }
+
+        test('Checking that no input channel produces failure') {
+
+        when {
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
         }
     }
 }
