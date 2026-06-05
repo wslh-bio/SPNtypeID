@@ -26,7 +26,6 @@ nextflow_process {
                 { assert process.out.rejected_samples_report.size() == 1 }
             )
         }
-
     }
 
    test("Checking file contents to ensure proper processing") {
@@ -50,7 +49,25 @@ nextflow_process {
                 { assert file(process.out.rejected_samples_report[0]).name ==~ "SPNTypeID_empty_samples.csv" }
             )
         }
-
     }
 
+   test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/rejected_samples/tests/data"
+                """
+                input[0] = null
+                input[1] = "SPNTypeID"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
