@@ -15,9 +15,9 @@ nextflow_process {
                 def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
                 """
                 input[0] = [
-                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
-                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
-                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken2.txt")
                 ]
                 """
             }
@@ -42,9 +42,9 @@ nextflow_process {
                 def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
                 """
                 input[0] = [
-                file("${data_dir}" + "/SPN_Sample_01.kraken.txt"),
-                file("${data_dir}" + "/SPN_Sample_02.kraken.txt"),
-                file("${data_dir}" + "/SPN_Sample_03.kraken.txt")
+                file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken2.txt")
                 ]
                 """
             }
@@ -56,7 +56,24 @@ nextflow_process {
                 { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
             )
         }
-
     }
 
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
