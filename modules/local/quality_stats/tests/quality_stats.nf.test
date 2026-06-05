@@ -30,7 +30,6 @@ nextflow_process {
                 { assert process.out.quality_tsv.size() == 1 }
             )
         }
-
     }
 
    test("Checking file contents to ensure proper processing") {
@@ -58,7 +57,25 @@ nextflow_process {
                 { assert file(process.out.quality_tsv[0]).name ==~ "quality_stats.tsv" }
             )
         }
-
     }
 
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quality_stats/tests"
+                """
+                input[0] = null
+                input[1] = "30"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
