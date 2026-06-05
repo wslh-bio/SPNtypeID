@@ -10,8 +10,8 @@ process KRAKEN2 {
 
     output:
     tuple val(meta), path("${meta.id}.kraken2.txt")   , emit: kraken_results
-    path("kraken2.log")              , optional: true, emit: log
-    path "versions.yml"             , emit: versions
+    path("kraken2.log" )                              , optional: true, emit: log
+    path("versions.yml")                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
