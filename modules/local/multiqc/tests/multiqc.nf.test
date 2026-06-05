@@ -5,7 +5,7 @@ nextflow_process {
     process "MULTIQC"
     tag "module"
 
-    test("Test 1: Checking that mandatory output channels have appropriate amount of values") {
+    test("Checking that mandatory output channels have appropriate amount of values") {
 
         when {
             params {
@@ -29,18 +29,15 @@ nextflow_process {
             assertAll(
                 { assert process.success },
                 { assert process.out.report.size() == 1 },
-                //Checking that the folder exists
                 { assert process.out.data.size() == 1 },
-                //Checking that the folder exists
                 { assert process.out.versions.size() == 1 },
                 { assert data_files.size() == 13 }
 
             )
         }
-
     }
 
-    test("Test 2: Checking that optional output channels have appropriate amount of values") {
+    test("Checking that optional output channels have appropriate amount of values") {
 
         when {
             params {
@@ -72,10 +69,9 @@ nextflow_process {
                 { assert svg.size() == 9 }
             )
         }
-
     }
 
-    test("Test 3: Checking mandatory output files have appropriate content.") {
+    test("Checking mandatory output files have appropriate content.") {
 
         when {
             params {
@@ -101,8 +97,47 @@ nextflow_process {
                 }
             )
         }
-
     }
 
+    test("Checking that no input files channel produces failure") {
 
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
+                input[1] = null
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking that no multiqc config channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                input[1] = file("${baseDir}" + "/modules/local/multiqc/tests/multiqc_config.yml")
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
