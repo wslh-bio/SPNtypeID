@@ -32,9 +32,7 @@ nextflow_process {
                 { assert process.out.raw_contigs.size() == 1 },
                 { assert process.out.versions.size() == 1 }
             )
-
         }
-
     }
 
     test("Checking that optional output channels have appropriate amount of values") {
@@ -57,7 +55,6 @@ nextflow_process {
         then {
             assert process.out.gfa.size() == 1
         }
-
     }
 
     test("Checking that output channels have appropriate contents") {
@@ -89,7 +86,23 @@ nextflow_process {
                 }
             )
         }
-
     }
 
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }

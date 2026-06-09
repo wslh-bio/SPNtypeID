@@ -25,9 +25,7 @@ nextflow_process {
                 { assert process.out.csv.size() == 1 },
                 { assert process.out.versions.size() == 1 }
             )
-
         }
-
     }
 
     test("Checking file contents to ensure proper processing") {
@@ -50,9 +48,24 @@ nextflow_process {
                 { assert file(process.out.csv[0]).name ==~ "samplesheet.valid.csv" },
                 { assert file(process.out.versions[0]).name ==~ "versions.yml" }
             )
-
         }
-
     }
 
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
 }
