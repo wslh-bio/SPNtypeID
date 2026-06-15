@@ -1,0 +1,89 @@
+  1.64	1731	1731	U	0	unclassified
+ 98.36	104116	2	R	1	root
+ 98.36	104114	0	R1	131567	  cellular organisms
+ 98.36	104114	37	D	2	    Bacteria
+ 98.33	104076	35	D1	1783272	      Terrabacteria group
+ 98.29	104039	42	P	1239	        Firmicutes
+ 98.25	103996	12	C	91061	          Bacilli
+ 98.23	103976	68	O	186826	            Lactobacillales
+ 98.17	103908	15	F	1300	              Streptococcaceae
+ 98.15	103893	12775	G	1301	                Streptococcus
+ 86.02	91054	90828	S	1313	                  Streptococcus pneumoniae
+  0.07	78	78	S1	170187	                    Streptococcus pneumoniae TIGR4
+  0.05	48	48	S1	488221	                    Streptococcus pneumoniae 70585
+  0.03	32	32	S1	487214	                    Streptococcus pneumoniae Hungary19A-6
+  0.01	13	13	S1	1159083	                    Streptococcus pneumoniae PCS8235
+  0.01	11	11	S1	869216	                    Streptococcus pneumoniae INV200
+  0.01	11	11	S1	488222	                    Streptococcus pneumoniae JJA
+  0.01	10	10	S1	869269	                    Streptococcus pneumoniae INV104
+  0.01	7	7	S1	512566	                    Streptococcus pneumoniae G54
+  0.01	6	6	S1	516950	                    Streptococcus pneumoniae CGSP14
+  0.00	4	4	S1	189423	                    Streptococcus pneumoniae 670-6B
+  0.00	3	3	S1	574093	                    Streptococcus pneumoniae AP200
+  0.00	2	2	S1	697283	                    Streptococcus pneumoniae gamPNI0373
+  0.00	1	1	S1	869311	                    Streptococcus pneumoniae SPN032672
+  0.02	18	17	S	28037	                  Streptococcus mitis
+  0.00	1	1	S1	365659	                    Streptococcus mitis B6
+  0.01	12	7	S	1308	                  Streptococcus thermophilus
+  0.00	5	5	S1	1436725	                    Streptococcus thermophilus TH1477
+  0.00	4	1	S	1307	                  Streptococcus suis
+  0.00	2	2	S1	1007064	                    Streptococcus suis ST3
+  0.00	1	1	S1	945704	                    Streptococcus suis JS14
+  0.00	4	0	S	1311	                  Streptococcus agalactiae
+  0.00	4	4	S1	1309807	                    Streptococcus agalactiae ILRI005
+  0.00	4	0	S	257758	                  Streptococcus pseudopneumoniae
+  0.00	4	4	S1	1054460	                    Streptococcus pseudopneumoniae IS7493
+  0.00	3	0	S	1303	                  Streptococcus oralis
+  0.00	2	2	S1	1077464	                    Streptococcus oralis subsp. tigurinus
+  0.00	1	1	S1	927666	                    Streptococcus oralis Uo5
+  0.00	2	2	S	1156433	                  Streptococcus sp. I-P16
+  0.00	2	0	S	59310	                  Streptococcus macedonicus
+  0.00	2	2	S1	1116231	                    Streptococcus macedonicus ACA-DC 198
+  0.00	1	1	S	82348	                  Streptococcus pluranimalium
+  0.00	1	1	S	1902136	                  Streptococcus sp. NPS 308
+  0.00	1	1	S	45634	                  Streptococcus cristatus
+  0.00	1	0	S	1302	                  Streptococcus gordonii
+  0.00	1	0	S1	29390	                    Streptococcus gordonii str. Challis
+  0.00	1	1	S2	467705	                      Streptococcus gordonii str. Challis substr. CH1
+  0.00	1	1	S	102684	                  Streptococcus infantarius
+  0.00	1	1	S	113107	                  Streptococcus australis
+  0.00	1	1	S	197614	                  Streptococcus pasteurianus
+  0.00	1	0	G1	671232	                  Streptococcus anginosus group
+  0.00	1	1	S	1328	                    Streptococcus anginosus
+  0.00	1	1	S	712624	                  Streptococcus sp. oral taxon 064
+  0.00	1	1	S	712633	                  Streptococcus sp. oral taxon 431
+  0.00	1	1	S	1346	                  Streptococcus iniae
+  0.00	1	0	S	1318	                  Streptococcus parasanguinis
+  0.00	1	1	S1	760570	                    Streptococcus parasanguinis ATCC 15912
+  0.00	1	1	S	1314	                  Streptococcus pyogenes
+  0.00	1	1	S	1310	                  Streptococcus sobrinus
+  0.00	1	1	S	1305	                  Streptococcus sanguinis
+  0.01	8	0	O	1385	            Bacillales
+  0.00	4	0	F	186817	              Bacillaceae
+  0.00	4	0	G	1386	                Bacillus
+  0.00	4	0	G1	86661	                  Bacillus cereus group
+  0.00	3	3	S	1428	                    Bacillus thuringiensis
+  0.00	1	1	S	1396	                    Bacillus cereus
+  0.00	3	0	F	90964	              Staphylococcaceae
+  0.00	3	0	G	1279	                Staphylococcus
+  0.00	2	2	S	1286	                  Staphylococcus simulans
+  0.00	1	1	S	1280	                  Staphylococcus aureus
+  0.00	1	0	F	186824	              Thermoactinomycetaceae
+  0.00	1	0	G	1677050	                Novibacillus
+  0.00	1	1	S	1471761	                  Novibacillus thermophilus
+  0.00	1	0	C	186801	          Clostridia
+  0.00	1	0	O	186802	            Clostridiales
+  0.00	1	0	F	31979	              Clostridiaceae
+  0.00	1	0	G	1485	                Clostridium
+  0.00	1	1	S	46867	                  Clostridium chauvoei
+  0.00	2	0	P	201174	        Actinobacteria
+  0.00	2	1	C	1760	          Actinobacteria
+  0.00	1	0	O	85008	            Micromonosporales
+  0.00	1	0	F	28056	              Micromonosporaceae
+  0.00	1	1	G	673534	                Plantactinospora
+  0.00	1	0	P	203691	      Spirochaetes
+  0.00	1	0	C	203692	        Spirochaetia
+  0.00	1	0	O	136	          Spirochaetales
+  0.00	1	0	F	1643685	            Borreliaceae
+  0.00	1	0	G	138	              Borrelia
+  0.00	1	1	S	47466	                Borrelia miyamotoi
