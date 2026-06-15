@@ -9,6 +9,9 @@ process KRAKEN_SUMMARY {
     output:
     path("kraken_results.tsv"), emit: kraken_tsv
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     """
     kraken_summary.py
