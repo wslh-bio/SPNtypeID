@@ -1,0 +1,12 @@
+{
+    "Checking snapshot to ensure proper processing.": {
+        "content": [
+            "e7de7a58ca1363e49df07bac4f5e3e36"
+        ],
+        "timestamp": "2026-06-15T14:42:42.240154384",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
+        }
+    }
+}

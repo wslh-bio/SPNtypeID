@@ -1,0 +1,131 @@
+nextflow_process {
+
+    name "Test Process COVERAGE_STATS"
+    script "modules/local/coverage_stats/coverage_stats.nf"
+    process "COVERAGE_STATS"
+
+    test("Checking that output channels have proper amounts of files") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                ]
+                input[1] = "40"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.coverage_tsv.size() == 1 }
+            )
+        }
+    }
+
+    test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                ]
+                input[1] = "40"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert path(process.out.coverage_tsv.get(0)).getText().contains("Average coverage < 40X") },
+                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_01") },
+                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_02") },
+                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_03") }
+            )
+        }
+    }
+
+    test("Checking snapshot to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                ]
+                input[1] = "40"
+                """
+            }
+        }
+
+        then {
+            assert snapshot(path(process.out.coverage_tsv.get(0)).md5).match()
+        }
+    }
+
+    test("Checking that missing input process fails.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                """
+                input[0] = null
+                input[1] = "40"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+
+    test("Checking that missing min coverage fails.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                ]
+                input[1] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}
