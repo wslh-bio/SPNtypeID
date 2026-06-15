@@ -1,0 +1,4 @@
+Sample	Median Coverage	Average Coverage	Pass Coverage	Coverage Stats Comments
+SPN_Sample_02	87	91	TRUE	
+SPN_Sample_03	20	23	FALSE	Average coverage < 40X
+SPN_Sample_01	18	18	FALSE	Average coverage < 40X

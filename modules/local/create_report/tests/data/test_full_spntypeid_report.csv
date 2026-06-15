@@ -1,0 +1,4 @@
+Sample,Run,Total Reads,Reads Removed,Median Read Quality,Average Read Quality,Contigs (#),N50,Assembly Length (bp),Ratio of Actual:Expected Genome Length,z-score,Median Coverage,Average Coverage,Percent Strep,Percent SPN,SecondGenus,Percent SecondGenus,Serotype,Kraken Database Version,Max NTC read,Max NTC SPN read,All NTC reads,All NTC SPN reads,SPNtypeID Version
+SPN_Sample_02,test_full,765652,530 (0.07%),36,34,53,71897,2016194,0.956037751405084,0.2777090302467669,87,91,99.84,93.17,,0.0,11A,minikraken2_v1_8GB,4,4,NTC01: 7,NTC01: 4,1.11.0
+SPN_Sample_03,test_full,853698,3914 (0.46%),38,36,103,205361,5137007,2.443164047654455,9.116451068143649,20,23,0.0,0.0,Escherichia,76.88,coverage too low,minikraken2_v1_8GB,4,4,NTC01: 7,NTC01: 4,1.11.0
+SPN_Sample_01,test_full,211694,1404 (0.66%),37,36,138,32286,2112167,1.0112971201847585,0.0713637812296366,18,18,98.15,86.02,,0.0,4,minikraken2_v1_8GB,4,4,NTC01: 7,NTC01: 4,1.11.0
