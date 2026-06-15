@@ -15,7 +15,7 @@ nextflow_process {
                 """
                 input[0] = [
                 [id:'SAMPLE1_PE', single_end:false ],
-                [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
+                [ file("${baseDir}" + '/modules/local/samtools/tests/data/SAMPLE1_PE.sam') ]
                 ]
                 """
             }
@@ -42,7 +42,7 @@ nextflow_process {
                 """
                 input[0] = [
                 [id:'SAMPLE1_PE', single_end:false ],
-                [ file("${baseDir}" + '/modules/local/samtools/tests/SAMPLE1_PE.sam') ]
+                [ file("${baseDir}" + '/modules/local/samtools/tests/data/SAMPLE1_PE.sam') ]
                 ]
                 """
             }
