@@ -12,8 +12,13 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
+                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
                 """
-                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
+                input[0] =[
+                file("${data_dir}" + "SPN_Sample_01_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_02_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_03_Assembly_ratio_20240124.tsv")
+                ]
                 """
             }
         }
@@ -24,7 +29,6 @@ nextflow_process {
                 { assert process.out.assembly_stats_tsv.size() == 1 }
             )
         }
-
     }
 
     test("Checking that output channel has appropriate contents") {
@@ -34,8 +38,13 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
+                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
                 """
-                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "/SPN_Sample_02_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "/SPN_Sample_03_Assembly_ratio_20240124.tsv")
+                ]
                 """
             }
         }
@@ -65,5 +74,4 @@ nextflow_process {
             )
         }
     }
-
 }
