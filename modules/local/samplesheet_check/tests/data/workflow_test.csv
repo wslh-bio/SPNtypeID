@@ -1,1 +1,5 @@
-/home/gunawaea/Documents/tools/testing_tools/work/stage-83b0a44e-cf14-4962-bb03-098f7ca9b949/52/14e66ee5481440d64a5273bd00ea20/workflow_test.csv
+sample,fastq_1,fastq_2
+NTC01,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R2.fastq.gz
+SPN_Sample_01,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_01_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_01_R2.fastq.gz
+SPN_Sample_02,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_02_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_02_R2.fastq.gz
+SPN_Sample_03,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_03_R1.fastq.gz,https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/SPN_Sample_03_R2.fastq.gz
