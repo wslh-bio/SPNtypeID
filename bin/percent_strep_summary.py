@@ -36,13 +36,13 @@ def main(args=None):
             self.pass_kraken = False
 
     logging.debug("Get list of result files")
-    kraken_list = glob.glob("data/*.kraken.txt")
+    kraken_list = glob.glob("data/*.kraken2.txt")
 
     results = {}
 
     logging.debug("Collecting all kraken results")
     for file in kraken_list:
-        id = file.split("/")[1].split(".kraken.txt")[0]
+        id = file.split("/")[1].split(".kraken2.txt")[0]
         result = result_values(id)
 
         with open(file,'r') as csvfile:
