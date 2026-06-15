@@ -1,9 +1,9 @@
 {
     "Checks that name of file is correct and has proper content": {
         "content": [
-            "544d1194e07b0971bf26415e82d7eac3"
+            "29d9eec2a418ceb6acefbf2dc5c76cc0"
         ],
-        "timestamp": "2026-06-05T15:05:14.929374614",
+        "timestamp": "2026-06-15T10:39:35.966797824",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
