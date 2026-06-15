@@ -18,7 +18,7 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
@@ -50,7 +50,7 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
@@ -78,7 +78,7 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
@@ -109,7 +109,7 @@ nextflow_process {
             process {
                 """
                 input[0] = null
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
