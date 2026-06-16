@@ -10,16 +10,6 @@ from functools import partial
 
 logging.basicConfig(level = logging.INFO, format = '%(levelname)s : %(message)s')
 
-def parse_args(args=None):
-	Description='A script to summarize stats'
-	Epilog='Use with quast_summary.py <MAXCONTIGS>'
-
-	parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
-	parser.add_argument('maxcontigs',
-	    help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
-	return parser.parse_args(args)
-
-logging.debug("Function for summarizing quast output")
 def summarize_quast(file, maxcontigs):
     logging.debug("Get sample id from file name and set up data list")
     sample_id = os.path.basename(file).split('.')[0]
@@ -53,25 +43,55 @@ def summarize_quast(file, maxcontigs):
 
     return df
 
-def main(args=None):
-    args = parse_args(args)
+def grab_files():
 
     logging.info("Obtaining all QUAST output files")
     files = glob.glob('data*/*.transposed.quast.report.tsv*')
 
-    summarize_quast_partial = partial(summarize_quast, maxcontigs=args.maxcontigs)
+    return files
+
+def summarize_output(files, maxcontigs):
+
+    summarize_quast_partial = partial(summarize_quast, maxcontigs=maxcontigs)
 
     logging.info("Summarizing quast output files")
     dfs = map(summarize_quast_partial,files)
     dfs = list(dfs)
 
+    return dfs
+
+def concatenate_dfs(dfs):
     logging.debug("Concatenate dfs and write data frame to file")
     if len(dfs) > 1:
         dfs_concat = pd.concat(dfs)
-        dfs_concat.to_csv(f'quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+        dfs_concat.to_csv('quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
     else:
         dfs = dfs[0]
-        dfs.to_csv(f'quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+        dfs.to_csv('quast_results.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+
+class QuastSummary(argparse.ArgumentParser):
+
+    def error(self, message):
+        self.print_help()
+        sys.stderr.write(f'\nERROR DETECTED: {message}\n')
+
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+
+    parser = QuastSummary(prog = "Compiles QUAST results",
+                          description='A script to summarize QUAST stats',
+                          epilog='Use with quast_summary.py <MAXCONTIGS>'
+                          )
+
+    parser.add_argument('maxcontigs',
+        help='This is supplied by the nextflow config and can be changed via the usual methods i.e. command line.')
+
+    logging.debug("Run parser to call arguments downstream")
+    args = parser.parse_args()
+
+    logging.info("Begin compiling all results for output file.")
+    files = grab_files()
+    dfs = summarize_output(files, args.maxcontigs)
+    concatenate_dfs(dfs)
+
