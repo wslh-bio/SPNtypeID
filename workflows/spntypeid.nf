@@ -45,7 +45,8 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { COUNT_FASTQ                    } from '../modules/local/count_fastq'
+include { COUNT_FASTQ                   } from '../modules/local/count_fastq'
+include { COUNT_FASTQ as COUNT_NTC      } from '../modules/local/count_fastq'
 include { REJECTED_SAMPLES              } from '../modules/local/rejected_samples'
 include { BBDUK                         } from '../modules/local/bbduk'
 include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
@@ -87,6 +88,7 @@ workflow SPNTYPEID {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
+
     INPUT_CHECK (
         ch_input
     )
@@ -106,6 +108,7 @@ workflow SPNTYPEID {
         }
         .set { ch_input_reads }
 
+    
     // Run Module: countFastq
     COUNT_FASTQ(
         ch_input_reads.sample
@@ -137,7 +140,7 @@ workflow SPNTYPEID {
         .map { meta, file, count1, count2 ->
             meta.id
             }
-        .set{ ch_failed}
+        .set{ ch_failed }
 
     // Collect 
     ch_failed
@@ -147,43 +150,63 @@ workflow SPNTYPEID {
                 newLine: true
             )
         .set{ ch_rejected_file }
+    
+
+    if (params.ntc_regex != null) {
+
+    // Run Module: countFastq
+        COUNT_NTC(
+            ch_input_reads.ntc
+        )
+        ch_ntc_csv = COUNT_NTC.out.csv
+                    .splitCsv(header: true)
+                    .join(ch_input_reads.ntc)
+                    .map { meta, csv, file ->
+                    def count1 = csv.count1 as Integer
+                    def count2 = csv.count2 as Integer
+                    tuple(meta, file, count1, count2)
+                    }
+
+        // Pass/fail based on read count of fastq files
+        ch_ntc_csv
+            .branch{ meta, file, count1, count2 ->
+                pass: count1 > 0 && count2 > 0
+                fail: count1 == 0 || count2 == 0 || count1 == 0 && count2 == 0
+            }
+            .set{ ch_ntc_paired_end }
+
+        ch_ntc_paired_end.pass
+            .map { meta, file, count1, count2 -> 
+                [meta, file]
+                }
+            .set{ ch_ntc_filtered }
+
+        ch_ntc_paired_end.fail
+            .map { meta, file, count1, count2 ->
+                meta.id
+                }
+            .set{ ch_ntc_failed }
+
+        ch_ntc_failed
+            .collect()
+            .ifEmpty("Empty")
+            .set { ch_empty_ntc }
+    }
+
+    if (params.ntc_regex == null)  {
+        ch_empty_ntc = Channel.value("Empty")
+    }
 
     REJECTED_SAMPLES (
         ch_rejected_file,
         "SPNTypeID"
     )
 
-    if (params.ntc_regex != null) {
-        ch_paired_end.fail
-            .map { meta, file, count1, count2 ->
-                [meta.id]
-                }
-            .set{ ch_ntc_check }
-
-        ch_ntc_check
-            .branch {
-                ntc: !!(it =~ params.ntc_regex)
-                sample: true
-            }
-            .set { ch_ntc_check }
-
-        ch_ntc_check.ntc
-            .map { it[0] }
-            .collect()
-            .flatten() // removing brackets from ch output
-            .ifEmpty("Empty")
-            .first()
-            .set { ch_empty_ntc }
-    } 
-    if (params.ntc_regex == null)  {
-        ch_empty_ntc = Channel.value("Empty")
-    }
-
     //
     // MODULE: BBDUK
     //
     BBDUK (
-        ch_input_reads.sample,
+        ch_filtered,
         params.contaminants
     )
     ch_versions = ch_versions.mix(BBDUK.out.versions.first())
@@ -295,7 +318,7 @@ workflow SPNTYPEID {
         // MODULE: KRAKEN_NTC
         // 
         KRAKEN_NTC (
-            ch_input_reads.ntc
+            ch_ntc_filtered
         )
     }
 
