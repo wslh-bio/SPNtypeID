@@ -31,7 +31,36 @@ nextflow_process {
         }
     }
 
-    test("Checking that output channel has appropriate contents") {
+    test("Checking that output channel has appropriate contents and contains proper samples.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "SPN_Sample_01_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_02_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_03_Assembly_ratio_20240124.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_01") },
+                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_02") },
+                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_03") },
+                { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
+                { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
+            )
+        }
+    }
+
+    test("Checking that lacking input fails module.") {
 
         when {
             params {
@@ -50,9 +79,8 @@ nextflow_process {
         }
 
         then {
-            assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match()
+            assert !process.success
         }
-
     }
 
     test("Checking that no input channel produces failure") {
