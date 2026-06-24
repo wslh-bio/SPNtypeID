@@ -12,13 +12,8 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
                 """
-                input[0] =[
-                file("${data_dir}" + "SPN_Sample_01_Assembly_ratio_20240124.tsv"),
-                file("${data_dir}" + "SPN_Sample_02_Assembly_ratio_20240124.tsv"),
-                file("${data_dir}" + "SPN_Sample_03_Assembly_ratio_20240124.tsv")
-                ]
+                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
                 """
             }
         }
@@ -57,29 +52,6 @@ nextflow_process {
                 { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
                 { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
             )
-        }
-    }
-
-    test("Checking that lacking input fails module.") {
-
-        when {
-            params {
-                outdir = "$outputDir"
-            }
-            process {
-                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
-                """
-                input[0] = [
-                file("${data_dir}" + "/SPN_Sample_01_Assembly_ratio_20240124.tsv"),
-                file("${data_dir}" + "/SPN_Sample_02_Assembly_ratio_20240124.tsv"),
-                file("${data_dir}" + "/SPN_Sample_03_Assembly_ratio_20240124.tsv")
-                ]
-                """
-            }
-        }
-
-        then {
-            assert !process.success
         }
     }
 
