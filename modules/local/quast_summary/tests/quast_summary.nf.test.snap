@@ -3,6 +3,16 @@
         "content": [
             "5041e155de535f719d014471e8a7b693"
         ],
+        "timestamp": "2026-06-09T14:00:46.679671964",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
+        }
+    },
+    "Should run without failures": {
+        "content": [
+            "5041e155de535f719d014471e8a7b693"
+        ],
         "timestamp": "2026-06-09T14:24:07.967828843",
         "meta": {
             "nf-test": "0.9.5",
