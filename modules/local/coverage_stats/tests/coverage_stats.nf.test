@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process COVERAGE_STATS"
     script "modules/local/coverage_stats/coverage_stats.nf"
     process "COVERAGE_STATS"
+    tag "module"
 
     test("Checking that output channels have proper amounts of files") {
 

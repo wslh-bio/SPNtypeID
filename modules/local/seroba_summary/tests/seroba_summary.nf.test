@@ -3,6 +3,7 @@ nextflow_process {
     name "Test Process SEROBA_SUMMARY"
     script "modules/local/seroba_summary/seroba_summary.nf"
     process "SEROBA_SUMMARY"
+    tag "module"
 
     test("Checks to see output channels have proper amounts of files") {
 
