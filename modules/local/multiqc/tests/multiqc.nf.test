@@ -4,7 +4,6 @@ nextflow_process {
     script "modules/local/multiqc/multiqc.nf"
     process "MULTIQC"
     tag "module"
-    tag "module"
 
     test("Checking that mandatory output channels have appropriate amount of values") {
 
@@ -34,7 +33,6 @@ nextflow_process {
                 { assert process.out.versions.size() == 1 },
                 { assert data_files.size() == 13 }
 
-            )
             )
         }
     }
@@ -99,12 +97,7 @@ nextflow_process {
                     path("$output_dir_data/multiqc_general_stats.txt").md5
                     ).match()
                 }
-                    ).match()
-                }
             )
         }
-
     }
-
-
 }
