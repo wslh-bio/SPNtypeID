@@ -12,7 +12,7 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/percent_strep_summary/tests/data"
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
                 """
                 input[0] = [
                 file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
@@ -41,7 +41,7 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/percent_strep_summary/tests/data"
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
                 """
                 input[0] = [
                 file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
@@ -70,7 +70,7 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/percent_strep_summary/tests/data"
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
                 """
                 input[0] = null
                 input[1] ="80.0"
