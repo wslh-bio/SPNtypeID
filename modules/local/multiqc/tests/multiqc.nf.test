@@ -60,7 +60,6 @@ nextflow_process {
             def pdf = file("$output_dir_plots/pdf").list().sort()
             def png = file("$output_dir_plots/png").list().sort()
             def svg = file("$output_dir_plots/svg").list().sort()
-            def svg = file("$output_dir_plots/svg").list().sort()
 
             assertAll(
                 { assert process.out.plots.size() == 1 },
