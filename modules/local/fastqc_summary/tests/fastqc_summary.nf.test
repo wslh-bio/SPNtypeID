@@ -56,6 +56,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert snapshot(path(process.out.fastqc_summary[0]).md5).match() },
+                { assert file(process.out.fastqc_summary[0]).name.endsWith(".tsv") },
                 { assert file(process.out.fastqc_summary[0]).name ==~ "fastqc_summary.tsv" }
             )
         }
