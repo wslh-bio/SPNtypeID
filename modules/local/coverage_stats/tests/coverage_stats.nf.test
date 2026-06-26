@@ -53,10 +53,12 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert path(process.out.coverage_tsv.get(0)).getText().contains("Average coverage < 40X") },
-                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_01") },
-                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_02") },
-                { assert path(process.out.coverage_tsv.get(0)).getText().contains("SPN_Sample_03") }
+                { assert file(process.out.coverage_tsv[0]).text.contains("Average coverage < 40X") },
+                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_01") },
+                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_02") },
+                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_03") },
+                { assert file(process.out.coverage_tsv[0]).name.endsWith(".tsv") },
+                { assert file(process.out.coverage_tsv[0]).name ==~ "coverage_stats.tsv" }
             )
         }
     }
