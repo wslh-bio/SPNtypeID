@@ -40,7 +40,7 @@ nextflow_process {
 
     }
 
-    test("Checking file contents to ensure proper processing") {
+    test("Checking file contents to ensure proper processing and headers for order confirmation") {
 
         when {
             params {
@@ -69,7 +69,9 @@ nextflow_process {
         then {
             assertAll(
                 { assert snapshot(path(process.out.result_csv[0]).md5).match() },
-                { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv" }
+                { assert file(process.out.result_csv[0]).name.endsWith ==~ ".csv" },
+                { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv" },
+                { assert file(process.out.result_csv[0]).text.contains("Sample,Run,Total Reads,Reads Removed,Median Read Quality,Average Read Quality,Contigs (#),N50,Assembly Length (bp),Ratio of Actual:Expected Genome Length,z-score,Median Coverage,Average Coverage,Percent Strep,Percent SPN,SecondGenus,Percent SecondGenus,Serotype,Kraken Database Version,Max NTC read,Max NTC SPN read,All NTC reads,All NTC SPN reads,SPNtypeID Version")}
             )
         }
     }
