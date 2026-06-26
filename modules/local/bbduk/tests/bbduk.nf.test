@@ -18,19 +18,12 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
 
         then {
-            // Poll for workflow.json to be fully written
-            def int maxWait = 120  // seconds
-            def int waited = 0
-            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
-                sleep(5000)
-                waited += 5
-            }
             assertAll(
                 { assert process.success },
                 { assert process.out.reads.size() == 1 },
@@ -57,18 +50,18 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
         then {
             // Poll for workflow.json to be fully written
-            def int maxWait = 120  // seconds
-            def int waited = 0
-            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
-                sleep(5000)
-                waited += 5
-            }
+            // def int maxWait = 120  // seconds
+            // def int waited = 0
+            // while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
+            //     sleep(5000)
+            //     waited += 5
+            // }
             assertAll (
 
                 { assert process.out.repaired_reads.size() == 1 },
@@ -92,18 +85,12 @@ nextflow_process {
                 [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
                 file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
                 ]
-                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/adapters.fa")
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
                 """
             }
         }
         then {
-            // Poll for workflow.json to be fully written
-            def int maxWait = 120  // seconds
-            def int waited = 0
-            while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
-                sleep(5000)
-                waited += 5
-            }
+
             assertAll(
                 {
                     with(process.out.reads) {
@@ -116,11 +103,12 @@ nextflow_process {
                     }
                 },
                 { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired") },
-                { assert path(process.out.bbduk_adapters.get(0)).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
+                { assert path(process.out.bbduk_adapters[0][1]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
                 { assert snapshot(path(process.out.versions[0]).md5).match() }
             )
         }
     }
+
     test("Checking that no input channel produces failure") {
 
         when {
