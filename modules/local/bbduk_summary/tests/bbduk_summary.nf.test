@@ -36,14 +36,18 @@ nextflow_process {
             }
             process {
                 """
-                // define inputs of the process here. Example:
                 input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
                 """
             }
         }
 
         then {
-            assert snapshot(path(process.out.bbduk_tsv[0]).md5).match()
+            assertAll(
+                { assert file(process.out.bbduk_tsv[0]).name.endsWith(".tsv") },
+                { assert file(process.out.bbduk_tsv[0]).name ==~ "bbduk_results.tsv" },
+                { assert file(process.out.bbduk_tsv[0]).text.contains("Sample\tTotal Reads\tReads Removed\n") },
+                { assert snapshot(path(process.out.bbduk_tsv[0]).md5).match() }
+            )
         }
 
     }
