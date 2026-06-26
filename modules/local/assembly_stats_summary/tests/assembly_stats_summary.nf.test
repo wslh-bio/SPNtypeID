@@ -49,6 +49,7 @@ nextflow_process {
                 { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_01") },
                 { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_02") },
                 { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_03") },
+                { assert file(process.out.assembly_stats_tsv[0]).name.endsWith(".tsv") },
                 { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
                 { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
             )
