@@ -48,7 +48,11 @@ nextflow_process {
         }
 
         then {
-            assert snapshot(path(process.out.assembly_ratio[0]).md5).match()
+            assertAll(
+                { assert snapshot(path(process.out.assembly_ratio[0]).md5).match() },
+                { assert file(process.out.assembly_ratio[0]).name.endsWith("tsv") },
+                { assert file(process.out.assembly_ratio[0]).name ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv" }
+            )
         }
     }
 
