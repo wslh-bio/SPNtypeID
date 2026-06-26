@@ -1,5 +1,5 @@
 {
-    "Checking snapshot": {
+    "Checking file contents to ensure proper processing.": {
         "content": [
             {
                 "0": [
@@ -16,7 +16,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-06-04T09:53:45.949992755",
+        "timestamp": "2026-06-26T14:24:37.364579978",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
