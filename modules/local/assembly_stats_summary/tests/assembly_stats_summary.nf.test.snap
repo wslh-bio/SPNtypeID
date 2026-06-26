@@ -1,9 +1,9 @@
 {
     "Checking that output channel has appropriate contents and contains proper samples.": {
         "content": [
-            "b0d8bc3f0cf3f31daa27e8e1cfe5749a"
+            "fc8c5e1a88fad224c5a894fc5de7a64e"
         ],
-        "timestamp": "2026-06-23T15:43:15.813303719",
+        "timestamp": "2026-06-26T10:59:19.187979849",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
