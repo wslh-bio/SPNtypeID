@@ -55,15 +55,8 @@ nextflow_process {
             }
         }
         then {
-            // Poll for workflow.json to be fully written
-            // def int maxWait = 120  // seconds
-            // def int waited = 0
-            // while (!file("${launchDir}/workflow.json").exists() && waited < maxWait) {
-            //     sleep(5000)
-            //     waited += 5
-            // }
-            assertAll (
 
+            assertAll (
                 { assert process.out.repaired_reads.size() == 1 },
                 { assert process.out.singletons.size() == 1 },
                 { assert process.out.repaired_log.size() == 1 }
@@ -92,6 +85,11 @@ nextflow_process {
         then {
 
             assertAll(
+                { assert file(process.out.reads[0][1][0]).name.contains("trimmed") },
+                { assert file(process.out.reads[0][1][1]).name.contains("trimmed") },
+                { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired") },
+                { assert path(process.out.bbduk_adapters[0]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
+                { assert snapshot(path(process.out.versions[0]).md5).match() },
                 {
                     with(process.out.reads) {
                         with(get(0)) {
@@ -101,10 +99,7 @@ nextflow_process {
                             }
                         }
                     }
-                },
-                { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired") },
-                { assert path(process.out.bbduk_adapters[0][1]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
-                { assert snapshot(path(process.out.versions[0]).md5).match() }
+                }
             )
         }
     }
