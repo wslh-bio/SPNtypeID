@@ -130,6 +130,7 @@ workflow SPNTYPEID {
         }
         .set{ ch_paired_end }
 
+
     ch_paired_end.pass
         .map { meta, file, count1, count2 -> 
             [meta, file]
@@ -286,7 +287,7 @@ workflow SPNTYPEID {
     // MODULE: BIOAWK
     //
     BIOAWK (
-        ch_input_reads.sample
+        ch_filtered
     )
     ch_versions = ch_versions.mix(BIOAWK.out.versions.first())
 
@@ -302,7 +303,7 @@ workflow SPNTYPEID {
     // MODULE: KRAKEN_SAMPLE
     //
     KRAKEN_SAMPLE (
-        ch_input_reads.sample
+        ch_filtered
     )
     ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
 
@@ -326,7 +327,7 @@ workflow SPNTYPEID {
     // MODULE: SEROBA
     //
     SEROBA (
-        ch_input_reads.sample
+        ch_filtered
     )
     ch_versions = ch_versions.mix(SEROBA.out.versions.first())
 
