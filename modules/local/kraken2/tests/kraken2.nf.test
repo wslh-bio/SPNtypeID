@@ -24,11 +24,14 @@ nextflow_process {
         }
 
         then {
-            assertAll{
-                { assert process.success }
-                { assert process.out.kraken_results.size() == 1}
-                { assert process.out.versions.size() == 1}
-            }
+            assertAll (
+                { assert process.success },
+                { assert process.out.kraken_results.size() == 1 },
+                { assert process.out.versions.size() == 1 },
+                { assert file(process.out.kraken_results[0][1]).name.endsWith(".txt") },
+                { assert file(process.out.versions[0]).name.endsWith(".yml") }
+
+            )
         }
     }
 
@@ -51,7 +54,10 @@ nextflow_process {
         }
 
         then {
-            assert process.out.log.size() == 1
+            assertAll (
+                { assert process.out.log.size() == 1 },
+                { assert file(process.out.log[0]).name.endsWith(".log") }
+            )
         }
     }
 
