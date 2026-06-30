@@ -49,6 +49,8 @@ nextflow_process {
 
         then {
             assertAll(
+                { assert file(process.out.zip[0][1][0]).name.endsWith("zip") },
+                { assert file(process.out.zip[0][1][1]).name.endsWith("zip") },
                 {
                     with(process.out.zip) {
                         with (get(0)) {
@@ -59,6 +61,8 @@ nextflow_process {
                         }
                     }
                 },
+                { assert file(process.out.html[0][1][0]).name.endsWith("html") },
+                { assert file(process.out.html[0][1][1]).name.endsWith("html") },
                 {
                     with(process.out.html) {
                         with (get(0)) {
