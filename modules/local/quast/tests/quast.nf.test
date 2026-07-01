@@ -22,8 +22,12 @@ nextflow_process {
             assertAll (
                 { assert process.success },
                 { assert process.out.transposed_report.size() == 1 },
+                { assert file(process.out.transposed_report[0][1]).name.endsWith("tsv") },
                 { assert process.out.result.size() == 1 },
-                { assert process.out.versions.size() == 1 }
+                { assert file(process.out.result[0]).name.endsWith("tsv") },
+                { assert process.out.versions.size() == 1 },
+                { assert file(process.out.versions[0]).name.endsWith("yml") }
+
 
 
             )
@@ -44,7 +48,11 @@ nextflow_process {
 
         then {
             assertAll (
-                { assert snapshot(process.out.transposed_report[2],process.out.result[0]).match() }
+                { assert snapshot(
+                    path(process.out.transposed_report[0][1]).md5,
+                    path(process.out.result[0]).md5
+                    ).match()
+                }
             )
         }
     }

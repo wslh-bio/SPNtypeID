@@ -77,6 +77,11 @@ nextflow_process {
         then {
             def output_dir_shovill = "$outputDir/shovill/test_shovill_output"
             assertAll(
+                { assert file(process.out.versions[0]).name.endsWith("yml") },
+                { assert file(process.out.contigs[0][1]).name.endsWith("fa") },
+                { assert file(process.out.sam_files[0][1]).name.endsWith("sam") },
+                { assert file(process.out.corrections[0][1]).name.endsWith("corrections") },
+                { assert file(process.out.log[0][1]).name.endsWith("log") },
                 { assert snapshot(
                     path(process.out.versions[0]).md5,
                     path("$output_dir_shovill/contigs.gfa").md5,

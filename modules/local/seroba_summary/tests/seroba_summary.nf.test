@@ -52,6 +52,7 @@ nextflow_process {
 
         then {
             assertAll(
+                { assert file(process.out.seroba_tsv[0]).name.endsWith("tsv") },
                 { assert file(process.out.seroba_tsv[0]).name ==~ "seroba_results.tsv" },
                 { assert path(process.out.seroba_tsv[0]).getText().contains("Sample	Serotype	SeroBA Comments") }
             )
