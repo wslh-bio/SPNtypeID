@@ -126,7 +126,7 @@ workflow SPNTYPEID {
     ch_csv
         .branch{ meta, file, count1, count2 ->
             pass: count1 > params.readcount_cutoff && count2 > params.readcount_cutoff
-            fail: count1 == params.readcount_cutoff || count2 == params.readcount_cutoff || count1 == params.readcount_cutoff && count2 == params.readcount_cutoff
+            fail: count1 <= params.readcount_cutoff || count2 <= params.readcount_cutoff || count1 <= params.readcount_cutoff && count2 <= params.readcount_cutoff
         }
         .set{ ch_paired_end }
 
