@@ -26,11 +26,12 @@ nextflow_process {
             assertAll (
                 { assert process.success },
                 { assert process.out.qual_results.size()==1 },
+                { assert process.success },
+                { assert process.out.qual_results.size()==1 },
                 { assert process.out.versions.size()==1 }
             )
         }
     }
-
 
     test("Checking file contents to ensure proper processing.") {
 

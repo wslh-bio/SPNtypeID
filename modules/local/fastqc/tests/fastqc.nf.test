@@ -30,7 +30,6 @@ nextflow_process {
                 { assert process.out.versions.size() == 1 }
             )
         }
-
     }
 
     test("Checking outputs names") {
