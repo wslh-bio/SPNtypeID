@@ -49,6 +49,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | Parameter  | Parameter description and default |
 | ------------- | ------------- |
 | contaminants  | Path to fasta of contaminants for removal, defaults to BBDuk's adapters fasta |
+| countfastq_cutoff | Sets the cut-off value for number of reads a sample needs to be analyzed (default: 0) |
 | maxcontigs | Set the maximum number of contigs allowed in an assembly (default: 300) |
 | maxpctother  | Sets the maximum percentage of reads from other organisms (default: 1.0) |
 | minavgreadq | Sets the minimum average read quality score (default: 30) |
