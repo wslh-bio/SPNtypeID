@@ -17,9 +17,23 @@ nextflow_pipeline {
 
         then {
 
+
+            // stable_name: All files + folders in ${params.outdir}/ with a stable name
+            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+
+            // stable_path: All files in ${params.outdir}/ with stable content
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
+                        path("${params.outdir}/pipeline_info/software_versions.yml").md5,
+                        workflow.trace.succeeded().size(),
+                        removeNextflowVersion("$outputDir/pipeline_info/software_versions.yml"),
+                        // All stable path name, with a relative path
+                        stable_name,
+                        // All files with stable contents
+                        stable_path
                         path("${params.outdir}/pipeline_info/software_versions.yml").md5,
                         path("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").md5
                     ).match()
