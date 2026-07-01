@@ -1,13 +1,13 @@
 {
     "Checking file contents to ensure proper processing.": {
         "content": [
-            null,
-            "test.quast.report.tsv:md5,dce0cf7fa252fdcc9f42b7ac54497a03"
+            "e8f5c369f8f4643ef3f5d03d67f35672",
+            "dce0cf7fa252fdcc9f42b7ac54497a03"
         ],
-        "timestamp": "2026-03-11T16:01:56.433669436",
+        "timestamp": "2026-06-30T13:56:22.120469261",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
         }
     }
 }

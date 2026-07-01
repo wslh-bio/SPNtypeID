@@ -2,6 +2,7 @@ nextflow_pipeline {
 
     name "Test Workflow main.nf"
     script "../main.nf"
+    tag "pipeline"
 
     test("-profile test_full") {
 
@@ -15,10 +16,12 @@ nextflow_pipeline {
         }
 
         then {
+
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
-                        path("${params.outdir}/pipeline_info/software_versions.yml").md5
+                        path("${params.outdir}/pipeline_info/software_versions.yml").md5,
+                        path("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").md5
                     ).match()
                 },
                 { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists() },
@@ -27,10 +30,8 @@ nextflow_pipeline {
                 { assert file("${params.outdir}/quality_stats/quality_stats.tsv").exists() },
                 { assert file("${params.outdir}/quast_summary/quast_results.tsv").exists() },
                 { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists() }
-
             )
         }
-
     }
 }
 

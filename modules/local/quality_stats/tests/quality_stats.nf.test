@@ -54,6 +54,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert snapshot(path(process.out.quality_tsv[0]).md5).match() },
+                { assert file(process.out.quality_tsv[0]).name.endsWith("tsv") },
                 { assert file(process.out.quality_tsv[0]).name ==~ "quality_stats.tsv" }
             )
         }

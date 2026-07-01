@@ -1,12 +1,15 @@
 {
     "-profile test_full": {
         "content": [
-            "5187051fd686ad6453cc11b046757574"
+            "89cee4a96e8c1ad9d9564acf632f6255",
+            "29d9eec2a418ceb6acefbf2dc5c76cc0",
+            "cba766121f8000cd2b6d452ee903db24",
+            "2d6e05162cee7875ce8ec8f3c4380112"
         ],
-        "timestamp": "2026-05-29T13:31:55.835131573",
+        "timestamp": "2026-06-30T14:01:34.487274701",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "25.10.4"
+            "nextflow": "25.10.5"
         }
     }
 }

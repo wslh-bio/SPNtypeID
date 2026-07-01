@@ -49,12 +49,19 @@ nextflow_process {
         }
 
         then {
-            { assert snapshot(
-                path(process.out.sorted_bam[0]).md5,
-                path(process.out.cov_files[0]).md5,
-                path(process.out.stats_multiqc[0]).md5
-                )
-            }
+            assertAll(
+                { assert snapshot(
+                    path(process.out.sorted_bam[0]).md5,
+                    path(process.out.cov_files[0]).md5,
+                    path(process.out.stats_multiqc[0]).md5,
+                    path(process.out.versions[0]).md5
+                    ).match()
+                },
+                { assert file(process.out.sorted_bam[0]).name.endsWith("bam") },
+                { assert file(process.out.cov_files[0]).name.endsWith("depth.tsv") },
+                { assert file(process.out.stats_multiqc[0]).name.endsWith("stats.txt") },
+                { assert file(process.out.versions[0]).name.endsWith("yml") }
+            )
         }
     }
 
