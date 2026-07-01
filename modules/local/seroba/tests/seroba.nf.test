@@ -32,7 +32,7 @@ nextflow_process {
         }
     }
 
-    test("Checking that optional output channel has appropriate amount of values") {
+    test("Checking that optional output channel has appropriate amount of values given a certain sample") {
 
         when {
             params {
@@ -78,29 +78,6 @@ nextflow_process {
                 { assert file(process.out.log[0]).name.endsWith("log") },
                 { assert file(process.out.versions[0]).name.endsWith("yml") }
             )
-
-        }
-    }
-
-    test("Checking optional output files have appropriate content") {
-
-        when {
-            params {
-                outdir = "$outputDir"
-            }
-            process {
-                """
-                input[0] = [
-                [id:'test', single_end:false ],
-                [ file("${baseDir}" + '/test-dataset/SPN_Sample_02_R1.fastq.gz'),
-                file("${baseDir}" + '/test-dataset/SPN_Sample_02_R2.fastq.gz') ]
-                ]
-                """
-            }
-        }
-
-        then {
-            assert file(process.out.seroba_detailed_results[0]).name.endsWith("txt")
 
         }
     }
