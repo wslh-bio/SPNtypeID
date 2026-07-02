@@ -40,7 +40,7 @@ dfs = list(dfs)
 
 if len(dfs) > 1:
     dfs_concat = pd.concat(dfs)
-    dfs_concat.to_csv(f'assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+    dfs_concat.to_csv('assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
 else:
     dfs = dfs[0]
-    dfs.to_csv(f'assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
+    dfs.to_csv('assembly_stats_results_summary.tsv',sep='\t', index=False, header=True, na_rep='NaN')
