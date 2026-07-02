@@ -1,9 +1,9 @@
 {
-    "Checking file contents to ensure proper processing": {
+    "Checking file contents to ensure proper processing and headers for order confirmation": {
         "content": [
-            "10a13e66962a22db6da9e3e8c57018e2"
+            "257d3a52df0511a87bff6824ee76d65f"
         ],
-        "timestamp": "2026-06-04T11:46:56.600432816",
+        "timestamp": "2026-07-02T08:52:01.722777627",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"

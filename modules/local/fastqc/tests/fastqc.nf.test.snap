@@ -1,9 +1,9 @@
 {
     "Checking snapshot contents": {
         "content": [
-            "versions.yml:md5,f8c08de9801b5e597694fc72223acaca"
+            "f8c08de9801b5e597694fc72223acaca"
         ],
-        "timestamp": "2026-06-04T15:55:36.138638689",
+        "timestamp": "2026-07-02T09:10:38.683008679",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
