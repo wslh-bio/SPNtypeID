@@ -18,29 +18,41 @@ nextflow_pipeline {
         then {
 
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
-            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stable_name = getAllFilesFromDir(
+                                                params.outdir,
+                                                relative: true,
+                                                includeDir: true,
+                                                ignore: ['pipeline_info/*.{html,json,txt}']
+                                                )
 
             // stable_path: All files in ${params.outdir}/ with stable content
-            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'modules/.nftignore')
+            def stable_path = getAllFilesFromDir(
+                                                params.outdir,
+                                                includeDir: false,
+                                                ignore: ['pipeline_info/execution_*.{html,txt}'],
+                                                ignoreFile: 'tests/.nftignore'
+                                                )
 
             assertAll(
                 { assert workflow.success},
-                { assert snapshot(
-                        path("${params.outdir}/pipeline_info/software_versions.yml").md5,
-                        workflow.trace.succeeded().size(),
-                        removeNextflowVersion("$outputDir/pipeline_info/software_versions.yml"),
-                        // All stable path name, with a relative path
-                        stable_name,
-                        // All files with stable contents
-                        stable_path
-                    ).match()
-                },
                 { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists() },
                 { assert file("${params.outdir}/report_with_ntc/test_spntypeid_report.csv").exists() },
                 { assert file("${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv").exists() },
                 { assert file("${params.outdir}/quality_stats/quality_stats.tsv").exists() },
                 { assert file("${params.outdir}/quast_summary/quast_results.tsv").exists() },
-                { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists() }
+                { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists() },
+                { assert snapshot(
+                        workflow.trace.succeeded().size(),
+                        removeNextflowVersion("$outputDir/pipeline_info/software_versions.yml"),
+
+                        // All stable path name, with a relative path
+                        stable_name,
+
+                        // All files with stable contents
+                        stable_path
+
+                    ).match()
+                }
             )
         }
     }
