@@ -26,6 +26,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.seroba_tsv.size() == 1 }
             )
         }

@@ -25,6 +25,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.html[0][1].size() == 2 },
                 { assert process.out.zip[0][1].size() == 2 },
                 { assert process.out.versions.size() == 1 }
@@ -92,12 +93,12 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert snapshot(file(process.out.versions[0])).match() }
+                { assert snapshot(path(process.out.versions[0]).md5).match() }
             )
         }
     }
 
-        test('Checking that no input channel produces failure') {
+    test('Checking that no input channel produces failure') {
 
         when {
             process {

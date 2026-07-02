@@ -21,6 +21,7 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.transposed_report.size() == 1 },
                 { assert file(process.out.transposed_report[0][1]).name.endsWith("tsv") },
                 { assert process.out.result.size() == 1 },

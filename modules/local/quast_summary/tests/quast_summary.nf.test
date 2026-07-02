@@ -27,6 +27,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.quast_tsv.size() == 1 }
             )
         }
@@ -78,7 +79,7 @@ nextflow_process {
         }
     }
 
-    test("Checking that no other channel produces failure?") {
+    test("Checking that no maxcontigs channel produces failure") {
 
         when {
             params {

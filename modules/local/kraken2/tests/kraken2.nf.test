@@ -26,6 +26,7 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.kraken_results.size() == 1 },
                 { assert process.out.versions.size() == 1 },
                 { assert file(process.out.kraken_results[0][1]).name.endsWith(".txt") },

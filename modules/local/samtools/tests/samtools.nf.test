@@ -24,6 +24,7 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.cov_files.size() == 1 },
                 { assert process.out.stats_multiqc.size() == 1 },
                 { assert process.out.sorted_bam.size() == 1 },

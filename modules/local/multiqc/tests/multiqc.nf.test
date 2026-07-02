@@ -28,6 +28,7 @@ nextflow_process {
 
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.report.size() == 1 },
                 { assert process.out.data.size() == 1 },
                 { assert process.out.versions.size() == 1 },
@@ -91,7 +92,6 @@ nextflow_process {
             def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
             assertAll(
                 { assert snapshot(
-                    path("$output_dir_data/multiqc_fastqc.txt").md5,
                     path("$output_dir_data/multiqc_fastqc.txt").md5,
                     path("$output_dir_data/multiqc_general_stats.txt").md5
                     ).match()

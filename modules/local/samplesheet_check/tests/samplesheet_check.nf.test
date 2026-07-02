@@ -22,6 +22,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.csv.size() == 1 },
                 { assert process.out.versions.size() == 1 }
             )

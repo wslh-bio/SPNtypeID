@@ -21,6 +21,7 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.assembly_stats_tsv.size() == 1 }
             )
         }
