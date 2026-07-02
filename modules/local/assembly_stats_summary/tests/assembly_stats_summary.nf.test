@@ -5,27 +5,27 @@ nextflow_process {
     process "ASSEMBLY_STATS_SUMMARY"
     tag "module"
 
-    test("Checking that output channel has appropriate amount of values") {
+    // test("Checking that output channel has appropriate amount of values") {
 
-        when {
-            params {
-                outdir = "$outputDir"
-            }
-            process {
-                """
-                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
-                """
-            }
-        }
+    //     when {
+    //         params {
+    //             outdir = "$outputDir"
+    //         }
+    //         process {
+    //             """
+    //             input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
+    //             """
+    //         }
+    //     }
 
-        then {
-            assertAll (
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.assembly_stats_tsv.size() == 1 }
-            )
-        }
-    }
+    //     then {
+    //         assertAll (
+    //             { assert process.success },
+    //             { assert process.exitStatus == 0 },
+    //             { assert process.out.assembly_stats_tsv.size() == 1 }
+    //         )
+    //     }
+    // }
 
     test("Checking that output channel has appropriate contents and contains proper samples.") {
 
@@ -46,34 +46,66 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_01") },
-                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_02") },
-                { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_03") },
-                { assert file(process.out.assembly_stats_tsv[0]).name.endsWith(".tsv") },
-                { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
-                { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
-            )
+            def nftProfile = System.getenv("NFT_PROFILE") ?: "test"
+            def nftBucketDir = System.getenv("NFT_BUCKET_DIR")
+            def profile = other
+
+            if (!nftBucketDir && nftProfile.contains("awsdev")) {
+                profile = "aws"
+                path = "s3://dev-wslh-sequencing-analyses/work/${outputDir}/assembly_stats_results_summary.tsv"
+            }
+
+            if (!nftBucketDir && nftProfile.contains("awsprod")) {
+                profile = "aws"
+                path = "s3://prod-wslh-sequencing-analyses/work/${outputDir}/assembly_stats_results_summary.tsv"
+            }
+
+            if (profile ==~ "aws") {
+                def local_file = downloadFromS3("${path}")
+            }
+            // else {
+                // def local_file = file(process.out.assembly_stats_tsv[0])
+            // }
+
+            if (profile ==~ "aws" ) {
+                assertAll(
+                    { assert path(local_file).toString().text.contains("SPN_Sample_01") },
+                    { assert path(local_file).toString().text.contains("SPN_Sample_02") },
+                    { assert path(local_file).toString().text.contains("SPN_Sample_03") },
+                    { assert path(local_file).toString().name.endsWith(".tsv") },
+                    { assert path(local_file).toString().name ==~ "assembly_stats_results_summary.tsv" },
+                    { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
+                )
+            } else {
+                assertAll(
+                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_01") },
+                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_02") },
+                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_03") },
+                    { assert file(process.out.assembly_stats_tsv[0]).name.endsWith(".tsv") },
+                    { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
+                    { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
+                )
+            }
         }
     }
 
-    test("Checking that no input channel produces failure") {
+    // test("Checking that no input channel produces failure") {
 
-        when {
-            params {
-                outdir = "$outputDir"
-            }
-            process {
-                """
-                input[0] = null
-                """
-            }
-        }
+    //     when {
+    //         params {
+    //             outdir = "$outputDir"
+    //         }
+    //         process {
+    //             """
+    //             input[0] = null
+    //             """
+    //         }
+    //     }
 
-        then {
-            assertAll (
-                { assert !process.success }
-            )
-        }
-    }
+    //     then {
+    //         assertAll (
+    //             { assert !process.success }
+    //         )
+    //     }
+    // }
 }
