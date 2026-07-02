@@ -26,10 +26,10 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.kraken_tsv.size() == 1 }
             )
         }
-
     }
 
     test("Checking file contents to ensure proper processing") {
@@ -53,7 +53,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert snapshot(path(process.out.kraken_tsv[0]).md5).match() },
-                { assert file(process.out.kraken_tsv[0]).name.endsWith "tsv" },
+                { assert file(process.out.kraken_tsv[0]).name.endsWith("tsv") },
                 { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
             )
         }

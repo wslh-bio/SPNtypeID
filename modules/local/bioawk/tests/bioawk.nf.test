@@ -25,6 +25,7 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.success },
+                { assert process.exitStatus == 0 },
                 { assert process.out.qual_results.size()==1 },
                 { assert process.success },
                 { assert process.out.qual_results.size()==1 },
@@ -54,8 +55,8 @@ nextflow_process {
             assertAll(
 
                 { assert snapshot(process.out).match() },
-                { assert file(process.out.qual_results[0]).name ==~ "test.qual.tsv" },
-                { assert file(process.out.qual_results[0]).name.endsWith("tsv") }
+                { assert file(process.out.qual_results[0]).name.endsWith("tsv") },
+                { assert file(process.out.qual_results[0]).name ==~ "test.qual.tsv" }
             )
         }
     }
