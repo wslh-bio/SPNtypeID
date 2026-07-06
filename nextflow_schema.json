@@ -56,7 +56,7 @@
                     "description": "Set the run name.",
                     "fa_icon": "fas fa-cog"
                 },
-                "countfastq_cutoff": {
+                "readcount_cutoff": {
                     "type": "integer",
                     "default": 0,
                     "description": "Cut-off value for number of reads a sample needs to be analyzed.",
