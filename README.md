@@ -58,6 +58,7 @@ SPNTypeID's main parameters and their defaults are shown in the table below:
 | minpctstrep | Sets the minimum percentage of reads that must be Streptococcus (default: 80.0) |
 | ntc_regex | Regex pattern for identifying no template control (NTC) files. This is a mandatory parameter if a run has an NTC. (default: null) |
 | qualitytrimscore | Sets the BBDuk trimming quality score value (default: 10) |
+| readcount_cutoff | Sets the cut-off value for number of reads a sample needs to be analyzed (default: 0) |
 | trimdirection | Sets the BBDuk trimming direction (default: 'lr') |
 
 ### Workflow outline
