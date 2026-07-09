@@ -25,11 +25,14 @@ nextflow_process {
 
         then {
 
-            if ( System.getenv("NFT_PROFILE")?.contains("aws") ) {
+            def outFile = process.out.assembly_stats_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
 
                 def combined = "s3:/" + outFile.toString()
                 def localFile = downloadFromS3(combined)
-
+                def environmental = System.getenv("NFT_PROFILE")
+                println environmental
                 assertAll(
                     { assert localFile.text.contains("SPN_Sample_01") },
                     { assert localFile.text.contains("SPN_Sample_02") },
@@ -38,9 +41,6 @@ nextflow_process {
                     { assert localFile.toString().split('/')[-1] ==~ "assembly_stats_results_summary.tsv" }
                 )
             } else {
-
-                def outFile = process.out.assembly_stats_tsv[0]
-
                 assertAll(
                     { assert file(outFile).text.contains("SPN_Sample_01") },
                     { assert file(outFile).text.contains("SPN_Sample_02") },
