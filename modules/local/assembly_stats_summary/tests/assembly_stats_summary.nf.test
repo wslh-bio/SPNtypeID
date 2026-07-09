@@ -5,28 +5,6 @@ nextflow_process {
     process "ASSEMBLY_STATS_SUMMARY"
     tag "module"
 
-    // test("Checking that output channel has appropriate amount of values") {
-
-    //     when {
-    //         params {
-    //             outdir = "$outputDir"
-    //         }
-    //         process {
-    //             """
-    //             input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
-    //             """
-    //         }
-    //     }
-
-    //     then {
-    //         assertAll (
-    //             { assert process.success },
-    //             { assert process.exitStatus == 0 },
-    //             { assert process.out.assembly_stats_tsv.size() == 1 }
-    //         )
-    //     }
-    // }
-
     test("Checking that output channel has appropriate contents and contains proper samples.") {
 
         when {
@@ -46,66 +24,72 @@ nextflow_process {
         }
 
         then {
-            def nftProfile = System.getenv("NFT_PROFILE") ?: "test"
-            def nftBucketDir = System.getenv("NFT_BUCKET_DIR")
-            def profile = other
 
-            if (!nftBucketDir && nftProfile.contains("awsdev")) {
-                profile = "aws"
-                path = "s3://dev-wslh-sequencing-analyses/work/${outputDir}/assembly_stats_results_summary.tsv"
-            }
+            if ( System.getenv("NFT_PROFILE")?.contains("aws") ) {
 
-            if (!nftBucketDir && nftProfile.contains("awsprod")) {
-                profile = "aws"
-                path = "s3://prod-wslh-sequencing-analyses/work/${outputDir}/assembly_stats_results_summary.tsv"
-            }
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
 
-            if (profile ==~ "aws") {
-                def local_file = downloadFromS3("${path}")
-            }
-            // else {
-                // def local_file = file(process.out.assembly_stats_tsv[0])
-            // }
-
-            if (profile ==~ "aws" ) {
                 assertAll(
-                    { assert path(local_file).toString().text.contains("SPN_Sample_01") },
-                    { assert path(local_file).toString().text.contains("SPN_Sample_02") },
-                    { assert path(local_file).toString().text.contains("SPN_Sample_03") },
-                    { assert path(local_file).toString().name.endsWith(".tsv") },
-                    { assert path(local_file).toString().name ==~ "assembly_stats_results_summary.tsv" },
-                    { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
+                    { assert localFile.text.contains("SPN_Sample_01") },
+                    { assert localFile.text.contains("SPN_Sample_02") },
+                    { assert localFile.text.contains("SPN_Sample_03") },
+                    { assert localFile.toString().endsWith(".tsv") },
+                    { assert localFile.toString().split('/')[-1] ==~ "assembly_stats_results_summary.tsv" }
                 )
             } else {
+
+                def outFile = process.out.assembly_stats_tsv[0]
+
                 assertAll(
-                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_01") },
-                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_02") },
-                    { assert file(process.out.assembly_stats_tsv[0]).text.contains("SPN_Sample_03") },
-                    { assert file(process.out.assembly_stats_tsv[0]).name.endsWith(".tsv") },
-                    { assert file(process.out.assembly_stats_tsv[0]).name ==~ "assembly_stats_results_summary.tsv" },
-                    { assert snapshot(path(process.out.assembly_stats_tsv[0]).md5).match() }
+                    { assert file(outFile).text.contains("SPN_Sample_01") },
+                    { assert file(outFile).text.contains("SPN_Sample_02") },
+                    { assert file(outFile).text.contains("SPN_Sample_03") },
+                    { assert file(outFile).name.endsWith(".tsv") },
+                    { assert file(outFile).name ==~ "assembly_stats_results_summary.tsv" },
+                    { assert snapshot(path(outFile).md5).match() }
                 )
             }
         }
     }
 
-    // test("Checking that no input channel produces failure") {
+    test("Checking that output channel has appropriate amount of values") {
 
-    //     when {
-    //         params {
-    //             outdir = "$outputDir"
-    //         }
-    //         process {
-    //             """
-    //             input[0] = null
-    //             """
-    //         }
-    //     }
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
+                """
+            }
+        }
 
-    //     then {
-    //         assertAll (
-    //             { assert !process.success }
-    //         )
-    //     }
-    // }
+        then {
+            assertAll (
+                { assert process.success },
+                { assert process.exitStatus == 0 },
+                { assert process.out.assembly_stats_tsv.size() == 1 }
+            )
+        }
+    }
+
+    test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            { assert !process.success }
+        }
+    }
 }
