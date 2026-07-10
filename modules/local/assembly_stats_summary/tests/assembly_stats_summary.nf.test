@@ -31,23 +31,22 @@ nextflow_process {
 
                 def combined = "s3:/" + outFile.toString()
                 def localFile = downloadFromS3(combined)
-                def environmental = System.getenv("NFT_PROFILE")
-                println environmental
+
                 assertAll(
-                    { assert localFile.text.contains("SPN_Sample_01") },
-                    { assert localFile.text.contains("SPN_Sample_02") },
-                    { assert localFile.text.contains("SPN_Sample_03") },
-                    { assert localFile.toString().endsWith(".tsv") },
+                    { assert localFile.text.contains("SPN_Sample_01")                                     },
+                    { assert localFile.text.contains("SPN_Sample_02")                                     },
+                    { assert localFile.text.contains("SPN_Sample_03")                                     },
+                    { assert localFile.toString().endsWith(".tsv")                                        },
                     { assert localFile.toString().split('/')[-1] ==~ "assembly_stats_results_summary.tsv" }
                 )
             } else {
                 assertAll(
-                    { assert file(outFile).text.contains("SPN_Sample_01") },
-                    { assert file(outFile).text.contains("SPN_Sample_02") },
-                    { assert file(outFile).text.contains("SPN_Sample_03") },
-                    { assert file(outFile).name.endsWith(".tsv") },
-                    { assert file(outFile).name ==~ "assembly_stats_results_summary.tsv" },
-                    { assert snapshot(path(outFile).md5).match() }
+                    { assert file(outFile).text.contains("SPN_Sample_01")                   },
+                    { assert file(outFile).text.contains("SPN_Sample_02")                   },
+                    { assert file(outFile).text.contains("SPN_Sample_03")                   },
+                    { assert file(outFile).name.endsWith(".tsv")                            },
+                    { assert file(outFile).name ==~ "assembly_stats_results_summary.tsv"    },
+                    { assert snapshot(path(outFile).md5).match()                            }
                 )
             }
         }

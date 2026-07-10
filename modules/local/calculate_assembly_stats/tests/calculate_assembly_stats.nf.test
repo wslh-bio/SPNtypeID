@@ -49,11 +49,24 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.assembly_ratio[0]).md5).match() },
-                { assert file(process.out.assembly_ratio[0]).name.endsWith("tsv") },
-                { assert file(process.out.assembly_ratio[0]).name ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv" }
-            )
+            if (process.out.assembly_ratio[0].toString().contains("/dev-wslh") || process.out.assembly_ration.toString().contains("/prod-wslh")) {
+
+                def outFile = process.out.assembly_ratio[0]
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert snapshot(localFile.md5).match() },
+                    { assert localFile.toString().endsWith("tsv") },
+                    { assert localFile.toString().split('/')[-1] ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv" }
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(process.out.assembly_ratio[0]).md5).match() },
+                    { assert file(process.out.assembly_ratio[0]).name.endsWith("tsv") },
+                    { assert file(process.out.assembly_ratio[0]).name ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv" }
+                )
+            }
         }
     }
 

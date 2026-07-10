@@ -29,9 +29,6 @@ nextflow_process {
                 { assert process.exitStatus == 0 },
                 { assert process.out.kraken_results.size() == 1 },
                 { assert process.out.versions.size() == 1 },
-                { assert file(process.out.kraken_results[0][1]).name.endsWith(".txt") },
-                { assert file(process.out.versions[0]).name.endsWith(".yml") }
-
             )
         }
     }
@@ -57,8 +54,64 @@ nextflow_process {
         then {
             assertAll (
                 { assert process.out.log.size() == 1 },
-                { assert file(process.out.log[0]).name.endsWith(".log") }
             )
+        }
+    }
+
+    test("Checking that output channels have appropriate content") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = []
+                """
+            }
+        }
+
+        then {
+
+            def outFile_log         = process.out.log[0]
+            def outFile_kraken      = process.out.kraken_results[0][1]
+            def outFile_versions    = process.out.versions[0]
+
+            if (outFile_log.toString().contains("/dev-wslh") || outFile_log.toString().contains("/prod-wslh")) {
+
+                def combined_log       = "s3:/" + outFile_log.toString()
+                def combined_kraken    = "s3:/" + outFile_kraken.toString()
+                def combined_versions  = "s3:/" + outFile_versions.toString()
+
+                def local_log          = downloadFromS3(combined_log)
+                def local_kraken       = downloadFromS3(combined_kraken)
+                def local_versions     = downloadFromS3(combined_versions)
+
+                assertAll (
+                    { assert local_kraken.text.contains("Streptococcus")                    },
+                    { assert local_versions.text.contains('"KRAKEN2":')                     },
+                    { assert local_log.text.contains("000000000")                           },
+                    { assert local_kraken.toString().split("/")[-1] ==~ "test.kraken2.txt"  },
+                    { assert local_versions.toString().split("/")[-1] ==~ "versions.yml"    },
+                    { assert local_log.toString().split('/')[-1] ==~ "kraken2.log"          }
+                )
+
+            } else {
+
+                assertAll (
+                    { assert file(process.out.kraken_results[0][1]).text.contains("Streptococcus")  },
+                    { assert file(process.out.kraken_results[0][1]).name ==~ "test.kraken2.txt"     },
+                    { assert file(process.out.versions[0]).text.contains('"KRAKEN2":')              },
+                    { assert file(process.out.versions[0]).name ==~ "versions.yml"                  },
+                    { assert file(process.out.log[0]).text.contains("000000000")                    },
+                    { assert file(process.out.log[0]).name ==~ "kraken2.log"                        }
+                )
+            }
         }
     }
 

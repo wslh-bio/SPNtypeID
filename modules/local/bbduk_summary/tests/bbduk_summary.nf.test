@@ -24,9 +24,7 @@ nextflow_process {
                 { assert process.exitStatus == 0 },
                 { assert process.out.bbduk_tsv.size() == 1 }
             )
-
         }
-
     }
 
     test("Checking file contents to ensure proper processing.") {
@@ -43,14 +41,27 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert file(process.out.bbduk_tsv[0]).name.endsWith(".tsv") },
-                { assert file(process.out.bbduk_tsv[0]).name ==~ "bbduk_results.tsv" },
-                { assert file(process.out.bbduk_tsv[0]).text.contains("Sample\tTotal Reads\tReads Removed\n") },
-                { assert snapshot(path(process.out.bbduk_tsv[0]).md5).match() }
-            )
-        }
+            def outFile = process.out.bbduk_tsv[0]
 
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith(".tsv")                              },
+                    { assert localFile..toString().split('/')[-1] ==~ "bbduk_results.tsv"       },
+                    { assert localFile.text.contains("Sample\tTotal Reads\tReads Removed\n")    },
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile).name.endsWith(".tsv")                                    },
+                    { assert file(outFile).name ==~ "bbduk_results.tsv"                             },
+                    { assert file(outFile).text.contains("Sample\tTotal Reads\tReads Removed\n")    },
+                    { assert snapshot(path(outFile).md5).match()                                    }
+                )
+            }
+        }
     }
 
     test("Checking that no input channel produces failure") {

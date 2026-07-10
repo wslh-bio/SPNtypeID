@@ -52,12 +52,26 @@ nextflow_process {
         }
 
         then {
-            assertAll(
+            if (process.out.qual_results[0].toString().contains("/dev-wslh") || process.out.qual_results[0].toString().contains("/prod-wslh")) {
 
-                { assert snapshot(process.out).match() },
-                { assert file(process.out.qual_results[0]).name.endsWith("tsv") },
-                { assert file(process.out.qual_results[0]).name ==~ "test.qual.tsv" }
-            )
+                def outFile = process.out.qual_results[0]
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert snapshot(localFile.md5).match() },
+                    { assert localFile.toString().endsWith("tsv") },
+                    { assert localFile.toString().split('/')[-1] ==~"test.qual.tsv" }
+                )
+
+            } else {
+                assertAll(
+
+                    { assert snapshot(path(process.out.qual_results[0]).md5).match() },
+                    { assert file(process.out.qual_results[0]).name.endsWith("tsv") },
+                    { assert file(process.out.qual_results[0]).name ==~ "test.qual.tsv" }
+                )
+            }
         }
     }
 

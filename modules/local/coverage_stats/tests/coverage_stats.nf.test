@@ -53,40 +53,36 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert file(process.out.coverage_tsv[0]).text.contains("Average coverage < 40X") },
-                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_01") },
-                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_02") },
-                { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_03") },
-                { assert file(process.out.coverage_tsv[0]).name.endsWith(".tsv") },
-                { assert file(process.out.coverage_tsv[0]).name ==~ "coverage_stats.tsv" }
-            )
-        }
-    }
 
-    test("Checking snapshot to ensure proper processing.") {
+            def outFile = process.out.coverage_tsv[0]
 
-        when {
-            params {
-                outdir = "$outputDir"
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+
+                    { assert localFile.text.contains("Average coverage < 40X") },
+                    { assert localFile.text.contains("SPN_Sample_01") },
+                    { assert localFile.text.contains("SPN_Sample_02") },
+                    { assert localFile.text.contains("SPN_Sample_03") },
+                    { assert localFile.toString().endsWith(".tsv") },
+                    { assert localFile.toString().split('/')[-1] ==~ "coverage_stats.tsv" }
+                )
+            } else {
+                    assertAll(
+                        { assert file(process.out.coverage_tsv[0]).text.contains("Average coverage < 40X") },
+                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_01") },
+                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_02") },
+                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_03") },
+                        { assert file(process.out.coverage_tsv[0]).name.endsWith(".tsv") },
+                        { assert file(process.out.coverage_tsv[0]).name ==~ "coverage_stats.tsv" },
+                        { assert snapshot(path(process.out.coverage_tsv.get(0)).md5).match() }
+                    )
+                }
             }
-            process {
-                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
-                """
-                input[0] = [
-                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
-                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
-                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
-                ]
-                input[1] = "40"
-                """
-            }
         }
-
-        then {
-            assert snapshot(path(process.out.coverage_tsv.get(0)).md5).match()
-        }
-    }
 
     test("Checking that missing input process fails.") {
 

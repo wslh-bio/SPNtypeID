@@ -32,10 +32,9 @@ nextflow_process {
 
             )
         }
-
     }
 
-    test("Checking that output channels have appropriate amount of values.") {
+    test("Checking that output channels have appropriate contents.") {
 
         when {
             params {
@@ -55,16 +54,34 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.fastqc_summary[0]).md5).match() },
-                { assert file(process.out.fastqc_summary[0]).name.endsWith(".tsv") },
-                { assert file(process.out.fastqc_summary[0]).name ==~ "fastqc_summary.tsv" }
-            )
-        }
 
+            def outFile = process.out.fastqc_summary[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.text.contains("Per base sequence quality")           },
+                    { assert localFile.text.contains("Per tile sequence quality")           },
+                    { assert localFile.text.contains("PASS")                                },
+                    { assert localFile.toString().endsWith(".tsv")                          },
+                    { assert localFile.toString().split('/')[-1] ==~ "fastqc_summary.tsv"   }
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile).text.contains("Per base sequence quality")           },
+                    { assert file(outFile).text.contains("Per tile sequence quality")           },
+                    { assert file(outFile).text.contains("PASS")                                },
+                    { assert file(outFile).name.endsWith(".tsv")                                },
+                    { assert file(outFile).name ==~ "fastqc_summary.tsv"                        }
+                )
+            }
+        }
     }
 
-        test("Checking no input channels produces failure") {
+    test("Checking no input channels produces failure") {
 
         when {
             params {
@@ -83,5 +100,4 @@ nextflow_process {
             assert !process.success
         }
     }
-
 }
