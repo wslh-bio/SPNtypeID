@@ -1,22 +1,9 @@
 {
     "Checking file contents to ensure proper processing.": {
         "content": [
-            {
-                "0": [
-                    "test.qual.tsv:md5,3ed6afe20f4ca924be874fe162e21105"
-                ],
-                "1": [
-                    "versions.yml:md5,5179458ed5410c503748beb1d879c437"
-                ],
-                "qual_results": [
-                    "test.qual.tsv:md5,3ed6afe20f4ca924be874fe162e21105"
-                ],
-                "versions": [
-                    "versions.yml:md5,5179458ed5410c503748beb1d879c437"
-                ]
-            }
+            "3ed6afe20f4ca924be874fe162e21105"
         ],
-        "timestamp": "2026-06-26T14:24:37.364579978",
+        "timestamp": "2026-07-09T16:16:31.678732543",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
