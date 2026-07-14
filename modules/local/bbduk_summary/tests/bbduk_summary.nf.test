@@ -50,7 +50,7 @@ nextflow_process {
 
                 assertAll(
                     { assert localFile.toString().endsWith(".tsv")                              },
-                    { assert localFile..toString().split('/')[-1] ==~ "bbduk_results.tsv"       },
+                    { assert localFile.toString().split('/')[-1] ==~ "bbduk_results.tsv"        },
                     { assert localFile.text.contains("Sample\tTotal Reads\tReads Removed\n")    },
                 )
             } else {

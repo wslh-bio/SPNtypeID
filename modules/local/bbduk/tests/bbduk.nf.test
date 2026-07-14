@@ -104,7 +104,7 @@ nextflow_process {
                     // read1
                     { assert read1_local.toString().contains("trimmed") },
                     { assert read1_local.toString().endsWith(".gz") },
-                    { assert read1_local..toString().split('/')[-1] ==~ "test_trimmed_1.fastq.gz" },
+                    { assert read1_local.toString().split('/')[-1] ==~ "test_trimmed_1.fastq.gz" },
 
                     // read2
                     { assert read2_local.toString().contains("trimmed") },
