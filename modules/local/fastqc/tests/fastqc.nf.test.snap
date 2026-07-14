@@ -1,9 +1,9 @@
 {
-    "Checking snapshot contents": {
+    "Checking outputs names": {
         "content": [
             "f8c08de9801b5e597694fc72223acaca"
         ],
-        "timestamp": "2026-07-02T09:10:38.683008679",
+        "timestamp": "2026-07-13T10:08:44.651522594",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
