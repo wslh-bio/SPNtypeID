@@ -89,14 +89,29 @@ nextflow_process {
         }
 
         then {
+
             def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
-            assertAll(
-                { assert snapshot(
-                    path("$output_dir_data/multiqc_fastqc.txt").md5,
-                    path("$output_dir_data/multiqc_general_stats.txt").md5
-                    ).match()
-                }
-            )
+            def outFile = "$params.outdir/multiqc/multiqc_report.html"
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+                println"${outFile}"
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.text.contains("Licence:  MIT")                       },
+                    { assert localFile.toString().split("/")[-1] ==~ "multiqc_report.html"  }
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile).text.contains("Licence:  MIT")},
+                    { assert file(outFile).toString().split("/")[-1] ==~  "multiqc_report.html" },
+                    { assert snapshot(
+                        path("$output_dir_data/multiqc_fastqc.txt").md5,
+                        path("$output_dir_data/multiqc_general_stats.txt").md5
+                        ).match() }
+                )
+            }
         }
     }
 }

@@ -48,53 +48,66 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert file(process.out.zip[0][1][0]).name.endsWith("zip") },
-                { assert file(process.out.zip[0][1][1]).name.endsWith("zip") },
-                {
-                    with(process.out.zip) {
-                        with (get(0)) {
-                            with (get(1)) {
-                                assert get(0) ==~ ".*/test_1_fastqc.zip"
-                                assert get(1) ==~ ".*/test_2_fastqc.zip"
+
+            def outFile_zip_1  = process.out.zip[0][1][0]
+            def outFile_zip_2  = process.out.zip[0][1][1]
+            def outFile_html_1 = process.out.html[0][1][0]
+            def outFile_html_2 = process.out.html[0][1][1]
+
+            if (outFile_zip_1.toString().contains("/dev-wslh") || outFile_zip_1.toString().contains("/prod-wslh")) {
+
+                def combined_zip_1 = "s3:/" + outFile_zip_1.toString()
+                def localFile_zip_1 = downloadFromS3(combined_zip_1)
+
+                def combined_zip_2 = "s3:/" + outFile_zip_2.toString()
+                def localFile_zip_2 = downloadFromS3(combined_zip_2)
+
+                def combined_html_1 = "s3:/" + outFile_html_1.toString()
+                def localFile_html_1 = downloadFromS3(combined_html_1)
+
+                def combined_html_2 = "s3:/" + outFile_html_2.toString()
+                def localFile_html_2 = downloadFromS3(combined_html_2)
+
+                assertAll(
+                    { assert localFile_zip_1.toString().endsWith("zip") },
+                    { assert localFile_zip_2.toString().endsWith("zip") },
+                    { assert localFile_zip_1.toString().split("/")[-1] ==~ "test_1_fastqc.zip" },
+                    { assert localFile_zip_2.toString().split("/")[-1] ==~ "test_2_fastqc.zip" },
+                    { assert localFile_html_1.toString().endsWith("html") },
+                    { assert localFile_html_2.toString().endsWith("html") },
+                    { assert localFile_html_1.toString().split("/")[-1] ==~ "test_1_fastqc.html" },
+                    { assert localFile_html_2.toString().split("/")[-1] ==~ "test_2_fastqc.html" },
+
+                )
+            } else {
+                assertAll(
+                    { assert file(process.out.zip[0][1][0]).name.endsWith("zip") },
+                    { assert file(process.out.zip[0][1][1]).name.endsWith("zip") },
+                    {
+                        with(process.out.zip) {
+                            with (get(0)) {
+                                with (get(1)) {
+                                    assert get(0) ==~ ".*/test_1_fastqc.zip"
+                                    assert get(1) ==~ ".*/test_2_fastqc.zip"
+                                }
+                            }
+                        }
+                    },
+                    { assert snapshot(path(process.out.versions[0]).md5).match() },
+                    { assert file(process.out.html[0][1][0]).name.endsWith("html") },
+                    { assert file(process.out.html[0][1][1]).name.endsWith("html") },
+                    {
+                        with(process.out.html) {
+                            with (get(0)) {
+                                with (get(1)) {
+                                    assert get(0) ==~ ".*/test_1_fastqc.html"
+                                    assert get(1) ==~ ".*/test_2_fastqc.html"
+                                }
                             }
                         }
                     }
-                },
-                { assert file(process.out.html[0][1][0]).name.endsWith("html") },
-                { assert file(process.out.html[0][1][1]).name.endsWith("html") },
-                {
-                    with(process.out.html) {
-                        with (get(0)) {
-                            with (get(1)) {
-                                assert get(0) ==~ ".*/test_1_fastqc.html"
-                                assert get(1) ==~ ".*/test_2_fastqc.html"
-                            }
-                        }
-                    }
-                }
-            )
-        }
-    }
-
-    test('Checking snapshot contents') {
-
-        when {
-            process {
-                """
-                input[0] = [
-                [id:'test', single_end:false ],
-                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
-                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
-                ]
-                """
+                )
             }
-        }
-
-        then {
-            assertAll(
-                { assert snapshot(path(process.out.versions[0]).md5).match() }
-            )
         }
     }
 

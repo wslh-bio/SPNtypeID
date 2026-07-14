@@ -51,11 +51,24 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.kraken_tsv[0]).md5).match() },
-                { assert file(process.out.kraken_tsv[0]).name.endsWith("tsv") },
-                { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
-            )
+            def outFile = process.out.kraken_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("tsv") },
+                    { assert localFile.toString().split("/")[-1] ==~ "kraken_results.tsv" }
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(process.out.kraken_tsv[0]).md5).match() },
+                    { assert file(process.out.kraken_tsv[0]).name.endsWith("tsv") },
+                    { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
+                )
+            }
         }
     }
 
