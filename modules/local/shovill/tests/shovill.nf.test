@@ -77,20 +77,63 @@ nextflow_process {
 
         then {
             def output_dir_shovill = "$outputDir/shovill/test_shovill_output"
-            assertAll(
-                { assert file(process.out.versions[0]).name.endsWith("yml") },
-                { assert file(process.out.contigs[0][1]).name.endsWith("fa") },
-                { assert file(process.out.sam_files[0][1]).name.endsWith("sam") },
-                { assert file(process.out.corrections[0][1]).name.endsWith("corrections") },
-                { assert file(process.out.log[0][1]).name.endsWith("log") },
-                { assert snapshot(
-                    path(process.out.versions[0]).md5,
-                    path("$output_dir_shovill/contigs.gfa").md5,
-                    path("$output_dir_shovill/contigs.gfa").md5,
-                    path("$output_dir_shovill/spades.fasta").md5
-                    ).match()
-                }
-            )
+            def outFile_versions = process.out.versions[0]
+            def outFile_contigs = process.out.contigs[0][1]
+            def outFile_sam_files = process.out.sam_files[0][1]
+            def outFile_corrections = process.out.corrections[0][1]
+            def outFile_log = process.out.log[0][1]
+
+            if (outFile_log.toString().contains("/dev-wslh") || outFile_log.toString().contains("/prod-wslh")) {
+
+                def combined_versions       = "s3:/" + outFile_versions.toString()
+                def combined_contigs        = "s3:/" + outFile_contigs.toString()
+                def combined_sam_files      = "s3:/" + outFile_sam_files.toString()
+                def combined_corrections    = "s3:/" + outFile_corrections.toString()
+                def combined_log            = "s3:/" + outFile_log.toString()
+
+                def localFile_versions      = downloadFromS3(combined_versions)
+                def localFile_contigs       = downloadFromS3(combined_contigs)
+                def localFile_sam_files     = downloadFromS3(combined_sam_files)
+                def localFile_corrections   = downloadFromS3(combined_corrections)
+                def localFile_log           = downloadFromS3(combined_log)
+
+                assertAll(
+                    { assert localFile_versions.toString().endsWith("yml") },
+                    { assert localFile_contigs.toString().endsWith("fa") },
+                    { assert localFile_sam_files.toString().endsWith("sam") },
+                    { assert localFile_corrections.toString().endsWith("corrections") },
+                    { assert localFile_log.toString().endsWith("log") },
+                    { assert localFile_versions.toString().endsWith("yml") },
+                    { assert localFile_contigs.toString().split("/")[-1] ==~ "test.contigs.fa" },
+                    { assert localFile_sam_files.toString().split("/")[-1] ==~ "test.sam" },
+                    { assert localFile_corrections.toString().split("/")[-1] ==~ "shovill.corrections" },
+                    { assert localFile_log.toString().split("/")[-1] ==~ "shovill.log" },
+                    { assert localFile_contigs.text.contains(">contig00001") },
+                    { assert localFile_sam_files.text.contains("SN:contig00001") },
+                    { assert localFile_corrections.text.contains("NODE_1_length_102690_cov_4.638252:888 NODE_1_length_102690_cov_4.638252_pilon:888 G T") },
+                    { assert localFile_log.text.contains("You ran: /shovill/shovill-1.1.0/bin/shovill --R1 SPN_Sample_01_R1.fastq.gz --R2 SPN_Sample_01_R2.fastq.gz --cpus 6 --ram 36 --outdir ./test_shovill_output --force") },
+
+
+
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile_versions).name.endsWith("yml")                },
+                    { assert file(outFile_contigs).name.endsWith("fa")                  },
+                    { assert file(outFile_sam_files).name.endsWith("sam")               },
+                    { assert file(outFile_corrections).name.endsWith("corrections")     },
+                    { assert file(outFile_log).name.endsWith("log")                     },
+                    { assert file(outFile_contigs).name ==~ "test.contigs.fa"           },
+                    { assert file(outFile_sam_files).name ==~ "test.sam"                },
+                    { assert file(outFile_corrections).name ==~ "shovill.corrections"   },
+                    { assert file(outFile_log).name ==~ "shovill.log"                   },
+                    { assert snapshot(
+                        path("$output_dir_shovill/contigs.gfa").md5,
+                        path("$output_dir_shovill/spades.fasta").md5
+                        ).match()
+                    }
+                )
+            }
         }
     }
 

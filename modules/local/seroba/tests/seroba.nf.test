@@ -73,13 +73,40 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.seroba_results[0]).md5).match() },
-                { assert file(process.out.seroba_results[0]).name.endsWith("csv") },
-                { assert file(process.out.log[0]).name.endsWith("log") },
-                { assert file(process.out.versions[0]).name.endsWith("yml") }
-            )
+            def outFile_seroba_results  = process.out.seroba_results[0]
+            def outFile_log             = process.out.log[0]
+            def outFile_versions        = process.out.versions[0]
 
+            if (outFile_seroba_results.toString().contains("/dev-wslh") || outFile_seroba_results.toString().contains("/prod-wslh")) {
+
+                def combined_seroba_results     = "s3:/" + outFile_seroba_results.toString()
+                def combined_log                = "s3:/" + outFile_log.toString()
+                def combined_versions           = "s3:/" + outFile_versions.toString()
+
+                def localFile_seroba_results   = downloadFromS3(combined_seroba_results)
+                def localFile_log              = downloadFromS3(combined_log)
+                def localFile_versions         = downloadFromS3(combined_versions)
+
+                assertAll(
+                    { assert localFile_seroba_results.toString().endsWith("csv")                    },
+                    { assert localFile_log.toString().endsWith("log")                               },
+                    { assert localFile_versions.toString().endsWith("yml")                          },
+                    { assert localFile_seroba_results.toString().split("/")[-1] ==~ "test.pred.csv" },
+                    { assert localFile_log.toString().split("/")[-1] ==~ "seroba.log"               },
+                    { assert localFile_versions.toString().split("/")[-1] ==~ "versions.yml"        }
+
+                )
+            } else{
+                assertAll(
+                    { assert snapshot(path(process.out.seroba_results[0]).md5).match()  },
+                    { assert file(outFile_seroba_results).name.endsWith("csv")          },
+                    { assert file(outFile_log).name.endsWith("log")                     },
+                    { assert file(outFile_versions).name.endsWith("yml")                },
+                    { assert file(outFile_seroba_results).name ==~ "test.pred.csv"      },
+                    { assert file(outFile_log).name ==~ "seroba.log"                    },
+                    { assert file(outFile_versions).name ==~ "versions.yml"             }
+                )
+            }
         }
     }
 

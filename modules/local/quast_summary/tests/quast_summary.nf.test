@@ -53,10 +53,27 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.quast_tsv[0]).md5).match() },
-                { assert file(process.out.quast_tsv[0]).name ==~ "quast_results.tsv" }
-            )
+            def outFile = process.out.quast_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().split("/")[-1] ==~ "quast_results.tsv" },
+                    { assert localFile.text.contains("Sample\tAssembly Length (bp)\tContigs\tN50\tPass Contigs\tQUAST Summary Comments")},
+                    { assert localFile.text.contains("SPN_Sample_02")}
+
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(outFile).md5).match() },
+                    { assert file(outFile).name ==~ "quast_results.tsv" },
+                    { assert file(outFile).text.contains("Sample\tAssembly Length (bp)\tContigs\tN50\tPass Contigs\tQUAST Summary Comments")},
+                    { assert file(outFile).text.contains("SPN_Sample_02")}
+                )
+            }
         }
     }
 

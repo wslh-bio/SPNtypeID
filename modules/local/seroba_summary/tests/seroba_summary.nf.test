@@ -30,7 +30,6 @@ nextflow_process {
                 { assert process.out.seroba_tsv.size() == 1 }
             )
         }
-
     }
 
     test("Checks that name of file is correct and has proper content") {
@@ -52,11 +51,26 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert file(process.out.seroba_tsv[0]).name.endsWith("tsv") },
-                { assert file(process.out.seroba_tsv[0]).name ==~ "seroba_results.tsv" },
-                { assert path(process.out.seroba_tsv[0]).getText().contains("Sample	Serotype	SeroBA Comments") }
-            )
+            def outFile = process.out.seroba_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined    = "s3:/" + outFile.toString()
+                def localFile   = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("tsv")                                   },
+                    { assert localFile.toString().split("/")[-1] ==~ "seroba_results.tsv"           },
+                    { assert localFile.text.contains("Sample	Serotype	SeroBA Comments")       }
+                )
+
+            } else {
+                assertAll(
+                    { assert file(outFile).name.endsWith("tsv") },
+                    { assert file(outFile).name ==~ "seroba_results.tsv" },
+                    { assert path(outFile).getText().contains("Sample	Serotype	SeroBA Comments") }
+                )
+            }
         }
     }
 
