@@ -57,11 +57,32 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.percent_strep_tsv[0]).md5).match()                   },
-                { assert file(process.out.percent_strep_tsv[0]).name.endsWith("tsv")                    },
-                { assert file(process.out.percent_strep_tsv[0]).name ==~ "percent_strep_results.tsv"    }
-            )
+
+            def outFile = process.out.percent_strep_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("tsv")                                           },
+                    { assert localFile.toString().split("/")[-1] ==~ "percent_strep_results.tsv"            },
+                    { assert localFile.text.contains("More than 1.0% of reads are from Escherichia")        },
+                    { assert localFile.text.contains("Less than 80.0% of reads are Strep")                  },
+                    { assert localFile.text.contains("Escherichia")                                         }
+                )
+
+            } else {
+                assertAll(
+                    { assert snapshot(path(outFile).md5).match()                                            },
+                    { assert file(outFile).name.endsWith("tsv")                                             },
+                    { assert file(outFile).name ==~ "percent_strep_results.tsv"                             },
+                    { assert file(outFile).text.contains("More than 1.0% of reads are from Escherichia")    },
+                    { assert file(outFile).text.contains("Less than 80.0% of reads are Strep")              },
+                    { assert file(outFile).text.contains("Escherichia")                                     }
+                )
+            }
         }
     }
 

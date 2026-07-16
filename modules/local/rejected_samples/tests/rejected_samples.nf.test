@@ -45,10 +45,24 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(path(process.out.rejected_samples_report[0]).md5).match()                     },
-                { assert file(process.out.rejected_samples_report[0]).name ==~ "SPNTypeID_empty_samples.csv"    }
-            )
+            def outFile = process.out.rejected_samples_report[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().split("/")[-1] ==~ "SPNTypeID_empty_samples.csv"      },
+                    { assert localFile.text.contains("NO_EMPTY_SAMPLES")                                }
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(outFile).md5).match()                                        },
+                    { assert file(outFile).text.contains("NO_EMPTY_SAMPLES")                            },
+                    { assert file(outFile).name ==~ "SPNTypeID_empty_samples.csv"                       }
+                )
+            }
         }
     }
 
