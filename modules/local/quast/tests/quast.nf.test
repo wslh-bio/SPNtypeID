@@ -8,6 +8,9 @@ nextflow_process {
     test("Checking that output channels have appropriate amount of values") {
 
         when {
+            params {
+                outdir = "$outputDir"
+            }
             process {
                 """
                 input[0] = [
@@ -20,16 +23,11 @@ nextflow_process {
 
         then {
             assertAll (
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.transposed_report.size() == 1 },
-                { assert file(process.out.transposed_report[0][1]).name.endsWith("tsv") },
-                { assert process.out.result.size() == 1 },
-                { assert file(process.out.result[0]).name.endsWith("tsv") },
-                { assert process.out.versions.size() == 1 },
-                { assert file(process.out.versions[0]).name.endsWith("yml") }
-
-
+                { assert process.success                                                },
+                { assert process.exitStatus == 0                                        },
+                { assert process.out.transposed_report.size() == 1                      },
+                { assert process.out.result.size() == 1                                 },
+                { assert process.out.versions.size() == 1                               }
 
             )
         }
@@ -37,6 +35,9 @@ nextflow_process {
 
     test("Checking file contents to ensure proper processing.") {
         when {
+            params {
+                outdir = "$outputDir"
+            }
             process {
                 """
                 input[0] = [
@@ -48,13 +49,47 @@ nextflow_process {
         }
 
         then {
-            assertAll (
-                { assert snapshot(
-                    path(process.out.transposed_report[0][1]).md5,
-                    path(process.out.result[0]).md5
-                    ).match()
-                }
-            )
+
+            def outFile_transposed  = process.out.transposed_report[0][1]
+            def outFile_regular     = process.out.result[0]
+            def outFile_versions    = process.out.versions[0]
+
+            if (outFile_transposed.toString().contains("/dev-wslh") || outFile_transposed.toString().contains("/prod-wslh")) {
+
+                def combined_transposed     = "s3:/" + outFile_transposed.toString()
+                def combined_regular        = "s3:/" + outFile_regular.toString()
+                def combined_versions       = "s3:/" + outFile_versions.toString()
+
+                def localFile_transposed    = downloadFromS3(combined_transposed)
+                def localFile_regular       = downloadFromS3(combined_regular)
+                def localFile_versions      = downloadFromS3(combined_versions)
+
+                assertAll(
+                    { assert localFile_transposed.text.contains("SPN_Sample_01.contigs")                                  },
+                    { assert localFile_regular.text.contains("# contigs (>= 0 bp)")                                       },
+                    { assert localFile_versions.toString().endsWith("yml")                                                },
+                    { assert localFile_transposed.toString().endsWith("tsv")                                              },
+                    { assert localFile_regular.toString().endsWith("tsv")                                                 },
+                    { assert localFile_versions.toString().split("/")[-1]     ==~ "versions.yml"                          },
+                    { assert localFile_transposed.toString().split("/")[-1]   ==~ "test.transposed.quast.report.tsv"      },
+                    { assert localFile_regular.toString().split("/")[-1]      ==~ "test.quast.report.tsv"                 }
+                )
+            } else {
+                assertAll (
+                    { assert file(outFile_transposed).text.contains("SPN_Sample_01.contigs")                                    },
+                    { assert file(outFile_regular).text.contains("# contigs (>= 0 bp)")                                         },
+                    { assert file(outFile_versions).name.endsWith("yml")                                                        },
+                    { assert file(outFile_transposed).name.endsWith("tsv")                                                      },
+                    { assert file(outFile_regular).name.endsWith("tsv")                                                         },
+                    { assert file(outFile_versions).name.split("/")[-1]     ==~ "versions.yml"                                  },
+                    { assert file(outFile_transposed).name.split("/")[-1]   ==~ "test.transposed.quast.report.tsv"              },
+                    { assert file(outFile_regular).name.split("/")[-1]      ==~ "test.quast.report.tsv"                         },
+                    { assert snapshot(path(outFile_transposed).md5,
+                        path(outFile_regular).md5
+                        ).match()
+                    }
+                )
+            }
         }
     }
 
