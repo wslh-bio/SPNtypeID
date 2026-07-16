@@ -27,12 +27,12 @@ nextflow_process {
             def data_files = file("$output_dir_data").list().sort()
 
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.report.size() == 1 },
-                { assert process.out.data.size() == 1 },
-                { assert process.out.versions.size() == 1 },
-                { assert data_files.size() == 13 }
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.report.size() == 1     },
+                { assert process.out.data.size() == 1       },
+                { assert process.out.versions.size() == 1   },
+                { assert data_files.size() == 13            }
 
             )
         }
@@ -63,11 +63,11 @@ nextflow_process {
             def svg = file("$output_dir_plots/svg").list().sort()
 
             assertAll(
-                { assert process.out.plots.size() == 1 },
-                { assert plots_files.size() == 3},
-                { assert pdf.size() == 9 },
-                { assert png.size() == 9 },
-                { assert svg.size() == 9 }
+                { assert process.out.plots.size() == 1  },
+                { assert plots_files.size() == 3        },
+                { assert pdf.size() == 9                },
+                { assert png.size() == 9                },
+                { assert svg.size() == 9                }
             )
         }
     }
@@ -99,17 +99,18 @@ nextflow_process {
                 def localFile = downloadFromS3(combined)
 
                 assertAll(
-                    { assert localFile.text.contains("Licence:  MIT")                       },
-                    { assert localFile.toString().split("/")[-1] ==~ "multiqc_report.html"  }
+                    { assert localFile.text.contains("Licence:  MIT")                           },
+                    { assert localFile.toString().split("/")[-1] ==~ "multiqc_report.html"      }
                 )
             } else {
                 assertAll(
-                    { assert file(outFile).text.contains("Licence:  MIT")},
+                    { assert file(outFile).text.contains("Licence:  MIT")                       },
                     { assert file(outFile).toString().split("/")[-1] ==~  "multiqc_report.html" },
                     { assert snapshot(
                         path("$output_dir_data/multiqc_fastqc.txt").md5,
                         path("$output_dir_data/multiqc_general_stats.txt").md5
-                        ).match() }
+                        ).match()
+                    }
                 )
             }
         }

@@ -24,14 +24,14 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.contigs.size() == 1 },
-                { assert process.out.sam_files.size() == 1 },
-                { assert process.out.corrections.size() == 1 },
-                { assert process.out.log.size() == 1 },
-                { assert process.out.raw_contigs.size() == 1 },
-                { assert process.out.versions.size() == 1 }
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.contigs.size() == 1        },
+                { assert process.out.sam_files.size() == 1      },
+                { assert process.out.corrections.size() == 1    },
+                { assert process.out.log.size() == 1            },
+                { assert process.out.raw_contigs.size() == 1    },
+                { assert process.out.versions.size() == 1       }
             )
         }
     }
@@ -98,19 +98,19 @@ nextflow_process {
                 def localFile_log           = downloadFromS3(combined_log)
 
                 assertAll(
-                    { assert localFile_versions.toString().endsWith("yml") },
-                    { assert localFile_contigs.toString().endsWith("fa") },
-                    { assert localFile_sam_files.toString().endsWith("sam") },
-                    { assert localFile_corrections.toString().endsWith("corrections") },
-                    { assert localFile_log.toString().endsWith("log") },
-                    { assert localFile_versions.toString().endsWith("yml") },
-                    { assert localFile_contigs.toString().split("/")[-1] ==~ "test.contigs.fa" },
-                    { assert localFile_sam_files.toString().split("/")[-1] ==~ "test.sam" },
-                    { assert localFile_corrections.toString().split("/")[-1] ==~ "shovill.corrections" },
-                    { assert localFile_log.toString().split("/")[-1] ==~ "shovill.log" },
-                    { assert localFile_contigs.text.contains(">contig00001") },
-                    { assert localFile_sam_files.text.contains("SN:contig00001") },
-                    { assert localFile_corrections.text.contains("NODE_1_length_102690_cov_4.638252:888 NODE_1_length_102690_cov_4.638252_pilon:888 G T") },
+                    { assert localFile_versions.toString().endsWith("yml")                                                                                  },
+                    { assert localFile_contigs.toString().endsWith("fa")                                                                                    },
+                    { assert localFile_sam_files.toString().endsWith("sam")                                                                                 },
+                    { assert localFile_corrections.toString().endsWith("corrections")                                                                       },
+                    { assert localFile_log.toString().endsWith("log")                                                                                       },
+                    { assert localFile_versions.toString().endsWith("yml")                                                                                  },
+                    { assert localFile_contigs.toString().split("/")[-1] ==~ "test.contigs.fa"                                                              },
+                    { assert localFile_sam_files.toString().split("/")[-1] ==~ "test.sam"                                                                   },
+                    { assert localFile_corrections.toString().split("/")[-1] ==~ "shovill.corrections"                                                      },
+                    { assert localFile_log.toString().split("/")[-1] ==~ "shovill.log"                                                                      },
+                    { assert localFile_contigs.text.contains(">contig00001")                                                                                },
+                    { assert localFile_sam_files.text.contains("SN:contig00001")                                                                            },
+                    { assert localFile_corrections.text.contains("NODE_1_length_102690_cov_4.638252:888 NODE_1_length_102690_cov_4.638252_pilon:888 G T")   },
                     { assert localFile_log.text.contains("You ran: /shovill/shovill-1.1.0/bin/shovill --R1 SPN_Sample_01_R1.fastq.gz --R2 SPN_Sample_01_R2.fastq.gz --cpus 6 --ram 36 --outdir ./test_shovill_output --force") },
 
 

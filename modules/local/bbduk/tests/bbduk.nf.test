@@ -25,13 +25,13 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.reads.size() == 1 },
-                { assert process.out.log.size() == 1 },
-                { assert process.out.bbduk_trim.size() == 1 },
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.reads.size() == 1          },
+                { assert process.out.log.size() == 1            },
+                { assert process.out.bbduk_trim.size() == 1     },
                 { assert process.out.bbduk_adapters.size() == 1 },
-                { assert process.out.versions.size() == 1 }
+                { assert process.out.versions.size() == 1       }
             )
         }
 
@@ -59,8 +59,8 @@ nextflow_process {
 
             assertAll (
                 { assert process.out.repaired_reads.size() == 1 },
-                { assert process.out.singletons.size() == 1 },
-                { assert process.out.repaired_log.size() == 1 }
+                { assert process.out.singletons.size() == 1     },
+                { assert process.out.repaired_log.size() == 1   }
 
             )
         }
@@ -102,33 +102,33 @@ nextflow_process {
                 assertAll(
 
                     // read1
-                    { assert read1_local.toString().contains("trimmed") },
-                    { assert read1_local.toString().endsWith(".gz") },
-                    { assert read1_local.toString().split('/')[-1] ==~ "test_trimmed_1.fastq.gz" },
+                    { assert read1_local.toString().contains("trimmed")                                                         },
+                    { assert read1_local.toString().endsWith(".gz")                                                             },
+                    { assert read1_local.toString().split('/')[-1] ==~ "test_trimmed_1.fastq.gz"                                },
 
                     // read2
-                    { assert read2_local.toString().contains("trimmed") },
-                    { assert read2_local.toString().endsWith(".gz") },
-                    { assert read2_local.toString().split('/')[-1] ==~ "test_trimmed_2.fastq.gz" },
+                    { assert read2_local.toString().contains("trimmed")                                                         },
+                    { assert read2_local.toString().endsWith(".gz")                                                             },
+                    { assert read2_local.toString().split('/')[-1] ==~ "test_trimmed_2.fastq.gz"                                },
 
-                    { assert log_local.getText().contains("Input is being processed as paired") },
-                    { assert adapters_local.getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
-                    { assert snapshot(versions_local.md5).match() }
+                    { assert log_local.getText().contains("Input is being processed as paired")                                 },
+                    { assert adapters_local.getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz")  },
+                    { assert snapshot(versions_local.md5).match()                                                               }
                 )
             } else {
                 assertAll(
 
                     // read1
-                    { assert file(process.out.reads[0][1][0]).name.contains("trimmed") },
-                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz") },
+                    { assert file(process.out.reads[0][1][0]).name.contains("trimmed")                                                              },
+                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz")                                                                  },
 
                     // read2
-                    { assert file(process.out.reads[0][1][1]).name.contains("trimmed") },
-                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz") },
+                    { assert file(process.out.reads[0][1][1]).name.contains("trimmed")                                                              },
+                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz")                                                                  },
 
-                    { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired") },
-                    { assert path(process.out.bbduk_adapters[0]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz") },
-                    { assert snapshot(path(process.out.versions[0]).md5).match() },
+                    { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired")                                   },
+                    { assert path(process.out.bbduk_adapters[0]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz")  },
+                    { assert snapshot(path(process.out.versions[0]).md5).match()                                                                    },
                     {
                         with(process.out.reads) {
                             with(get(0)) {

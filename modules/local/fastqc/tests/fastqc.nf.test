@@ -24,11 +24,11 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
                 { assert process.out.html[0][1].size() == 2 },
-                { assert process.out.zip[0][1].size() == 2 },
-                { assert process.out.versions.size() == 1 }
+                { assert process.out.zip[0][1].size() == 2  },
+                { assert process.out.versions.size() == 1   }
             )
         }
     }
@@ -69,14 +69,14 @@ nextflow_process {
                 def localFile_html_2 = downloadFromS3(combined_html_2)
 
                 assertAll(
-                    { assert localFile_zip_1.toString().endsWith("zip") },
-                    { assert localFile_zip_2.toString().endsWith("zip") },
-                    { assert localFile_zip_1.toString().split("/")[-1] ==~ "test_1_fastqc.zip" },
-                    { assert localFile_zip_2.toString().split("/")[-1] ==~ "test_2_fastqc.zip" },
-                    { assert localFile_html_1.toString().endsWith("html") },
-                    { assert localFile_html_2.toString().endsWith("html") },
-                    { assert localFile_html_1.toString().split("/")[-1] ==~ "test_1_fastqc.html" },
-                    { assert localFile_html_2.toString().split("/")[-1] ==~ "test_2_fastqc.html" },
+                    { assert localFile_zip_1.toString().endsWith("zip")                             },
+                    { assert localFile_zip_2.toString().endsWith("zip")                             },
+                    { assert localFile_zip_1.toString().split("/")[-1] ==~ "test_1_fastqc.zip"      },
+                    { assert localFile_zip_2.toString().split("/")[-1] ==~ "test_2_fastqc.zip"      },
+                    { assert localFile_html_1.toString().endsWith("html")                           },
+                    { assert localFile_html_2.toString().endsWith("html")                           },
+                    { assert localFile_html_1.toString().split("/")[-1] ==~ "test_1_fastqc.html"    },
+                    { assert localFile_html_2.toString().split("/")[-1] ==~ "test_2_fastqc.html"    },
 
                 )
             } else {
@@ -93,9 +93,9 @@ nextflow_process {
                             }
                         }
                     },
-                    { assert snapshot(path(process.out.versions[0]).md5).match() },
-                    { assert file(process.out.html[0][1][0]).name.endsWith("html") },
-                    { assert file(process.out.html[0][1][1]).name.endsWith("html") },
+                    { assert snapshot(path(process.out.versions[0]).md5).match()    },
+                    { assert file(process.out.html[0][1][0]).name.endsWith("html")  },
+                    { assert file(process.out.html[0][1][1]).name.endsWith("html")  },
                     {
                         with(process.out.html) {
                             with (get(0)) {

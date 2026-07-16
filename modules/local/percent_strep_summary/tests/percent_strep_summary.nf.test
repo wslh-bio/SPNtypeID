@@ -28,9 +28,9 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.percent_strep_tsv.size() == 1 }
+                { assert process.success                            },
+                { assert process.exitStatus == 0                    },
+                { assert process.out.percent_strep_tsv.size() == 1  }
             )
         }
     }
@@ -58,9 +58,9 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert snapshot(path(process.out.percent_strep_tsv[0]).md5).match() },
-                { assert file(process.out.percent_strep_tsv[0]).name.endsWith("tsv") },
-                { assert file(process.out.percent_strep_tsv[0]).name ==~ "percent_strep_results.tsv" }
+                { assert snapshot(path(process.out.percent_strep_tsv[0]).md5).match()                   },
+                { assert file(process.out.percent_strep_tsv[0]).name.endsWith("tsv")                    },
+                { assert file(process.out.percent_strep_tsv[0]).name ==~ "percent_strep_results.tsv"    }
             )
         }
     }

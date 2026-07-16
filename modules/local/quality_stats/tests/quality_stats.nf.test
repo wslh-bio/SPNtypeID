@@ -26,9 +26,9 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.quality_tsv.size() == 1 }
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.quality_tsv.size() == 1    }
             )
         }
     }

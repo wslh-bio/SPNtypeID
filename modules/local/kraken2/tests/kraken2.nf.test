@@ -25,10 +25,10 @@ nextflow_process {
 
         then {
             assertAll (
-                { assert process.success },
-                { assert process.exitStatus == 0 },
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
                 { assert process.out.kraken_results.size() == 1 },
-                { assert process.out.versions.size() == 1 },
+                { assert process.out.versions.size() == 1       },
             )
         }
     }

@@ -22,9 +22,9 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.rejected_samples_report.size() == 1 }
+                { assert process.success                                    },
+                { assert process.exitStatus == 0                            },
+                { assert process.out.rejected_samples_report.size() == 1    }
             )
         }
     }
@@ -46,8 +46,8 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert snapshot(path(process.out.rejected_samples_report[0]).md5).match() },
-                { assert file(process.out.rejected_samples_report[0]).name ==~ "SPNTypeID_empty_samples.csv" }
+                { assert snapshot(path(process.out.rejected_samples_report[0]).md5).match()                     },
+                { assert file(process.out.rejected_samples_report[0]).name ==~ "SPNTypeID_empty_samples.csv"    }
             )
         }
     }

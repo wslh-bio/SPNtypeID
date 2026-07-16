@@ -25,8 +25,8 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
                 { assert process.out.seroba_tsv.size() == 1 }
             )
         }
@@ -59,16 +59,16 @@ nextflow_process {
                 def localFile   = downloadFromS3(combined)
 
                 assertAll(
-                    { assert localFile.toString().endsWith("tsv")                                   },
-                    { assert localFile.toString().split("/")[-1] ==~ "seroba_results.tsv"           },
-                    { assert localFile.text.contains("Sample	Serotype	SeroBA Comments")       }
+                    { assert localFile.toString().endsWith("tsv")                                       },
+                    { assert localFile.toString().split("/")[-1] ==~ "seroba_results.tsv"               },
+                    { assert localFile.text.contains("Sample	Serotype	SeroBA Comments")           }
                 )
 
             } else {
                 assertAll(
-                    { assert file(outFile).name.endsWith("tsv") },
-                    { assert file(outFile).name ==~ "seroba_results.tsv" },
-                    { assert path(outFile).getText().contains("Sample	Serotype	SeroBA Comments") }
+                    { assert file(outFile).name.endsWith("tsv")                                         },
+                    { assert file(outFile).name ==~ "seroba_results.tsv"                                },
+                    { assert path(outFile).getText().contains("Sample	Serotype	SeroBA Comments")   }
                 )
             }
         }

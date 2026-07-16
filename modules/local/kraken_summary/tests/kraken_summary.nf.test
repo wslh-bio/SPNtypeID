@@ -25,8 +25,8 @@ nextflow_process {
 
         then {
             assertAll(
-                { assert process.success },
-                { assert process.exitStatus == 0 },
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
                 { assert process.out.kraken_tsv.size() == 1 }
             )
         }
@@ -59,14 +59,14 @@ nextflow_process {
                 def localFile = downloadFromS3(combined)
 
                 assertAll(
-                    { assert localFile.toString().endsWith("tsv") },
-                    { assert localFile.toString().split("/")[-1] ==~ "kraken_results.tsv" }
+                    { assert localFile.toString().endsWith("tsv")                           },
+                    { assert localFile.toString().split("/")[-1] ==~ "kraken_results.tsv"   }
                 )
             } else {
                 assertAll(
-                    { assert snapshot(path(process.out.kraken_tsv[0]).md5).match() },
-                    { assert file(process.out.kraken_tsv[0]).name.endsWith("tsv") },
-                    { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv" }
+                    { assert snapshot(path(process.out.kraken_tsv[0]).md5).match()          },
+                    { assert file(process.out.kraken_tsv[0]).name.endsWith("tsv")           },
+                    { assert file(process.out.kraken_tsv[0]).name ==~ "kraken_results.tsv"  }
                 )
             }
         }
