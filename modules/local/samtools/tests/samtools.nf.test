@@ -23,12 +23,12 @@ nextflow_process {
 
         then {
             assertAll (
-                { assert process.success },
-                { assert process.exitStatus == 0 },
-                { assert process.out.cov_files.size() == 1 },
-                { assert process.out.stats_multiqc.size() == 1 },
-                { assert process.out.sorted_bam.size() == 1 },
-                { assert process.out.versions.size() == 1 }
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.cov_files.size() == 1      },
+                { assert process.out.stats_multiqc.size() == 1  },
+                { assert process.out.sorted_bam.size() == 1     },
+                { assert process.out.versions.size() == 1       }
             )
         }
     }
@@ -50,19 +50,53 @@ nextflow_process {
         }
 
         then {
-            assertAll(
-                { assert snapshot(
-                    path(process.out.sorted_bam[0]).md5,
-                    path(process.out.cov_files[0]).md5,
-                    path(process.out.stats_multiqc[0]).md5,
-                    path(process.out.versions[0]).md5
-                    ).match()
-                },
-                { assert file(process.out.sorted_bam[0]).name.endsWith("bam") },
-                { assert file(process.out.cov_files[0]).name.endsWith("depth.tsv") },
-                { assert file(process.out.stats_multiqc[0]).name.endsWith("stats.txt") },
-                { assert file(process.out.versions[0]).name.endsWith("yml") }
-            )
+
+            def outFile_bam         = process.out.sorted_bam[0]
+            def outFile_cov_files   = process.out.cov_files[0]
+            def outFile_multiqc     = process.out.stats_multiqc[0]
+            def outFile_versions    = process.out.versions[0]
+
+            if (outFile_bam.toString().contains("/dev-wslh") || outFile_bam.toString().contains("/prod-wslh")) {
+
+                def combined_bam        = "s3:/" + outFile_bam.toString()
+                def combined_cov_files  = "s3:/" + outFile_cov_files.toString()
+                def combined_multiqc    = "s3:/" + outFile_multiqc.toString()
+                def combined_versions   = "s3:/" + outFile_versions.toString()
+
+                def localFile_bam       = downloadFromS3(combined_bam)
+                def localFile_cov_files = downloadFromS3(combined_cov_files)
+                def localFile_multiqc   = downloadFromS3(combined_multiqc)
+                def localFile_versions  = downloadFromS3(combined_versions)
+
+                assertAll(
+                    { assert localFile_bam.toString().endsWith("bam")                                   },
+                    { assert localFile_cov_files.toString().endsWith("depth.tsv")                       },
+                    { assert localFile_multiqc.toString().endsWith("stats.txt")                         },
+                    { assert localFile_versions.toString().endsWith("yml")                              },
+                    { assert localFile_bam.toString().split("/")[-1] ==~ "SAMPLE1_PE.bam"               },
+                    { assert localFile_cov_files.toString().split("/")[-1] ==~ "SAMPLE1_PE.depth.tsv"   },
+                    { assert localFile_multiqc.toString().split("/")[-1] ==~ "SAMPLE1_PE.stats.txt"     },
+                    { assert localFile_versions.toString().split("/")[-1] ==~ "versions.yml"            }
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile_bam).name.endsWith("bam")                     },
+                    { assert file(outFile_cov_files).name.endsWith("depth.tsv")         },
+                    { assert file(outFile_multiqc).name.endsWith("stats.txt")           },
+                    { assert file(outFile_versions).name.endsWith("yml")                },
+                    { assert file(outFile_bam).name ==~ "SAMPLE1_PE.bam"                },
+                    { assert file(outFile_cov_files).name ==~ "SAMPLE1_PE.depth.tsv"    },
+                    { assert file(outFile_multiqc).name ==~ "SAMPLE1_PE.stats.txt"      },
+                    { assert file(outFile_versions).name ==~ "versions.yml"             },
+                    { assert snapshot(
+                        path(outFile_bam).md5,
+                        path(outFile_cov_files).md5,
+                        path(outFile_multiqc).md5,
+                        path(outFile_versions).md5
+                        ).match()
+                    }
+                )
+            }
         }
     }
 
