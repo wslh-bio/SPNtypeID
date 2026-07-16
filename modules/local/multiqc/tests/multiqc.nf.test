@@ -94,7 +94,7 @@ nextflow_process {
             def outFile = "$params.outdir/multiqc/multiqc_report.html"
 
             if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
-                println"${outFile}"
+
                 def combined = "s3:/" + outFile.toString()
                 def localFile = downloadFromS3(combined)
 
