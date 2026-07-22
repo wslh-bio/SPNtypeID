@@ -1,7 +1,6 @@
 {
     "-profile test_full": {
         "content": [
-            42,
             {
                 "BBDUK": {
                     "bbmap": "38.76"
@@ -284,7 +283,7 @@
                 "shovill/SPN_Sample_03_shovill_output/spades.fasta"
             ]
         ],
-        "timestamp": "2026-07-09T14:30:58.322057211",
+        "timestamp": "2026-07-22T09:08:12.875717447",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.5"
