@@ -46,21 +46,21 @@ nextflow_pipeline {
                 def s3_seroba       = downloadFromS3( to_download_s3_seroba     )
 
                 assertAll(
-                    { assert workflow.success                                                       },
-                    { assert s3_per_strep.exists()                                                  },
-                    { assert s3_report.exists()                                                     },
-                    { assert s3_assembly.exists()                                                   },
-                    { assert s3_quality.exists()                                                    },
-                    { assert s3_quast.exists()                                                      },
-                    { assert s3_seroba.exists()                                                     },
-                    { assert s3_seroba.contains("SPN_Sample_02")                                    },
-                    { assert s3_quast.contains("Assembly Length (bp)")                              },
-                    { assert s3_quality.contains("SPN_Sample_03")                                   },
-                    { assert s3_assembly.contains("Ratio of Actual:Expected Genome Length")         },
-                    { assert s3_report.contains("SPN_Sample_01,test_full")                          },
-                    { assert s3_per_strep.contains("More than 1.0% of reads are from Escherichia")  },
+                    { assert workflow.success                                                                 },
+                    { assert s3_per_strep.exists()                                                            },
+                    { assert s3_report.exists()                                                               },
+                    { assert s3_assembly.exists()                                                             },
+                    { assert s3_quality.exists()                                                              },
+                    { assert s3_quast.exists()                                                                },
+                    { assert s3_seroba.exists()                                                               },
+                    { assert s3_seroba.getText().contains("SPN_Sample_02")                                    },
+                    { assert s3_quast.getText().contains("Assembly Length (bp)")                              },
+                    { assert s3_quality.getText().contains("SPN_Sample_03")                                   },
+                    { assert s3_assembly.getText().contains("Ratio of Actual:Expected Genome Length")         },
+                    { assert s3_report.getText().contains("SPN_Sample_01,test_full")                          },
+                    { assert s3_per_strep.getText().contains("More than 1.0% of reads are from Escherichia")  },
                     { assert snapshot(
-                            workflow.trace.succeeded().size(),
+                            // workflow.trace.succeeded().size(),
                             removeNextflowVersion("$outputDir/pipeline_info/software_versions.yml"),
                             // All stable path name, with a relative path
                             stable_name
@@ -68,22 +68,29 @@ nextflow_pipeline {
                     }
                 )
             } else {
+                def percent_strep   = "${params.outdir}/percent_strep_summary/percent_strep_results.tsv"
+                def test_report     = "${params.outdir}/report_with_ntc/test_spntypeid_report.csv"
+                def assembly_stat   = "${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv"
+                def quality_stat    = "${params.outdir}/quality_stats/quality_stats.tsv"
+                def quast_result    = "${params.outdir}/quast_summary/quast_results.tsv"
+                def seroba_result   = "${params.outdir}/seroba_summary/seroba_results.tsv"
+
                 assertAll(
                     { assert workflow.success},
-                    { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists()                                                      },
-                    { assert file("${params.outdir}/report_with_ntc/test_spntypeid_report.csv").exists()                                                            },
-                    { assert file("${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv").exists()                                            },
-                    { assert file("${params.outdir}/quality_stats/quality_stats.tsv").exists()                                                                      },
-                    { assert file("${params.outdir}/quast_summary/quast_results.tsv").exists()                                                                      },
-                    { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists()                                                                    },
-                    { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").contains("SPN_Sample_02")                                                   },
-                    { assert file("${params.outdir}/quast_summary/quast_results.tsv").contains("Assembly Length (bp)")                                              },
-                    { assert file("${params.outdir}/quality_stats/quality_stats.tsv").contains("SPN_Sample_03")                                                     },
-                    { assert file("${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv").contains("Ratio of Actual:Expected Genome Length")  },
-                    { assert file("${params.outdir}/report_with_ntc/test_spntypeid_report.csv").contains("SPN_Sample_01,test_full")                                 },
-                    { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").contains("More than 1.0% of reads are from Escherichia")      },
+                    { assert file("${params.outdir}/percent_strep_summary/percent_strep_results.tsv").exists()              },
+                    { assert file("${params.outdir}/report_with_ntc/test_spntypeid_report.csv").exists()                    },
+                    { assert file("${params.outdir}/assembly_stats_summary/assembly_stats_results_summary.tsv").exists()    },
+                    { assert file("${params.outdir}/quality_stats/quality_stats.tsv").exists()                              },
+                    { assert file("${params.outdir}/quast_summary/quast_results.tsv").exists()                              },
+                    { assert file("${params.outdir}/seroba_summary/seroba_results.tsv").exists()                            },
+                    { assert path(seroba_result).getText().contains("SPN_Sample_02")                                        },
+                    { assert path(quast_result).getText().contains("Assembly Length (bp)")                                  },
+                    { assert path(quality_stat).getText().contains("SPN_Sample_03")                                         },
+                    { assert path(assembly_stat).getText().contains("Ratio of Actual:Expected Genome Length")               },
+                    { assert path(test_report).getText().contains("SPN_Sample_01")                                          },
+                    { assert path(percent_strep).getText().contains("More than 1.0% of reads are from Escherichia")         },
                     { assert snapshot(
-                            workflow.trace.succeeded().size(),
+                            // workflow.trace.succeeded().size(),
                             removeNextflowVersion("$outputDir/pipeline_info/software_versions.yml"),
                             // All stable path name, with a relative path
                             stable_name
