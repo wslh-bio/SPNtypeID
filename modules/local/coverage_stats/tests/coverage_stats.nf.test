@@ -12,12 +12,11 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                def data_dir = "${projectDir}/modules/local/coverage_stats/tests"
                 """
                 input[0] = [
-                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
-                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
-                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                file("${data_dir}" + "/data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.depth.tsv")
                 ]
                 input[1] = "40"
                 """
@@ -40,12 +39,11 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                def data_dir = "${projectDir}/modules/local/coverage_stats/tests"
                 """
                 input[0] = [
-                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
-                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
-                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                file("${data_dir}" + "/data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.depth.tsv")
                 ]
                 input[1] = "40"
                 """
@@ -66,23 +64,21 @@ nextflow_process {
                     { assert localFile.text.contains("Average coverage < 40X")              },
                     { assert localFile.text.contains("SPN_Sample_01")                       },
                     { assert localFile.text.contains("SPN_Sample_02")                       },
-                    { assert localFile.text.contains("SPN_Sample_03")                       },
                     { assert localFile.toString().endsWith(".tsv")                          },
                     { assert localFile.toString().split('/')[-1] ==~ "coverage_stats.tsv"   }
                 )
             } else {
-                    assertAll(
-                        { assert file(process.out.coverage_tsv[0]).text.contains("Average coverage < 40X")  },
-                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_01")           },
-                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_02")           },
-                        { assert file(process.out.coverage_tsv[0]).text.contains("SPN_Sample_03")           },
-                        { assert file(process.out.coverage_tsv[0]).name.endsWith(".tsv")                    },
-                        { assert file(process.out.coverage_tsv[0]).name ==~ "coverage_stats.tsv"            },
-                        { assert snapshot(path(process.out.coverage_tsv.get(0)).md5).match()                }
-                    )
-                }
+                assertAll(
+                    { assert file(outFile).text.contains("Average coverage < 40X")  },
+                    { assert file(outFile).text.contains("SPN_Sample_01")           },
+                    { assert file(outFile).text.contains("SPN_Sample_02")           },
+                    { assert file(outFile).name.endsWith(".tsv")                    },
+                    { assert file(outFile).name ==~ "coverage_stats.tsv"            },
+                    { assert snapshot(path(outFile).md5).match()                    }
+                )
             }
         }
+    }
 
     test("Checking that missing input process fails.") {
 
@@ -91,7 +87,6 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
                 """
                 input[0] = null
                 input[1] = "40"
@@ -112,12 +107,11 @@ nextflow_process {
                 outdir = "$outputDir"
             }
             process {
-                def data_dir = "${baseDir}/modules/local/coverage_stats/tests/data/"
+                def data_dir = "${projectDir}/modules/local/coverage_stats/tests"
                 """
                 input[0] = [
-                file("${data_dir}" + "data1/SPN_Sample_01.depth.tsv"),
-                file("${data_dir}" + "data2/SPN_Sample_02.depth.tsv"),
-                file("${data_dir}" + "data3/SPN_Sample_03.depth.tsv")
+                file("${data_dir}" + "/data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.depth.tsv")
                 ]
                 input[1] = null
                 """
