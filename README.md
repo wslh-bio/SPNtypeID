@@ -77,13 +77,13 @@ Quality assessment of the assemblies is performed using [QUAST v5.0.2](http://bi
 Mean and median genome coverage is determined by mapping the cleaned reads back their the assembly using [BWA v0.7.17-r1188](http://bio-bwa.sourceforge.net/) and calculating depth using [Samtools v1.10](http://www.htslib.org/).
 
 #### Genome length assessment
-Genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z score. These statistics (which can be found [here](/assets/databases/NCBI_Assembly_stats_20240124.txt) were obtained from the [PHoeNIx](https://github.com/CDCgov/phoenix) pipeline, which calculated them from 9266 publicly available *S. pneumoniae* genomes.
+Genome length is assessed by comparing the expected *S. pneumoniae* genome length to the observed genome length and calculating a Z-score. These statistics (which can be found [here](/assets/databases/NCBI_Assembly_stats_20240124.txt) were obtained from the [PHoeNIx](https://github.com/CDCgov/phoenix) pipeline, which calculated them from 9266 publicly available *S. pneumoniae* genomes.
 
 #### Contamination detection
-Contamination is detected by classifying reads using [Kraken v1.0.0](https://ccb.jhu.edu/software/kraken2/).
+Contamination is detected by classifying reads using [Kraken v2.0.8](https://ccb.jhu.edu/software/kraken2/).
 
 #### Serotyping
-Serotyping is performed using [SeroBA v2.0.4](https://github.com/GlobalPneumoSeq/seroba).
+Serotyping is performed using [SeroBA v2.0.6](https://github.com/GlobalPneumoSeq/seroba).
 
 ### Output files
 Example of pipeline output:
