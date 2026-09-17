@@ -45,8 +45,8 @@ include { INPUT_CHECK                          } from '../subworkflows/local/inp
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { COUNT_FASTQ                   } from '../modules/local/count_fastq'
-include { COUNT_FASTQ as COUNT_NTC      } from '../modules/local/count_fastq'
+include { COUNT_FASTQ                          } from '../modules/local/count_fastq'
+include { COUNT_FASTQ as COUNT_NTC             } from '../modules/local/count_fastq'
 include { REJECTED_SAMPLES                     } from '../modules/local/rejected_samples/rejected_samples'
 include { BBDUK                                } from '../modules/local/bbduk/bbduk'
 include { BBDUK_SUMMARY                        } from '../modules/local/bbduk_summary/bbduk_summary'
@@ -136,7 +136,7 @@ workflow SPNTYPEID {
         .set{ ch_fully_filtered }
 
     ch_paired_end.fail
-        .map { meta, file, count1, count2 ->
+        .map { meta, _file, _count1, _count2 ->
             [meta.id]
             }
         .set{ ch_failed }
@@ -148,8 +148,7 @@ workflow SPNTYPEID {
                 name: 'empty_samples.csv',
                 newLine: true
             )
-        .set{ ch_rejected_file }
-    
+        .set{ ch_rejected_file }    
 
     if (params.ntc_regex != null) {
 
@@ -175,13 +174,13 @@ workflow SPNTYPEID {
             .set{ ch_ntc_paired_end }
 
         ch_ntc_paired_end.pass
-            .map { meta, file, count1, count2 -> 
+            .map { meta, file, _count1, _count2 -> 
                 [meta, file]
                 }
             .set{ ch_ntc_filtered }
 
         ch_ntc_paired_end.fail
-            .map { meta, file, count1, count2 ->
+            .map { meta, _file, _count1, _count2 ->
                 [meta.id]
                 }
             .set{ ch_ntc_failed }
