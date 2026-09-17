@@ -108,7 +108,7 @@ def summarize_kraken(file):
     return combined_df
 
 logging.info("Obtaining all kraken2 report files")
-files = glob.glob("data/*.kraken.txt")
+files = glob.glob("data/*.kraken2.txt")
 
 logging.info("Summarize kraken2 report files")
 results = map(summarize_kraken, files)

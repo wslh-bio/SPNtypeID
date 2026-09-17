@@ -1,0 +1,107 @@
+nextflow_process {
+
+    name "Test Process CALCULATE_ASSEMBLY_STATS"
+    script "modules/local/calculate_assembly_stats/calculate_assembly_stats.nf"
+    process "CALCULATE_ASSEMBLY_STATS"
+    tag "module"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.assembly_ratio.size() == 1 }
+            )
+        }
+    }
+
+   test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            if (process.out.assembly_ratio[0].toString().contains("/dev-wslh") || process.out.assembly_ration.toString().contains("/prod-wslh")) {
+
+                def outFile = process.out.assembly_ratio[0]
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert snapshot(localFile.md5).match()                                                            },
+                    { assert localFile.toString().endsWith("tsv")                                                       },
+                    { assert localFile.toString().split('/')[-1] ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv"        }
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(process.out.assembly_ratio[0]).md5).match()                                  },
+                    { assert file(process.out.assembly_ratio[0]).name.endsWith("tsv")                                   },
+                    { assert file(process.out.assembly_ratio[0]).name ==~ "SPN_Sample_01_Assembly_ratio_20240124.tsv"   }
+                )
+            }
+        }
+    }
+
+    test("Checking that no input channel produces failure") {
+
+        when {
+            process {
+                """
+                input[0] = null
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            { assert !process.success }
+        }
+    }
+
+    test("Checking that no database channel produces failure") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = null
+                """
+            }
+        }
+
+        then {
+            { assert !process.success }
+        }
+    }
+}

@@ -1,0 +1,110 @@
+nextflow_process {
+
+    name "Test Process PERCENT_STREP_SUMMARY"
+    script "modules/local/percent_strep_summary/percent_strep_summary.nf"
+    process "PERCENT_STREP_SUMMARY"
+    tag "module"
+
+    test("Checks to see output channels have proper amounts of files") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken2.txt")
+                ]
+                input[1] ="80.0"
+                input[2] ="60.0"
+                input[3] ="1.0"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                            },
+                { assert process.exitStatus == 0                    },
+                { assert process.out.percent_strep_tsv.size() == 1  }
+            )
+        }
+    }
+
+    test("Checks that name of file is correct and has proper content") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken2.txt")
+                ]
+                input[1] ="80.0"
+                input[2] ="60.0"
+                input[3] ="1.0"
+                """
+            }
+        }
+
+        then {
+
+            def outFile = process.out.percent_strep_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("tsv")                                           },
+                    { assert localFile.toString().split("/")[-1] ==~ "percent_strep_results.tsv"            },
+                    { assert localFile.text.contains("More than 1.0% of reads are from Escherichia")        },
+                    { assert localFile.text.contains("Less than 80.0% of reads are Strep")                  },
+                    { assert localFile.text.contains("Escherichia")                                         }
+                )
+
+            } else {
+                assertAll(
+                    { assert snapshot(path(outFile).md5).match()                                            },
+                    { assert file(outFile).name.endsWith("tsv")                                             },
+                    { assert file(outFile).name ==~ "percent_strep_results.tsv"                             },
+                    { assert file(outFile).text.contains("More than 1.0% of reads are from Escherichia")    },
+                    { assert file(outFile).text.contains("Less than 80.0% of reads are Strep")              },
+                    { assert file(outFile).text.contains("Escherichia")                                     }
+                )
+            }
+        }
+    }
+
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = null
+                input[1] ="80.0"
+                input[2] ="60.0"
+                input[3] ="1.0"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

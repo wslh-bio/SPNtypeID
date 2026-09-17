@@ -1,0 +1,188 @@
+nextflow_process {
+
+    name "Test Process BBDUK"
+    script "../bbduk.nf"
+    process "BBDUK"
+    tag "module"
+
+    test("Checking that mandatory output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.reads.size() == 1          },
+                { assert process.out.log.size() == 1            },
+                { assert process.out.bbduk_trim.size() == 1     },
+                { assert process.out.bbduk_adapters.size() == 1 },
+                { assert process.out.versions.size() == 1       }
+            )
+        }
+
+    }
+
+    test('Checking that optional output channels have appropriate amount of values') {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                """
+            }
+        }
+        then {
+
+            assertAll (
+                { assert process.out.repaired_reads.size() == 1 },
+                { assert process.out.singletons.size() == 1     },
+                { assert process.out.repaired_log.size() == 1   }
+
+            )
+        }
+    }
+
+    test('Checking mandatory file contents to ensure proper processing.') {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                """
+            }
+        }
+        then {
+
+            if (process.out.reads[0][1][0].toString().contains("/dev-wslh") || process.out.reads[0][1][0].toString().contains("/prod-wslh")) {
+
+                def read1_download = "s3:/" + process.out.reads[0][1][0].toString()
+                def read2_download = "s3:/" + process.out.reads[0][1][1].toString()
+                def log_download   = "s3:/" + process.out.log[0][1].toString()
+                def adapters_download = "s3:/" + process.out.bbduk_adapters[0].toString()
+                def versions_download = "s3:/" + process.out.versions[0].toString()
+
+                def read1_local = downloadFromS3(read1_download)
+                def read2_local = downloadFromS3(read2_download)
+                def log_local   = downloadFromS3(log_download)
+                def adapters_local = downloadFromS3(adapters_download)
+                def versions_local = downloadFromS3(versions_download)
+
+                assertAll(
+
+                    // read1
+                    { assert read1_local.toString().contains("trimmed")                                                         },
+                    { assert read1_local.toString().endsWith(".gz")                                                             },
+                    { assert read1_local.toString().split('/')[-1] ==~ "test_trimmed_1.fastq.gz"                                },
+
+                    // read2
+                    { assert read2_local.toString().contains("trimmed")                                                         },
+                    { assert read2_local.toString().endsWith(".gz")                                                             },
+                    { assert read2_local.toString().split('/')[-1] ==~ "test_trimmed_2.fastq.gz"                                },
+
+                    { assert log_local.getText().contains("Input is being processed as paired")                                 },
+                    { assert adapters_local.getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz")  },
+                    { assert snapshot(versions_local.md5).match()                                                               }
+                )
+            } else {
+                assertAll(
+
+                    // read1
+                    { assert file(process.out.reads[0][1][0]).name.contains("trimmed")                                                              },
+                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz")                                                                  },
+
+                    // read2
+                    { assert file(process.out.reads[0][1][1]).name.contains("trimmed")                                                              },
+                    { assert file(process.out.reads[0][1][0]).name.endsWith(".gz")                                                                  },
+
+                    { assert path(process.out.log[0][1]).getText().contains("Input is being processed as paired")                                   },
+                    { assert path(process.out.bbduk_adapters[0]).getText().contains("#File	test_repaired_1.fastq.gz	test_repaired_2.fastq.gz")  },
+                    { assert snapshot(path(process.out.versions[0]).md5).match()                                                                    },
+                    {
+                        with(process.out.reads) {
+                            with(get(0)) {
+                                with(get(1)) {
+                                    assert get(0) ==~ ".*/test_trimmed_1.fastq.gz"
+                                    assert get(1) ==~ ".*/test_trimmed_2.fastq.gz"
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking that no adapter channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] =  [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

@@ -1,0 +1,95 @@
+nextflow_process {
+
+    name "Test Process SEROBA_SUMMARY"
+    script "modules/local/seroba_summary/seroba_summary.nf"
+    process "SEROBA_SUMMARY"
+    tag "module"
+
+    test("Checks to see output channels have proper amounts of files") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/seroba_summary/tests/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.pred.csv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.pred.csv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.pred.csv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.seroba_tsv.size() == 1 }
+            )
+        }
+    }
+
+    test("Checks that name of file is correct and has proper content") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/seroba_summary/tests/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.pred.csv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.pred.csv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.pred.csv")
+                ]
+                """
+            }
+        }
+
+        then {
+            def outFile = process.out.seroba_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined    = "s3:/" + outFile.toString()
+                def localFile   = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("tsv")                                       },
+                    { assert localFile.toString().split("/")[-1] ==~ "seroba_results.tsv"               },
+                    { assert localFile.text.contains("Sample	Serotype	SeroBA Comments")           }
+                )
+
+            } else {
+                assertAll(
+                    { assert file(outFile).name.endsWith("tsv")                                         },
+                    { assert file(outFile).name ==~ "seroba_results.tsv"                                },
+                    { assert path(outFile).getText().contains("Sample	Serotype	SeroBA Comments")   }
+                )
+            }
+        }
+    }
+
+  test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/seroba_summary/tests/"
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

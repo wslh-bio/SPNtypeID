@@ -1,0 +1,178 @@
+nextflow_process {
+
+    name "Test Process CREATE_REPORT"
+    script "modules/local/create_report/create_report.nf"
+    process "CREATE_REPORT"
+    tag "module"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = "Test"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.result_csv.size() == 1 }
+            )
+        }
+    }
+
+    test("Checking file contents to ensure proper processing and headers for order confirmation") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+
+            def outFile = process.out.result_csv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith("csv")                                   },
+                    { assert localFile.toString().split('/')[-1] ==~ "test_spntypeid_report.csv"    },
+                    { assert localFile.text.contains("Sample,Run,Total Reads,Reads Removed,Median Read Quality,Average Read Quality,Contigs (#),N50,Assembly Length (bp),Ratio of Actual:Expected Genome Length,z-score,Median Coverage,Average Coverage,Percent Strep,Percent SPN,SecondGenus,Percent SecondGenus,Serotype,Kraken Database Version,Max NTC read,Max NTC SPN read,All NTC reads,All NTC SPN reads,SPNtypeID Version")}
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(process.out.result_csv[0]).md5).match()                  },
+                    { assert file(process.out.result_csv[0]).name.endsWith("csv")                   },
+                    { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv"   },
+                    { assert file(process.out.result_csv[0]).text.contains("Sample,Run,Total Reads,Reads Removed,Median Read Quality,Average Read Quality,Contigs (#),N50,Assembly Length (bp),Ratio of Actual:Expected Genome Length,z-score,Median Coverage,Average Coverage,Percent Strep,Percent SPN,SecondGenus,Percent SecondGenus,Serotype,Kraken Database Version,Max NTC read,Max NTC SPN read,All NTC reads,All NTC SPN reads,SPNtypeID Version")}
+                )
+            }
+
+        }
+    }
+
+    test("Checking no input channels produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = null
+                input[1] = ["NTC01"]
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking no ntc produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = null
+                input[2] = "test"
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+
+    test("Checking no runname produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}
+

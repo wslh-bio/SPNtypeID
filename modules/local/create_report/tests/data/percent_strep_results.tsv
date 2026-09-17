@@ -1,0 +1,4 @@
+Sample	Percent Strep	Percent SPN	SecondGenus	Percent SecondGenus	Pass Kraken	Percent Strep Comments
+SPN_Sample_02	99.84	93.17		0.0	True	
+SPN_Sample_03	0.0	0.0	Escherichia	76.88	False	Less than 80.0% of reads are Strep;Less than 60.0% of reads are SPN;More than 1.0% of reads are from Escherichia
+SPN_Sample_01	98.15	86.02		0.0	True	
