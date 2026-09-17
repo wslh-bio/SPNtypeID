@@ -1,0 +1,12 @@
+{
+    "Checking file contents to ensure proper processing": {
+        "content": [
+            "cba766121f8000cd2b6d452ee903db24"
+        ],
+        "timestamp": "2026-07-14T08:29:56.36829053",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
+        }
+    }
+}

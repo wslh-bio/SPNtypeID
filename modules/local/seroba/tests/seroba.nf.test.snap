@@ -1,0 +1,12 @@
+{
+    "Checking mandatory output files have appropriate content": {
+        "content": [
+            "0fc7fc604973f5275107238993f6082d"
+        ],
+        "timestamp": "2026-09-16T11:13:58.060533606",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
+        }
+    }
+}

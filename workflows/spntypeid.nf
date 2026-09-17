@@ -33,7 +33,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK                          } from '../subworkflows/local/input_check'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,32 +45,32 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { COUNT_FASTQ                   } from '../modules/local/count_fastq'
-include { COUNT_FASTQ as COUNT_NTC      } from '../modules/local/count_fastq'
-include { REJECTED_SAMPLES              } from '../modules/local/rejected_samples'
-include { BBDUK                         } from '../modules/local/bbduk'
-include { BBDUK_SUMMARY                 } from '../modules/local/bbduk_summary'
-include { FASTQC                        } from '../modules/local/fastqc'
-include { FASTQC_SUMMARY                } from '../modules/local/fastqc_summary'
-include { SHOVILL                       } from '../modules/local/shovill'
-include { SAMTOOLS                      } from '../modules/local/samtools'
-include { COVERAGE_STATS                } from '../modules/local/coverage_stats'
-include { QUAST                         } from '../modules/local/quast'
-include { QUAST_SUMMARY                 } from '../modules/local/quast_summary'
-include { BIOAWK                        } from '../modules/local/bioawk'
-include { QUALITY_STATS                 } from '../modules/local/quality_stats'
-include { KRAKEN as KRAKEN_SAMPLE       } from '../modules/local/kraken'
-include { KRAKEN as KRAKEN_NTC          } from '../modules/local/kraken'
-include { KRAKEN_SUMMARY                } from '../modules/local/kraken_summary'
-include { SEROBA                        } from '../modules/local/seroba'
-include { SEROBA_SUMMARY                } from '../modules/local/seroba_summary'
-include { PERCENT_STREP_SUMMARY         } from '../modules/local/percent_strep_summary'
-include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report'
-include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report'
-include { MULTIQC                       } from '../modules/local/multiqc'
-include { CALCULATE_ASSEMBLY_STATS      } from '../modules/local/calculate_assembly_stats'
-include { ASSEMBLY_STATS_SUMMARY        } from '../modules/local/assembly_stats_summary.nf'
-include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { COUNT_FASTQ                          } from '../modules/local/count_fastq'
+include { COUNT_FASTQ as COUNT_NTC             } from '../modules/local/count_fastq'
+include { REJECTED_SAMPLES                     } from '../modules/local/rejected_samples/rejected_samples'
+include { BBDUK                                } from '../modules/local/bbduk/bbduk'
+include { BBDUK_SUMMARY                        } from '../modules/local/bbduk_summary/bbduk_summary'
+include { FASTQC                               } from '../modules/local/fastqc/fastqc'
+include { FASTQC_SUMMARY                       } from '../modules/local/fastqc_summary/fastqc_summary'
+include { SHOVILL                              } from '../modules/local/shovill/shovill'
+include { SAMTOOLS                             } from '../modules/local/samtools/samtools'
+include { COVERAGE_STATS                       } from '../modules/local/coverage_stats/coverage_stats'
+include { QUAST                                } from '../modules/local/quast/quast'
+include { QUAST_SUMMARY                        } from '../modules/local/quast_summary/quast_summary'
+include { BIOAWK                               } from '../modules/local/bioawk/bioawk'
+include { QUALITY_STATS                        } from '../modules/local/quality_stats/quality_stats'
+include { KRAKEN2 as KRAKEN_SAMPLE             } from '../modules/local/kraken2/kraken2'
+include { KRAKEN2 as KRAKEN_NTC                } from '../modules/local/kraken2/kraken2'
+include { KRAKEN_SUMMARY                       } from '../modules/local/kraken_summary/kraken_summary'
+include { SEROBA                               } from '../modules/local/seroba/seroba'
+include { SEROBA_SUMMARY                       } from '../modules/local/seroba_summary/seroba_summary'
+include { PERCENT_STREP_SUMMARY                } from '../modules/local/percent_strep_summary/percent_strep_summary'
+include { CREATE_REPORT as REPORT_WITH_NTC     } from '../modules/local/create_report/create_report'
+include { CREATE_REPORT as REPORT_NO_NTC       } from '../modules/local/create_report/create_report'
+include { MULTIQC                              } from '../modules/local/multiqc/multiqc'
+include { CALCULATE_ASSEMBLY_STATS             } from '../modules/local/calculate_assembly_stats/calculate_assembly_stats'
+include { ASSEMBLY_STATS_SUMMARY               } from '../modules/local/assembly_stats_summary/assembly_stats_summary'
+include { CUSTOM_DUMPSOFTWAREVERSIONS          } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,12 +78,10 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS   } from '../modules/nf-core/custom/dumpso
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// Info required for completion email and summary
-def multiqc_report = []
-
 workflow SPNTYPEID {
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
+    ch_NTCs_collected = channel.empty()
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -95,7 +93,7 @@ workflow SPNTYPEID {
 
     // Checking input and setting single and paired end 
     INPUT_CHECK.out.reads
-        .branch{ meta, file -> 
+        .branch{ meta, _file ->
             single_end: meta.single_end
             paired_end: !meta.single_end
             }
@@ -132,26 +130,25 @@ workflow SPNTYPEID {
 
 
     ch_paired_end.pass
-        .map { meta, file, count1, count2 -> 
+        .map { meta, file, _count1, _count2 ->
             [meta, file]
             }
         .set{ ch_filtered }
 
     ch_paired_end.fail
-        .map { meta, file, count1, count2 ->
-            meta.id
+        .map { meta, _file, _count1, _count2 ->
+            [meta.id]
             }
         .set{ ch_failed }
 
     // Collect 
     ch_failed
-        .ifEmpty('NO_EMPTY_SAMPLES')
+        .ifEmpty{'NO_EMPTY_SAMPLES'}
         .collectFile(
                 name: 'empty_samples.csv',
                 newLine: true
             )
-        .set{ ch_rejected_file }
-    
+        .set{ ch_rejected_file }    
 
     if (params.ntc_regex != null) {
 
@@ -177,14 +174,14 @@ workflow SPNTYPEID {
             .set{ ch_ntc_paired_end }
 
         ch_ntc_paired_end.pass
-            .map { meta, file, count1, count2 -> 
+            .map { meta, file, _count1, _count2 -> 
                 [meta, file]
                 }
             .set{ ch_ntc_filtered }
 
         ch_ntc_paired_end.fail
-            .map { meta, file, count1, count2 ->
-                meta.id
+            .map { meta, _file, _count1, _count2 ->
+                [meta.id]
                 }
             .set{ ch_ntc_failed }
 
@@ -272,8 +269,8 @@ workflow SPNTYPEID {
     QUAST
         .out
         .transposed_report
-        .map { meta, path -> 
-            path 
+        .map { _meta, path ->
+            path
             }
         .collect()
         .set { ch_quast_summary }
@@ -299,29 +296,56 @@ workflow SPNTYPEID {
         params.minavgreadq
     )
 
+    if (params.kraken_db != null) {
+         ch_kraken_db = channel.value(params.kraken_db)
+     } else {
+         ch_kraken_db = file("$baseDir/assets/empty_file.txt", checkIfExists:true)
+     }
+
     //
     // MODULE: KRAKEN_SAMPLE
     //
     KRAKEN_SAMPLE (
-        ch_filtered
+        ch_filtered,
+        ch_kraken_db
     )
     ch_versions = ch_versions.mix(KRAKEN_SAMPLE.out.versions.first())
+
+    //
+    // Setting up channel for processing
+    //
+    ch_samples_collected = KRAKEN_SAMPLE
+        .out
+        .kraken_results
+        .map { _meta, path ->
+            path
+        }
+        .collect()
+
+    if (params.ntc_regex != null) {
+        //
+        // MODULE: KRAKEN_NTC
+        //
+        KRAKEN_NTC (
+            ch_ntc_filtered,
+            ch_kraken_db
+        )
+
+        ch_NTCs_collected = KRAKEN_NTC
+            .out
+            .kraken_results
+            .map { _meta, path ->
+                path
+            }
+            .collect()
+    }
 
     //
     // MODULE: KRAKEN_SUMMARY
     //
     KRAKEN_SUMMARY (
-        KRAKEN_SAMPLE.out.kraken_results.collect()
+        ch_samples_collected
     )
-
-    if (params.ntc_regex != null) {
-        //
-        // MODULE: KRAKEN_NTC
-        // 
-        KRAKEN_NTC (
-            ch_ntc_filtered
-        )
-    }
 
     //
     // MODULE: SEROBA
@@ -342,16 +366,14 @@ workflow SPNTYPEID {
     // MODULE: PERCENT_STREP_SUMMARY
     //
     PERCENT_STREP_SUMMARY (
-        KRAKEN_SAMPLE.out.kraken_results.collect(),
+        ch_samples_collected,
         params.minpctstrep,
         params.minpctspn,
         params.maxpctother
     )
 
-    ch_kraken_tsv = KRAKEN_SUMMARY.out.kraken_tsv
-
     QUAST.out.transposed_report
-        .map{meta, result -> 
+        .map{meta, result ->
             [[id:meta.id], result]
             }
             .set { ch_quast }
@@ -371,14 +393,16 @@ workflow SPNTYPEID {
         CALCULATE_ASSEMBLY_STATS.out.assembly_ratio.collect()
     )
 
+    ch_NTCs_collected.view()
+
     //
     // MODULE: CREATE_REPORT
     //
-    ch_compiled_results = Channel.empty()
+    ch_compiled_results = channel.empty()
     if (params.ntc_regex != null) {
-        ch_kraken_ntc = ch_compiled_results.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+        ch_kraken_ntc = ch_compiled_results.mix(ch_NTCs_collected.ifEmpty([]))
     } else {
-        ch_kraken_ntc = Channel.empty()
+        ch_kraken_ntc = channel.empty()
     }
     ch_compiled_results = ch_compiled_results.mix(ch_kraken_ntc)
     ch_compiled_results = ch_compiled_results.mix(ASSEMBLY_STATS_SUMMARY.out.assembly_stats_tsv)
@@ -406,17 +430,6 @@ workflow SPNTYPEID {
         )
     }
 
-    //
-    // MODULE: WORKFLOW_TEST
-    //
-    //if (params.ntc_regex != null) {
-    //    ch_valid_dataset = Channel.fromPath("$projectDir/test-dataset/validation/spntypeid_report_valid.csv", checkIfExists: true)
-    //    WORKFLOW_TEST (
-    //        ch_valid_dataset.collect(),
-    //        REPORT_WITH_NTC.out.result_csv
-    //    )
-    //}
-
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -425,12 +438,12 @@ workflow SPNTYPEID {
     //MODULE: MultiQC
     //
     workflow_summary    = WorkflowSpntypeid.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    ch_workflow_summary = channel.value(workflow_summary)
 
     methods_description    = WorkflowSpntypeid.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
-    ch_methods_description = Channel.value(methods_description)
+    ch_methods_description = channel.value(methods_description)
 
-    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
@@ -438,10 +451,10 @@ workflow SPNTYPEID {
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_adapters.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(BBDUK.out.bbduk_trim.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(SAMTOOLS.out.stats_multiqc.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_SAMPLE.out.kraken_results.collect().ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_samples_collected.ifEmpty([]))
 
     if (params.ntc_regex != null) {
-        ch_multiqc_files = ch_multiqc_files.mix(KRAKEN_NTC.out.kraken_results.collect().ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_NTCs_collected.ifEmpty([]))
     }
 
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.result.collect().ifEmpty([]))

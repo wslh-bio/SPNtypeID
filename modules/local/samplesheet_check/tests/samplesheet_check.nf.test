@@ -1,0 +1,97 @@
+nextflow_process {
+
+    name "Test Process SAMPLESHEET_CHECK"
+    script "modules/local/samplesheet_check/samplesheet_check.nf"
+    process "SAMPLESHEET_CHECK"
+    tag "module"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/samplesheet_check/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/workflow_test.csv")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.csv.size() == 1        },
+                { assert process.out.versions.size() == 1   }
+            )
+        }
+    }
+
+    test("Checking file contents to ensure proper processing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/samplesheet_check/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/workflow_test.csv")
+                """
+            }
+        }
+
+        then {
+
+            def outFile_csv  = process.out.csv[0]
+            def outFile_versions = process.out.versions[0]
+
+            if (outFile_csv.toString().contains("/dev-wslh") || outFile_csv.toString().contains("/prod-wslh")) {
+
+                def combined_csv       = "s3:/" + outFile_csv.toString()
+                def combined_versions       = "s3:/" + outFile_versions.toString()
+
+                def localFile_csv      = downloadFromS3(combined_csv)
+                def localFile_versions      = downloadFromS3(combined_versions)
+
+                assertAll(
+                    { assert localFile_csv.toString().split("/")[-1] ==~ "samplesheet.valid.csv"                                            },
+                    { assert localFile_versions.toString().split("/")[-1] ==~ "versions.yml"                                                },
+                    { assert localFile_csv.text.contains("NTC01")                                                                           },
+                    { assert localFile_csv.text.contains("https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R1.fastq.gz")   },
+                    { assert localFile_versions .text.contains("python: 3.8.10")                                                            }
+                )
+            } else {
+                assertAll(
+                    { assert snapshot(path(outFile_csv).md5).match()                                                                                },
+                    { assert file(outFile_csv).name      ==~ "samplesheet.valid.csv"                                                                },
+                    { assert file(outFile_versions).name ==~ "versions.yml"                                                                         },
+                    { assert path(outFile_csv).getText().contains("NTC01")                                                                          },
+                    { assert path(outFile_csv).getText().contains("https://github.com/wslh-bio/SPNtypeID/raw/main/test-dataset/NTC01_R1.fastq.gz")  },
+                    { assert path(outFile_versions).getText().contains("python: 3.8.10")                                                            }
+
+                )
+            }
+        }
+    }
+
+    test("Checking that no input files channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

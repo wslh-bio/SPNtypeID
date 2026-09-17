@@ -1,0 +1,93 @@
+%%metro title: 
+%%metro style: dark
+%%metro file: input | FASTQ
+%%metro file: rejected_fastqs | TXT
+%%metro file: genome_stats | CSV
+%%metro file: final_report | CSV
+%%metro file: multiqc_report | HTML
+%%metro line: main | Main | #009E73
+%%metro line: ntc | NTC | #0072B2
+
+graph LR
+    subgraph preprocessing [Pre-processing]
+        input[ ]
+        count[Count reads]
+        rejected_fastqs[ ]
+        parse_ntc[Separate NTCs]
+        reject[Remove rejected FASTQs]
+        input -->|main| parse_ntc
+        parse_ntc -->|main,ntc| count
+        count -->|main| reject
+        reject -->|main| rejected_fastqs
+    end
+
+    subgraph read_classification [Species ID]
+        kraken[Kraken2]
+        kraken_sum[Kraken summary]
+        kraken -->|main,ntc| kraken_sum
+    end
+
+    subgraph read_qc [Trimming & QC]
+        trim[BBDuk]
+        trim_sum[BBDuk summary]
+        fastqc[FastQC]
+        fastqc_sum[FastQC summary]
+        bioawk[Bioawk]
+        bioawk_sum[Bioawk summary]
+        trim -->|main| trim_sum
+        trim_sum -->|main| fastqc
+        fastqc -->|main| fastqc_sum
+        bioawk -->|main| bioawk_sum
+    end
+
+    subgraph asssembly [Assembly & QC]
+        genome_stats[ ]
+        assembly[Shovill]
+        quast[QUAST]
+        map[BWA]
+        zscore[Z-score]
+        zscore_sum[Z-score summary]
+        quast_sum[QUAST     summary]
+        cov[Samtools]
+        cov_sum[Samtools summary]
+        assembly -->|main| quast
+        assembly -->|main| zscore
+        genome_stats -->|main| zscore
+        zscore -->|main| zscore_sum
+        quast -->|main| quast_sum
+        assembly -->|main| map
+        map -->|main| cov
+        cov -->|main| cov_sum
+    end
+
+    subgraph serotyping [Serotyping]
+        serotype[SeroBA]
+        serotype_sum[SeroBA summary]
+        serotype -->|main| serotype_sum
+    end
+
+    subgraph report [Reporting]
+        final_report[ ]
+        multiqc_report[ ]
+        create[Create final report]
+        multiqc[MultiQC]
+        create -->|main,ntc| final_report
+        multiqc -->|main| multiqc_report
+    end
+
+reject -->|main| kraken
+count -->|ntc| kraken
+reject -->|main| trim
+reject -->|main| bioawk
+trim -->|main| assembly
+bioawk_sum -->|main| create
+reject -->|main| serotype
+serotype_sum -->|main| create
+kraken_sum -->|main,ntc| create
+quast_sum -->|main| multiqc
+zscore_sum -->|main| create
+cov_sum -->|main| create
+trim -->|main| create
+kraken -->|main| multiqc
+fastqc_sum -->|main| multiqc
+cov_sum -->|main| multiqc

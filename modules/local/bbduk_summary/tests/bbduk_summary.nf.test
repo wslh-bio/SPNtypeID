@@ -1,0 +1,84 @@
+nextflow_process {
+
+    name "Test Process BBDUK_SUMMARY"
+    script "modules/local/bbduk_summary/bbduk_summary.nf"
+    process "BBDUK_SUMMARY"
+    tag "module"
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.bbduk_tsv.size() == 1  }
+            )
+        }
+    }
+
+    test("Checking file contents to ensure proper processing.") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
+                """
+            }
+        }
+
+        then {
+            def outFile = process.out.bbduk_tsv[0]
+
+            if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
+
+                def combined = "s3:/" + outFile.toString()
+                def localFile = downloadFromS3(combined)
+
+                assertAll(
+                    { assert localFile.toString().endsWith(".tsv")                              },
+                    { assert localFile.toString().split('/')[-1] ==~ "bbduk_results.tsv"        },
+                    { assert localFile.text.contains("Sample\tTotal Reads\tReads Removed\n")    },
+                )
+            } else {
+                assertAll(
+                    { assert file(outFile).name.endsWith(".tsv")                                    },
+                    { assert file(outFile).name ==~ "bbduk_results.tsv"                             },
+                    { assert file(outFile).text.contains("Sample\tTotal Reads\tReads Removed\n")    },
+                    { assert snapshot(path(outFile).md5).match()                                    }
+                )
+            }
+        }
+    }
+
+    test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

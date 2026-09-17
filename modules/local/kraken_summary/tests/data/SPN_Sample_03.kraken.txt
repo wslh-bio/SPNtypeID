@@ -1,0 +1,146 @@
+  6.64	28363	28363	U	0	unclassified
+ 93.36	398486	2371	-	1	root
+ 92.80	396113	3	-	131567	  cellular organisms
+ 92.80	396110	1441	D	2	    Bacteria
+ 92.46	394667	267	P	1224	      Proteobacteria
+ 92.40	394400	522	C	1236	        Gammaproteobacteria
+ 92.27	393861	4665	O	91347	          Enterobacterales
+ 91.18	389192	126883	F	543	            Enterobacteriaceae
+ 61.15	261011	15344	G	561	              Escherichia
+ 57.55	245637	233252	S	562	                Escherichia coli
+  2.14	9131	9131	-	1322345	                  Escherichia coli ATCC 25922
+  0.75	3203	3203	-	316435	                  Escherichia coli Nissle 1917
+  0.00	14	14	-	585397	                  Escherichia coli ED1a
+  0.00	9	9	-	930406	                  Escherichia coli O157:H16
+  0.00	6	0	-	168807	                  Escherichia coli O127:H6
+  0.00	6	6	-	574521	                    Escherichia coli O127:H6 str. E2348/69
+  0.00	4	1	-	1078034	                  Escherichia coli O145:H28
+  0.00	3	3	-	1248915	                    Escherichia coli O145:H28 str. RM13516
+  0.00	3	3	-	439855	                  Escherichia coli SMS-3-5
+  0.00	2	0	-	376725	                  Escherichia coli O103:H2
+  0.00	2	2	-	585395	                    Escherichia coli O103:H2 str. 12009
+  0.00	1	1	-	83334	                  Escherichia coli O157:H7
+  0.00	1	1	-	199310	                  Escherichia coli CFT073
+  0.00	1	1	-	340184	                  Escherichia coli B7A
+  0.00	1	1	-	362663	                  Escherichia coli 536
+  0.00	1	1	-	409438	                  Escherichia coli SE11
+  0.00	1	1	-	655817	                  Escherichia coli ABU 83972
+  0.00	1	0	-	861906	                  Escherichia coli O44:H18
+  0.00	1	1	-	216592	                    Escherichia coli 042
+  0.00	1	1	-	1045010	                  Escherichia coli O157
+  0.00	1	1	-	1311757	                  Escherichia coli ACN001
+  0.00	1	1	-	1329907	                  Escherichia coli APEC IMT5155
+  0.00	1	1	-	1358422	                  Escherichia coli PCN061
+  0.00	1	1	-	1412834	                  Escherichia coli FAP1
+  0.00	1	1	-	1441627	                  Escherichia coli str. Sanji
+  0.00	21	21	S	208962	                Escherichia albertii
+  0.00	9	4	S	564	                Escherichia fergusonii
+  0.00	3	3	-	585054	                  Escherichia fergusonii ATCC 35469
+  0.00	2	2	-	981367	                  Escherichia fergusonii ECD227
+  0.29	1243	3	G	570	              Klebsiella
+  0.29	1233	1233	S	571	                Klebsiella oxytoca
+  0.00	2	2	S	548	                Klebsiella aerogenes
+  0.00	2	2	S	573	                Klebsiella pneumoniae
+  0.00	1	1	S	1134687	                Klebsiella michiganensis
+  0.00	1	1	S	1463165	                Klebsiella quasipneumoniae
+  0.00	1	1	S	2026240	                Klebsiella sp. KPN1705
+  0.00	11	4	G	544	              Citrobacter
+  0.00	6	0	-	1344959	                Citrobacter freundii complex
+  0.00	3	2	S	546	                  Citrobacter freundii
+  0.00	1	1	-	1333848	                    Citrobacter freundii CFNIH1
+  0.00	2	2	S	67827	                  Citrobacter werkmanii
+  0.00	1	1	S	57706	                  Citrobacter braakii
+  0.00	1	1	S	35703	                Citrobacter amalonaticus
+  0.00	10	2	G	590	              Salmonella
+  0.00	8	1	S	28901	                Salmonella enterica
+  0.00	6	2	-	59201	                  Salmonella enterica subsp. enterica
+  0.00	1	1	-	605	                    Salmonella enterica subsp. enterica serovar Pullorum
+  0.00	1	1	-	90371	                    Salmonella enterica subsp. enterica serovar Typhimurium
+  0.00	1	1	-	119912	                    Salmonella enterica subsp. enterica serovar Choleraesuis
+  0.00	1	0	-	149386	                    Salmonella enterica subsp. enterica serovar Chester
+  0.00	1	1	-	941190	                      Salmonella enterica subsp. enterica serovar Chester str. ATCC 11997
+  0.00	1	0	-	59205	                  Salmonella enterica subsp. houtenae
+  0.00	1	1	-	523831	                    Salmonella enterica subsp. houtenae str. ATCC BAA-1581
+  0.00	9	0	G	620	              Shigella
+  0.00	3	2	S	623	                Shigella flexneri
+  0.00	1	1	-	1282357	                  Shigella flexneri 2003036
+  0.00	2	1	S	621	                Shigella boydii
+  0.00	1	1	-	344609	                  Shigella boydii CDC 3083-94
+  0.00	2	0	S	622	                Shigella dysenteriae
+  0.00	2	2	-	300267	                  Shigella dysenteriae Sd197
+  0.00	2	2	S	624	                Shigella sonnei
+  0.00	8	0	G	547	              Enterobacter
+  0.00	7	2	-	354276	                Enterobacter cloacae complex
+  0.00	2	0	S	61645	                  Enterobacter asburiae
+  0.00	2	2	-	640513	                    Enterobacter asburiae LF7a
+  0.00	1	0	S	550	                  Enterobacter cloacae
+  0.00	1	0	-	336306	                    Enterobacter cloacae subsp. cloacae
+  0.00	1	1	-	716541	                      Enterobacter cloacae subsp. cloacae ATCC 13047
+  0.00	1	0	S	158836	                  Enterobacter hormaechei
+  0.00	1	1	-	299766	                    Enterobacter hormaechei subsp. steigerwaltii
+  0.00	1	1	S	1870930	                  Enterobacter cloacae complex sp. 35734
+  0.00	1	1	S	1166130	                Enterobacter sp. R4-368
+  0.00	5	0	G	413496	              Cronobacter
+  0.00	2	1	S	28141	                Cronobacter sakazakii
+  0.00	1	1	-	956149	                  Cronobacter sakazakii SP291
+  0.00	2	0	S	1163710	                Cronobacter condimenti
+  0.00	2	2	-	1073999	                  Cronobacter condimenti 1330
+  0.00	1	1	S	413503	                Cronobacter malonaticus
+  0.00	4	0	G	1330547	              Kosakonia
+  0.00	3	3	S	208223	                Kosakonia cowanii
+  0.00	1	1	S	497725	                Kosakonia oryzae
+  0.00	2	0	G	158483	              Cedecea
+  0.00	2	2	S	158822	                Cedecea neteri
+  0.00	2	0	G	1330545	              Lelliottia
+  0.00	1	1	S	61646	                Lelliottia amnigena
+  0.00	1	1	S	1907578	                Lelliottia sp. PFL01
+  0.00	1	0	G	579	              Kluyvera
+  0.00	1	1	S	61648	                Kluyvera intermedia
+  0.00	1	0	-	191675	              unclassified Enterobacteriaceae
+  0.00	1	0	-	84563	                ant, tsetse, mealybug, aphid, etc. endosymbionts
+  0.00	1	0	G	1682492	                  Candidatus Tachikawaea
+  0.00	1	1	S	1410383	                    Candidatus Tachikawaea gelatinosa
+  0.00	1	0	G	929812	              Gibbsiella
+  0.00	1	1	S	929813	                Gibbsiella quercinecans
+  0.00	1	0	G	1330546	              Pluralibacter
+  0.00	1	1	S	61647	                Pluralibacter gergoviae
+  0.00	2	0	F	1903411	            Yersiniaceae
+  0.00	2	0	G	629	              Yersinia
+  0.00	2	0	-	1649845	                Yersinia pseudotuberculosis complex
+  0.00	2	2	S	632	                  Yersinia pestis
+  0.00	1	0	F	1903409	            Erwiniaceae
+  0.00	1	0	G	53335	              Pantoea
+  0.00	1	1	S	470934	                Pantoea vagans
+  0.00	1	1	F	1903414	            Morganellaceae
+  0.00	16	0	O	72274	          Pseudomonadales
+  0.00	16	0	F	468	            Moraxellaceae
+  0.00	16	0	G	469	              Acinetobacter
+  0.00	16	10	-	909768	                Acinetobacter calcoaceticus/baumannii complex
+  0.00	6	6	S	470	                  Acinetobacter baumannii
+  0.00	1	1	O	1706369	          Cellvibrionales
+  0.00	2	0	-	1783272	      Terrabacteria group
+  0.00	1	0	P	1239	        Firmicutes
+  0.00	1	0	C	91061	          Bacilli
+  0.00	1	0	O	1385	            Bacillales
+  0.00	1	0	F	186817	              Bacillaceae
+  0.00	1	0	G	1386	                Bacillus
+  0.00	1	0	-	86661	                  Bacillus cereus group
+  0.00	1	0	S	1396	                    Bacillus cereus
+  0.00	1	1	-	526986	                      Bacillus cereus Rock3-44
+  0.00	1	0	P	201174	        Actinobacteria
+  0.00	1	0	C	1760	          Actinobacteria
+  0.00	1	0	O	85007	            Corynebacteriales
+  0.00	1	0	F	1762	              Mycobacteriaceae
+  0.00	1	0	G	1763	                Mycobacterium
+  0.00	1	1	S	1768	                  Mycobacterium kansasii
+  0.00	2	0	D	10239	  Viruses
+  0.00	1	0	-	29258	    ssDNA viruses
+  0.00	1	0	F	10841	      Microviridae
+  0.00	1	0	-	1910950	        Bullavirinae
+  0.00	1	0	G	1910954	          Phix174microvirus
+  0.00	1	0	-	1910975	            unclassified Phix174microvirus
+  0.00	1	1	S	374840	              Enterobacteria phage phiX174 sensu lato
+  0.00	1	0	-	35325	    dsRNA viruses
+  0.00	1	0	F	11012	      Partitiviridae
+  0.00	1	0	G	1511809	        Betapartitivirus
+  0.00	1	1	S	1323523	          Hop trefoil cryptic virus 2
