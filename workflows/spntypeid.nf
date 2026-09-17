@@ -133,7 +133,7 @@ workflow SPNTYPEID {
         .map { meta, file, _count1, _count2 ->
             [meta, file]
             }
-        .set{ ch_fully_filtered }
+        .set{ ch_filtered }
 
     ch_paired_end.fail
         .map { meta, _file, _count1, _count2 ->
