@@ -14,6 +14,12 @@ process BBDUK_SUMMARY {
 
     script:
     """
-    bbduk_summary.py 
+    bbduk_summary.py
+    """
+
+
+    stub:
+    """
+    touch bbduk_results.tsv
     """
 }

@@ -35,7 +35,7 @@ process BBDUK {
         outs=${prefix}_singletons.fastq.gz \\
         repair \\
         &> ${prefix}.repair.log
-        
+
     bbduk.sh \\
         -Xmx\$maxmem \\
         in1=${prefix}_repaired_1.fastq.gz in2=${prefix}_repaired_2.fastq.gz \\
@@ -51,6 +51,27 @@ process BBDUK {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bbmap: \$(bbversion.sh)
+    END_VERSIONS
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def output_command  = meta.single_end ? "echo '' | gzip > ${prefix}.fastq.gz" : "echo '' | gzip > ${prefix}_1.fastq.gz ; echo '' | gzip > ${prefix}_2.fastq.gz"
+    """
+    touch "${prefix}.trimmed"
+    touch "${prefix}.bbduk.log"
+    touch "${prefix}.trim.txt"
+    touch "${prefix}.adapter.stats.txt"
+    touch "${prefix}.repaired_1.fastq.gz"
+    touch "${prefix}.repaired_2.fastq.gz"
+    touch "${prefix}.singletons.fastq.gz"
+    touch "${prefix}.repair.log"
+
+    $output_command
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bbmap: \$(bbversion.sh | grep -v "]")
     END_VERSIONS
     """
 }
