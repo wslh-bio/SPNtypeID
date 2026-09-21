@@ -104,10 +104,13 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs, merged_d
                         if int(row[1]) > max_ntc_spn_reads:
                             max_ntc_spn_reads = int(row[1])
 
+            ntc_total_reads.append(f"{id}: {total_reads}")
+            ntc_SPN_reads.append(f"{id}: {spn_reads}")
+
         logging.debug("Checks if any NTCs are empty and adds them to the totals.")
-        string = ''.join(empty_ntcs)
-        filtered = string.strip("[]")
-        empty_NTC_list = filtered.split(",")
+        empty_ntcs_string = ''.join(empty_ntcs)
+        empty_ntcs_stripped = empty_ntcs_string.strip("[]")
+        empty_NTC_list = empty_ntcs_stripped.split(",")
 
         for sample in empty_NTC_list:
             if sample != "Empty":
@@ -118,16 +121,11 @@ def kraken_ntc_processing_and_empty_check(kraken_ntc_files, empty_ntcs, merged_d
                     ntc_SPN_reads.append(f"{sample}: 0")
                     spn_reads += 0
 
-        logging.debug("Assigning max reads for ntcs")
-        merged_df = merged_df.assign(max_ntc_reads=max_ntc_reads)
-        merged_df = merged_df.assign(max_ntc_spn_reads=max_ntc_spn_reads)
-
-        ntc_total_reads.append(f"{id}: {total_reads}")
-        ntc_SPN_reads.append(f"{id}: {spn_reads}")
-
         logging.debug("Add NTC totals to data frame")
         merged_df = merged_df.assign(ntc_all_reads=", ".join(ntc_total_reads))
         merged_df = merged_df.assign(ntc_all_spn_reads=", ".join(ntc_SPN_reads))
+        merged_df = merged_df.assign(max_ntc_reads=max_ntc_reads)
+        merged_df = merged_df.assign(max_ntc_spn_reads=max_ntc_spn_reads)
 
     else:
         logging.debug("If kraken NTC is empty")
