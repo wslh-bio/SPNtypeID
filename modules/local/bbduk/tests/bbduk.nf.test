@@ -87,15 +87,15 @@ nextflow_process {
 
             if (process.out.reads[0][1][0].toString().contains("/dev-wslh") || process.out.reads[0][1][0].toString().contains("/prod-wslh")) {
 
-                def read1_download = "s3:/" + process.out.reads[0][1][0].toString()
-                def read2_download = "s3:/" + process.out.reads[0][1][1].toString()
-                def log_download   = "s3:/" + process.out.log[0][1].toString()
+                def read1_download    = "s3:/" + process.out.reads[0][1][0].toString()
+                def read2_download    = "s3:/" + process.out.reads[0][1][1].toString()
+                def log_download      = "s3:/" + process.out.log[0][1].toString()
                 def adapters_download = "s3:/" + process.out.bbduk_adapters[0].toString()
                 def versions_download = "s3:/" + process.out.versions[0].toString()
 
-                def read1_local = downloadFromS3(read1_download)
-                def read2_local = downloadFromS3(read2_download)
-                def log_local   = downloadFromS3(log_download)
+                def read1_local    = downloadFromS3(read1_download)
+                def read2_local    = downloadFromS3(read2_download)
+                def log_local      = downloadFromS3(log_download)
                 def adapters_local = downloadFromS3(adapters_download)
                 def versions_local = downloadFromS3(versions_download)
 
