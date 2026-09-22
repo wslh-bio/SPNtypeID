@@ -37,7 +37,7 @@ process COUNT_FASTQ {
 
     touch ${prefix}_output.csv
     echo "id,count1,count2
-        SAMPLE2_PE,21481,21481" >> ${prefix}_output.csv
+    SAMPLE2_PE,21481,21481" >> ${prefix}_output.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
