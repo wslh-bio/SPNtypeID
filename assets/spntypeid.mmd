@@ -5,8 +5,8 @@
 %%metro file: genome_stats | CSV
 %%metro file: final_report | CSV
 %%metro file: multiqc_report | HTML
-%%metro line: main | Main | #009E73
-%%metro line: ntc | NTC | #0072B2
+%%metro line: main | Main | #00904d
+%%metro line: ntc | NTC | #7058ce
 
 graph LR
     subgraph preprocessing [Pre-processing]
@@ -75,19 +75,17 @@ graph LR
         multiqc -->|main| multiqc_report
     end
 
-reject -->|main| kraken
 count -->|ntc| kraken
+reject -->|main| kraken
 reject -->|main| trim
 reject -->|main| bioawk
+reject -->|main| serotype
 trim -->|main| assembly
 bioawk_sum -->|main| create
-reject -->|main| serotype
+fastqc_sum -->|main| multiqc
 serotype_sum -->|main| create
 kraken_sum -->|main,ntc| create
 quast_sum -->|main| multiqc
 zscore_sum -->|main| create
 cov_sum -->|main| create
-trim -->|main| create
 kraken -->|main| multiqc
-fastqc_sum -->|main| multiqc
-cov_sum -->|main| multiqc

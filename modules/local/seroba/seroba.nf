@@ -56,4 +56,16 @@ process SEROBA {
         seroba: \$(echo \$(seroba version 2>&1))
     END_VERSIONS
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch "${prefix}.pred.csv"
+    touch "${prefix}_detailed_serogroup_info.txt"
+    touch "seroba.log"
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        seroba: \$(echo \$(seroba version 2>&1))
+    END_VERSIONS    """
 }

@@ -19,4 +19,9 @@ process PERCENT_STREP_SUMMARY {
     """
     percent_strep_summary.py ${minpctstrep} ${minpctspn} ${maxpctother}
     """
+
+    stub:
+    """
+    touch "percent_strep_results.tsv"
+    """
 }

@@ -16,4 +16,8 @@ process SEROBA_SUMMARY {
     """
     seroba_summary.py
     """
+    stub:
+    """
+    touch "seroba_results.tsv"
+    """
 }

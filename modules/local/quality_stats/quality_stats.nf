@@ -18,4 +18,9 @@ process QUALITY_STATS {
     """
     quality_stats.py ${minavgreadq}
     """
+
+    stub:
+    """
+    touch "quality_stats.tsv"
+    """
 }
