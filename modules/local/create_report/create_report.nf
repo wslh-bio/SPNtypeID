@@ -15,11 +15,12 @@ process CREATE_REPORT {
     task.ext.when == null || task.ext.when
 
     script:
+    def cleaned_runname=runname.toString().replaceAll(' ', '_')
     """
     create_report.py \
         --result_files ${results_compiled} \
         --workflowVersion ${workflow.manifest.version} \
-        --workflowRunName ${runname} \
+        --workflowRunName ${cleaned_runname} \
         --empty_ntc_list ${empty_ntc}
     """
 }
