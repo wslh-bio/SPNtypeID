@@ -67,5 +67,6 @@ process SEROBA {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         seroba: \$(echo \$(seroba version 2>&1))
-    END_VERSIONS    """
+    END_VERSIONS
+    """
 }

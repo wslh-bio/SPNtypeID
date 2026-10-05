@@ -33,6 +33,6 @@ process FASTQC_SUMMARY {
 
     stub:
     """
-    touch fastqc_summary.tsv
+    touch "fastqc_summary.tsv"
     """
 }

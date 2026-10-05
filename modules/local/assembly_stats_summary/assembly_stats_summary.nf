@@ -19,6 +19,6 @@ process ASSEMBLY_STATS_SUMMARY {
 
     stub:
     """
-    touch assembly_stats_results_summary.tsv
+    touch "assembly_stats_results_summary.tsv"
     """
 }

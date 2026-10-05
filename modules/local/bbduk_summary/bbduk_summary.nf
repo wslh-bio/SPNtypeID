@@ -20,6 +20,6 @@ process BBDUK_SUMMARY {
 
     stub:
     """
-    touch bbduk_results.tsv
+    touch "bbduk_results.tsv"
     """
 }
