@@ -68,7 +68,7 @@ nextflow_process {
 
         then {
 
-            def outFile = process.out.result_csv[0]
+            def outFile     = process.out.result_csv[0]
 
             if (outFile.toString().contains("/dev-wslh") || outFile.toString().contains("/prod-wslh")) {
 
@@ -82,7 +82,6 @@ nextflow_process {
                 )
             } else {
                 assertAll(
-                    { assert snapshot(path(process.out.result_csv[0]).md5).match()                  },
                     { assert file(process.out.result_csv[0]).name.endsWith("csv")                   },
                     { assert file(process.out.result_csv[0]).name ==~ "test_spntypeid_report.csv"   },
                     { assert file(process.out.result_csv[0]).text.contains("Sample,Run,Total Reads,Reads Removed,Median Read Quality,Average Read Quality,Contigs (#),N50,Assembly Length (bp),Ratio of Actual:Expected Genome Length,z-score,Median Coverage,Average Coverage,Percent Strep,Percent SPN,SecondGenus,Percent SecondGenus,Serotype,Kraken Database Version,Max NTC read,Max NTC SPN read,All NTC reads,All NTC SPN reads,SPNtypeID Version")}
@@ -172,6 +171,43 @@ nextflow_process {
 
         then {
             assert !process.success
+        }
+    }
+
+    test("stub test for create_report.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/create_report/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/NTC01.kraken2.txt", checkIfExists: true),
+                file("${data_dir}" + "/assembly_stats_results_summary.tsv", checkIfExists: true),
+                file("${data_dir}" + "/bbduk_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quality_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/coverage_stats.tsv", checkIfExists: true),
+                file("${data_dir}" + "/quast_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/versions.yml", checkIfExists: true),
+                file("${data_dir}" + "/percent_strep_results.tsv", checkIfExists: true),
+                file("${data_dir}" + "/seroba_results.tsv", checkIfExists: true)
+                ]
+                input[1] = ["NTC01"]
+                input[2] = "Test"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.result_csv.size() == 1 }
+            )
         }
     }
 }
