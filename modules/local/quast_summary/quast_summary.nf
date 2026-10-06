@@ -17,4 +17,9 @@ process QUAST_SUMMARY {
     """
     quast_summary.py ${maxcontigs}
     """
+
+    stub:
+    """
+    touch "quast_results.tsv"
+    """
 }

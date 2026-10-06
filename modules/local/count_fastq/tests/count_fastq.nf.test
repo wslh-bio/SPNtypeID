@@ -1,0 +1,103 @@
+nextflow_process {
+
+    name "Test Process COUNT_FASTQ"
+    script "../count_fastq.nf"
+    process "COUNT_FASTQ"
+    tag "module"
+
+    test("Checking that mandatory output channels have appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.csv.size() == 1        },
+                { assert process.out.versions.size() == 1   }
+            )
+        }
+    }
+
+    test('Checking mandatory file contents to ensure proper processing.') {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+        then {
+
+            if (process.out.csv[0][1].toString().contains("/dev-wslh") || process.out.csv[0][1].toString().contains("/prod-wslh")) {
+
+                def csv_download = "s3:/" + process.out.csv[0][1].toString()
+                def versions_download = "s3:/" + process.out.versions[0].toString()
+
+                def csv_local = downloadFromS3(csv_download)
+                def versions_local = downloadFromS3(versions_download)
+
+                assertAll(
+
+                    // ouput csv file
+                    { assert csv_local.getText().contains("id,count1,count2")           },
+                    { assert csv_local.toString().endsWith(".csv")                      },
+                    { assert csv_local.toString().split('/')[-1] ==~ "test_output.csv"  },
+
+                    // // output versions file
+                    { assert snapshot(versions_local.md5).match()                   }
+
+                )
+            } else {
+                assertAll(
+
+                    { assert file(process.out.csv[0][1]).name.contains("test")                                              },
+                    { assert file(process.out.csv[0][1]).name.endsWith(".csv")                                              },
+                    { assert file(process.out.csv[0][1]).name ==~ "test_output.csv"                                         },
+                    { assert path(process.out.csv[0][1]).getText().contains("id,count1,count2\r\ntest,105847,105847\r\n")   },
+                    { assert snapshot(path(process.out.versions[0]).md5).match()                                            }
+
+                )
+            }
+        }
+    }
+
+    test("Checking that no input channel produces failure") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+        }
+    }
+}

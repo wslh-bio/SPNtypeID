@@ -1,0 +1,12 @@
+{
+    "Checking mandatory file contents to ensure proper processing.": {
+        "content": [
+            "3df9bd7128558cf7f219ff106eca0bca"
+        ],
+        "timestamp": "2026-09-21T09:43:25.02354073",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.5"
+        }
+    }
+}

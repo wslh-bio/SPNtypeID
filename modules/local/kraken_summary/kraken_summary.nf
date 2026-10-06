@@ -16,4 +16,8 @@ process KRAKEN_SUMMARY {
     """
     kraken_summary.py
     """
+    stub:
+    """
+    touch "kraken_results.tsv"
+    """
 }

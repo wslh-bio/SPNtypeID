@@ -8,18 +8,22 @@ process CALCULATE_ASSEMBLY_STATS {
     tuple val(meta), path(quast_report_tsv)
     path NCBI_assembly_stats_file
 
-
     output:
     path "*_Assembly_ratio_*"   , emit: assembly_ratio
 
     when:
     task.ext.when == null || task.ext.when
 
-    script: // This script is bundled with the pipeline, in wslh-bio/dryad/bin/
+    script: // This script is bundled with the pipeline, in wslh-bio/spntypeid/bin/
     """
     calculate_assembly_ratio.py \
         -q ${quast_report_tsv} \
         -d ${NCBI_assembly_stats_file}
+    """
 
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch "${prefix}_Assembly_ratio_20240124.tsv"
     """
 }

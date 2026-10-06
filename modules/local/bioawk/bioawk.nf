@@ -27,4 +27,15 @@ process BIOAWK {
         bioawk: \$(echo \$(bioawk --version 2>&1))
     END_VERSIONS
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
+    """
+    touch "${prefix}.qual.tsv"
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bioawk: \$(echo \$(bioawk --version 2>&1))
+    END_VERSIONS
+    """
 }

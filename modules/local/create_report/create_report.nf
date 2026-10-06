@@ -23,4 +23,9 @@ process CREATE_REPORT {
         --workflowRunName ${cleaned_runname} \
         --empty_ntc_list ${empty_ntc}
     """
+
+    stub:
+    """
+    touch "stub_run_spntypeid_report.csv"
+    """
 }

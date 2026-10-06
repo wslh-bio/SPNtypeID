@@ -38,9 +38,9 @@ process MULTIQC {
 
     stub:
     """
-    touch multiqc_data
-    touch multiqc_plots
-    touch multiqc_report.html
+    touch "multiqc_data"
+    touch "multiqc_plots"
+    touch "multiqc_report.html"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

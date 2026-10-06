@@ -20,4 +20,9 @@ process REJECTED_SAMPLES {
     #!/bin/bash
     cp ${csv_file} ${workflow_name}_empty_samples.csv
     """
+
+    stub:
+    """
+    touch "${workflow_name}_empty_samples.csv"
+    """
 }
