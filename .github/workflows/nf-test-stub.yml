@@ -7,11 +7,11 @@ on:
 jobs:
   stub-test:
     name: Pipeline stub test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -23,4 +23,7 @@ jobs:
         uses: nf-core/setup-nf-test@v2.1.0
 
       - name: Run stub test
+        env:
+          # nextflow.config uses v1-only syntax (def functions)
+          NXF_SYNTAX_PARSER: v1
         run: nf-test test tests/stub.nf.test --verbose
