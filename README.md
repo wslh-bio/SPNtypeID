@@ -4,6 +4,7 @@ SPNtypeID is a [Nextflow](https://www.nextflow.io/) pipeline used for genome ass
 
 ![GPL-3.0](https://img.shields.io/github/license/wslh-bio/SPNtypeID)
 ![Static Badge](https://img.shields.io/badge/release-v1.9.0-%2300FFFF)
+[![Test Status](https://github.com/wslh-bio/SPNtypeID/workflows/Stub Test/badge.svg)](https://github.com/wslh-bio/SPNtypeID/actions)   
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17469124.svg)](https://doi.org/10.5281/zenodo.17469124)
 
 ### Table of Contents:
