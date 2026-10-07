@@ -92,4 +92,34 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for seroba_summary.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/seroba_summary/tests/"
+                """
+                input[0] = [
+                file("${data_dir}" + "data1/SPN_Sample_01.pred.csv"),
+                file("${data_dir}" + "data2/SPN_Sample_02.pred.csv"),
+                file("${data_dir}" + "data3/SPN_Sample_03.pred.csv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.seroba_tsv.size() == 1 }
+            )
+        }
+    }
+
 }

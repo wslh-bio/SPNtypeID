@@ -85,4 +85,31 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for rejected_samples.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/rejected_samples/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/empty_samples.csv")
+                input[1] = "SPNTypeID"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                                    },
+                { assert process.exitStatus == 0                            },
+                { assert process.out.rejected_samples_report.size() == 1    }
+            )
+        }
+    }
+
 }

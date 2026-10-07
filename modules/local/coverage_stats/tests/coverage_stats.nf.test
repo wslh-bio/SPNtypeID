@@ -122,4 +122,33 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for coverage_stats.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${projectDir}/modules/local/coverage_stats/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "/data1/SPN_Sample_01.depth.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.depth.tsv")
+                ]
+                input[1] = "40"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.coverage_tsv.size() == 1   }
+            )
+        }
+    }
 }
