@@ -81,4 +81,28 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for bbduk_summary.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/bbduk_summary/tests/data*/*")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.bbduk_tsv.size() == 1  }
+            )
+        }
+    }
 }

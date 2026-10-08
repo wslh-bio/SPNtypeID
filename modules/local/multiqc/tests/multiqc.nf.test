@@ -115,4 +115,37 @@ nextflow_process {
             }
         }
     }
+
+    test("Stub test for multiqc.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/multiqc/tests/test_1_fastqc.zip")
+                input[1] = file("${baseDir}" + "/modules/local/multiqc/tests/multiqc_config.yml")
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            // Setting up data dirs
+            def output_dir_data = "$params.outdir/multiqc/multiqc_data/"
+
+            assertAll(
+                { assert process.success                  },
+                { assert process.exitStatus          == 0 },
+                { assert process.out.report.size()   == 1 },
+                { assert process.out.data.size()     == 1 },
+                { assert process.out.versions.size() == 1 }
+
+            )
+        }
+    }
 }

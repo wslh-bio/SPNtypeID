@@ -104,4 +104,32 @@ nextflow_process {
             { assert !process.success }
         }
     }
+
+    test("stub test for calculate_assembly_stats.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'SPN_Sample_01', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/calculate_assembly_stats/tests/SPN_Sample_01.transposed.quast.report.tsv')]
+                ]
+                input[1] = file("${baseDir}" + "/assets/databases/NCBI_Assembly_stats_20240124.txt")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.assembly_ratio.size() == 1 }
+            )
+        }
+    }
 }
