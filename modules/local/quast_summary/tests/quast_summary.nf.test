@@ -119,4 +119,35 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("Stub test for quast_summary.nf") {
+
+        options "-stub"
+
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/quast_summary/tests"
+                """
+                input[0] = [
+                file("${data_dir}" + "/data1/SPN_Sample_01.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data2/SPN_Sample_02.transposed.quast.report.tsv"),
+                file("${data_dir}" + "/data3/SPN_Sample_03.transposed.quast.report.tsv")
+                ]
+                input[1] = "300"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.quast_tsv.size() == 1  }
+            )
+        }
+    }
 }

@@ -5,6 +5,28 @@ nextflow_process {
     process "ASSEMBLY_STATS_SUMMARY"
     tag "module"
 
+    test("Checking that output channel has appropriate amount of values") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success                            },
+                { assert process.exitStatus == 0                    },
+                { assert process.out.assembly_stats_tsv.size() == 1 }
+            )
+        }
+    }
+
     test("Checking that output channel has appropriate contents and contains proper samples.") {
 
         when {
@@ -52,28 +74,6 @@ nextflow_process {
         }
     }
 
-    test("Checking that output channel has appropriate amount of values") {
-
-        when {
-            params {
-                outdir = "$outputDir"
-            }
-            process {
-                """
-                input[0] = file("${baseDir}" + "/modules/local/assembly_stats_summary/tests/data/*")
-                """
-            }
-        }
-
-        then {
-            assertAll (
-                { assert process.success                            },
-                { assert process.exitStatus == 0                    },
-                { assert process.out.assembly_stats_tsv.size() == 1 }
-            )
-        }
-    }
-
     test("Checking that no input channel produces failure") {
 
         when {
@@ -88,7 +88,38 @@ nextflow_process {
         }
 
         then {
-            { assert !process.success }
+            assertAll(
+                { assert !process.success }
+            )
+        }
+    }
+
+    test("stub test for assembly_stats_summary.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/assembly_stats_summary/tests/data/"
+                """
+                input[0] = [
+                file("${data_dir}" + "SPN_Sample_01_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_02_Assembly_ratio_20240124.tsv"),
+                file("${data_dir}" + "SPN_Sample_03_Assembly_ratio_20240124.tsv")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                            },
+                { assert process.exitStatus == 0                    },
+                { assert process.out.assembly_stats_tsv.size() == 1 }
+            )
         }
     }
 }

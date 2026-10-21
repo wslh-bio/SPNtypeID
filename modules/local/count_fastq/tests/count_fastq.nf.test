@@ -100,4 +100,33 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for count_fastq.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.csv.size() == 1        },
+                { assert process.out.versions.size() == 1   }
+            )
+        }
+    }
 }

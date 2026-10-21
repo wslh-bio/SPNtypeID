@@ -90,4 +90,34 @@ nextflow_process {
             assert !process.success
         }
     }
+
+
+    test("stub test for kraken2_summary.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/kraken_summary/tests/data"
+                """
+                input[0] = [
+                file("${data_dir}" + "/SPN_Sample_01.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_02.kraken2.txt"),
+                file("${data_dir}" + "/SPN_Sample_03.kraken2.txt")
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.kraken_tsv.size() == 1 }
+            )
+        }
+    }
 }

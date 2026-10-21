@@ -185,4 +185,37 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for bbduk.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = file("${baseDir}" + "/modules/local/bbduk/tests/data/adapters.fa")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.reads.size() == 1          },
+                { assert process.out.log.size() == 1            },
+                { assert process.out.bbduk_trim.size() == 1     },
+                { assert process.out.bbduk_adapters.size() == 1 },
+                { assert process.out.versions.size() == 1       }
+            )
+        }
+    }
 }

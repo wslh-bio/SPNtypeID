@@ -133,4 +133,34 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("stub test for kraken2.nf") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'test', single_end:false ],
+                [ file("${baseDir}" + '/test-dataset/SPN_Sample_01_R1.fastq.gz'),
+                file("${baseDir}" + '/test-dataset/SPN_Sample_01_R2.fastq.gz') ]
+                ]
+                input[1] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.kraken_results.size() == 1 },
+                { assert process.out.versions.size() == 1       },
+            )
+        }
+    }
 }

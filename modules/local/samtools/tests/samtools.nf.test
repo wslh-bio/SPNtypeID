@@ -117,4 +117,35 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                [id:'SAMPLE1_PE', single_end:false ],
+                [ file("${baseDir}" + '/modules/local/samtools/tests/data/SAMPLE1_PE.sam') ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll (
+                { assert process.success                        },
+                { assert process.exitStatus == 0                },
+                { assert process.out.cov_files.size() == 1      },
+                { assert process.out.stats_multiqc.size() == 1  },
+                { assert process.out.sorted_bam.size() == 1     },
+                { assert process.out.versions.size() == 1       }
+            )
+        }
+    }
+
 }

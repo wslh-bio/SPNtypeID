@@ -94,4 +94,31 @@ nextflow_process {
             assert !process.success
         }
     }
+
+    test("Checking that output channels have appropriate amount of values") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                def data_dir = "${baseDir}/modules/local/samplesheet_check/tests/data"
+                """
+                input[0] = file("${data_dir}" + "/workflow_test.csv")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success                    },
+                { assert process.exitStatus == 0            },
+                { assert process.out.csv.size() == 1        },
+                { assert process.out.versions.size() == 1   }
+            )
+        }
+    }
+
 }
