@@ -1,0 +1,27 @@
+nextflow_pipeline {
+
+    name "Stub test of main.nf"
+    script "../main.nf"
+    tag "pipeline"
+    tag "stub"
+
+    test("-stub-run") {
+
+        options "-stub-run"
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = "$baseDir" + "/samplesheets/workflow_test.csv"
+                runname = "test"
+                ntc_regex = "NTC"
+                max_memory = "6.GB"
+                max_cpus = 2
+            }
+        }
+
+        then {
+            assert workflow.success
+        }
+    }
+}
